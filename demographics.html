@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Demographic Information | Fast Fingers Study</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #0a0e27;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #1a1f3a;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #667eea;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    input, select {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #667eea;
+      background-color: #2a2d4a;
+      color: white;
+      font-size: 1em;
+      margin-top: 5px;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      margin-top: 20px;
+      align-self: center;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+  </style>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+    <script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCIijYBeCcyl8Mt414nueAgIId8PfWaW5M",
+        authDomain: "pdstudy-99397.firebaseapp.com",
+        projectId: "pdstudy-99397",
+        storageBucket: "pdstudy-99397.firebasestorage.app",
+        messagingSenderId: "235927780090",
+        appId: "1:235927780090:web:348a8c85c130371686a743",
+        measurementId: "G-Y116J49LYT"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    </script>
+
+</head>
+<body>
+  <div class="container">
+    <h2>Participant Information</h2>
+    <form id="infoForm">
+      <label>
+        Prolific ID:
+        <input type="text" id="prolificID" required />
+      </label>
+
+      <label>
+        Gender:
+        <select id="gender">
+          <option value=""></option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+
+      <label>
+        Handedness:
+        <select id="handedness">
+          <option value=""></option>
+          <option value="right">Right</option>
+          <option value="left">Left</option>
+          <option value="ambidextrous">Ambidextrous</option>
+        </select>
+      </label>
+
+      <label>
+        Age:
+        <input type="number" min="18" max="90" id="age" required />
+      </label>
+
+      <label>
+        Education (Years):
+        <input type="number" min="0" max="40" id="education" />
+      </label>
+
+      <label>
+        Sleep (Hours Last Night):
+        <select id="sleep">
+          <option value=""></option>
+          <option value="less_than_4">Less than 4</option>
+          <option value="4_6">4–6</option>
+          <option value="6_8">6–8</option>
+          <option value="8_plus">8+</option>
+        </select>
+      </label>
+
+      <label>
+        Ethnicity:
+        <select id="ethnicity">
+          <option value=""></option>
+          <option value="hispanic">Hispanic or Latino</option>
+          <option value="non_hispanic">Not Hispanic or Latino</option>
+        </select>
+      </label>
+
+      <label>
+        Race:
+        <select id="race">
+          <option value=""></option>
+          <option value="white">White</option>
+          <option value="black">Black or African American</option>
+          <option value="asian">Asian</option>
+          <option value="native">American Indian or Alaska Native</option>
+          <option value="pacific">Pacific Islander</option>
+          <option value="multiple">Multiple</option>
+        </select>
+      </label>
+
+      <button type="button" onclick="startExperiment()">Begin Experiment</button>
+    </form>
+  </div>
+
+  <script>
+    function startExperiment() {
+      const pid = document.getElementById('prolificID').value.trim();
+      const age = parseInt(document.getElementById('age').value);
+      const sex = document.getElementById('gender').value;
+      const handedness = document.getElementById('handedness').value;
+      const education = parseInt(document.getElementById('education').value);
+      const sleep = document.getElementById('sleep').value;
+      const ethnicity = document.getElementById('ethnicity').value;
+      const race = document.getElementById('race').value;
+    
+      if (!pid || !age) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+    
+      // Save to Firestore: Subjects collection
+      const subjectData = {
+        id: pid,
+        age: age,
+        sex: sex,
+        handedness: handedness,
+        ethnicity: ethnicity,
+        race: race,
+        returner: null,
+        distractions: [],
+        distraction: null,
+        comments: null,
+        currTrial: 0,
+        dpin: null,
+        tgt_file: null,
+        target_visibility: "present"
+      };
+    
+      db.collection("Subjects").doc(pid).set(subjectData)
+        .then(() => {
+          // Store in sessionStorage for index.html
+          sessionStorage.setItem('prolificID', pid);
+          sessionStorage.setItem('age', age);
+          sessionStorage.setItem('gender', sex);
+          sessionStorage.setItem('handedness', handedness);
+          sessionStorage.setItem('education', education);
+          sessionStorage.setItem('sleep', sleep);
+          sessionStorage.setItem('ethnicity', ethnicity);
+          sessionStorage.setItem('race', race);
+    
+          // Go to main experiment
+          window.location.href = 'index.html';
+        })
+        .catch((error) => {
+          console.error("Error saving to Firebase:", error);
+          alert("Could not save your info. Please try again.");
+        });
+    }
+    </script>
+    
+</body>
+</html>

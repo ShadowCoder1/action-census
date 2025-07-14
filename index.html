@@ -49,6 +49,21 @@
             opacity: 0.9;
         }
 
+        .main-timer {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            border-radius: 10px;
+            z-index: 99;
+            display: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
         .main-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -81,6 +96,14 @@
             height: 100%;
             border-radius: 10px;
         }
+        video#inputVideo {
+            transform: scaleX(-1);
+        }
+
+        canvas#outputCanvas {
+            transform: scaleX(-1);
+        }
+
 
         .controls {
             margin-top: 20px;
@@ -310,6 +333,40 @@
             font-size: 0.9em;
         }
 
+        .final-results {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .metric-explanation {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .metric-explanation h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .metric-explanation p {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .percentile-indicator {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
         @media (max-width: 1024px) {
             .main-grid {
                 grid-template-columns: 1fr;
@@ -320,12 +377,35 @@
             }
         }
     </style>
+
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+    <script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCIijYBeCcyl8Mt414nueAgIId8PfWaW5M",
+        authDomain: "pdstudy-99397.firebaseapp.com",
+        projectId: "pdstudy-99397",
+        storageBucket: "pdstudy-99397.firebasestorage.app",
+        messagingSenderId: "235927780090",
+        appId: "1:235927780090:web:348a8c85c130371686a743",
+        measurementId: "G-Y116J49LYT"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    </script>
+
 </head>
 <body>
+    <div id="mainTimer" class="main-timer"></div>
     <div class="container">
+        
         <div class="header">
-            <h1>Parkinson's Disease Finger Tapping Webcam Analysis </h1>
-            <p>Demo V1</p>
+            <h1>Fast Fingers</h1>
+            <p>Measuring Motor Function</p>
         </div>
 
         <div class="instructions">
@@ -333,8 +413,8 @@
             <ol>
                 <li>Position your hand clearly in view of the camera with palm facing down</li>
                 <li>When ready, click "Start Recording"</li>
-                <li>Tap your index finger to your thumb as quickly and as widely as possible</li>
-                <li>Continue for 10 seconds (system will automatically stop)</li>
+                <li>Follow the pace instructions for each trial</li>
+                <li>Continue for 30 seconds (system will automatically stop)</li>
                 <li>Keep your hand as steady as possible during the test</li>
             </ol>
         </div>
@@ -342,6 +422,14 @@
         <div class="main-grid">
             <div class="video-container">
                 <div class="status-indicator status-ready" id="status">Ready</div>
+                <div id="conditionInfo" style="margin-top: 15px; font-weight: bold; font-size: 1.1em; color: #f6e05e;">
+                    Trial Info: —
+                  </div>
+                  <div id="conditionDescription" style="margin-bottom: 10px; font-size: 1em; color: #90cdf4;">
+                    <!-- Pace instruction -->
+                  </div>
+                  
+              
                 <div class="video-wrapper">
                     <video id="inputVideo" autoplay playsinline></video>
                     <canvas id="outputCanvas"></canvas>
@@ -370,33 +458,28 @@
                 </div>
 
                 <div class="metric-card">
-                    <div class="metric-label">Average Frequency</div>
+                    <div class="metric-label">Current Frequency</div>
                     <div class="metric-value" id="avgFrequency">0.00<span class="metric-unit">Hz</span></div>
-                    <div class="parameter-info">Normal: 2-3 Hz</div>
                 </div>
 
                 <div class="metric-card">
                     <div class="metric-label">Average Amplitude</div>
-                    <div class="metric-value" id="avgAmplitude">0.00<span class="metric-unit">mm</span></div>
-                    <div class="parameter-info">Normalized hand-relative distance</div>
+                    <div class="metric-value" id="avgAmplitude">0.00<span class="metric-unit">%</span></div>
                 </div>
 
                 <div class="metric-card">
-                    <div class="metric-label">Amplitude Decrement</div>
+                    <div class="metric-label">Amplitude Change</div>
                     <div class="metric-value" id="ampDecrement">0.00<span class="metric-unit">%</span></div>
-                    <div class="parameter-info">Progressive reduction in amplitude</div>
                 </div>
 
                 <div class="metric-card">
-                    <div class="metric-label">Rhythm Variability (CV)</div>
+                    <div class="metric-label">Rhythm Consistency</div>
                     <div class="metric-value" id="rhythmCV">0.00<span class="metric-unit">%</span></div>
-                    <div class="parameter-info">Inter-tap interval coefficient of variation</div>
                 </div>
 
                 <div class="metric-card">
-                    <div class="metric-label">Hesitations/Freezing</div>
+                    <div class="metric-label">Pauses Detected</div>
                     <div class="metric-value" id="hesitations">0</div>
-                    <div class="parameter-info">Interruptions > 500ms</div>
                 </div>
             </div>
         </div>
@@ -413,14 +496,14 @@
             </div>
 
             <div id="resultsDiv" class="results-summary" style="display: none;">
-                <h3>Clinical Assessment Summary</h3>
+                <h3>Trial Complete</h3>
                 <div id="assessmentResults"></div>
-                <div class="export-section">
-                    <button onclick="exportResults()">Export Results (JSON)</button>
-                    <button onclick="exportCSV()">Export Data (CSV)</button>
-                </div>
             </div>
         </div>
+    </div>
+
+    <div id="finalResults" class="final-results" style="display: none;">
+        <!-- Final comprehensive results will be inserted here -->
     </div>
 
     <script>
@@ -428,9 +511,10 @@
         let camera, hands, canvasCtx, recording = false;
         let startTime, handDetected = false;
         let distanceChart, velocityChart;
-        let recordingDuration = 10000; // 10 seconds
+        let recordingDuration = 30000; // 30 seconds
         let countdownInterval;
         let frameCount = 0;
+        let mainTimerInterval;
 
         // Signal processing variables
         let distanceSignal = [];
@@ -438,18 +522,36 @@
         let smoothedSignal = [];
         let velocitySignal = [];
         let peakIndices = [];
+        let landmarkSeries = []; // stores full landmark history per frame
+        let frameData = [];
+
+
         let tapEvents = [];
         let lastPeakTime = 0;
         
         // Parameters for signal processing
         const SAMPLE_RATE = 30; // Assumed 30 FPS
+        
+
+        // Trial management variables
+        const trialConditions = [
+            { hand: 'right', pace: 'comfortable' },
+            { hand: 'right', pace: 'fast' },
+            { hand: 'left',  pace: 'comfortable' },
+            { hand: 'left',  pace: 'fast' },
+        ];
+        let trialIndex = 0;
+        let repeatPerCondition = 2; // 2 repeats per condition = 8 trials total
+        let currentRepetition = 0;
+        let totalTrials = trialConditions.length * repeatPerCondition;
+        let allTrialResults = []
+
+
         const SMOOTHING_WINDOW = 3; // Moving average window
         const MIN_PEAK_PROMINENCE = 0.3; // Minimum prominence for peak detection
         const MIN_PEAK_DISTANCE = 100; // Minimum ms between peaks
-        // ▼ ADD THESE TWO LINES
-        const CLOSED_THRESHOLD_PCT      = 30;  // below this = fingers counted “closed”
+        const CLOSED_THRESHOLD_PCT      = 30;  // below this = fingers counted "closed"
         const OPEN_THRESHOLD_PCT        = 35;  // must reopen past this before next tap
-        // ▲ ADDED
         const VELOCITY_THRESHOLD_PERCENTILE = 70; // Percentile for adaptive threshold
 
         // Hand landmarks indices
@@ -457,6 +559,47 @@
         const THUMB_TIP = 4;
         const INDEX_TIP = 8;
         const MIDDLE_MCP = 9;
+
+        // Population norms (from literature approximations)
+        const POPULATION_NORMS = {
+            frequency: {
+                healthy: { mean: 2.5, std: 0.5, ranges: [
+                    { min: 3.0, max: 10, percentile: 95 },
+                    { min: 2.5, max: 3.0, percentile: 75 },
+                    { min: 2.0, max: 2.5, percentile: 50 },
+                    { min: 1.5, max: 2.0, percentile: 25 },
+                    { min: 0, max: 1.5, percentile: 5 }
+                ]},
+                pd: { mean: 1.8, std: 0.6 }
+            },
+            amplitude: {
+                healthy: { mean: 45, std: 10, ranges: [
+                    { min: 55, max: 100, percentile: 95 },
+                    { min: 45, max: 55, percentile: 75 },
+                    { min: 35, max: 45, percentile: 50 },
+                    { min: 25, max: 35, percentile: 25 },
+                    { min: 0, max: 25, percentile: 5 }
+                ]}
+            },
+            rhythmCV: {
+                healthy: { mean: 15, std: 5, ranges: [
+                    { min: 0, max: 10, percentile: 95 },
+                    { min: 10, max: 15, percentile: 75 },
+                    { min: 15, max: 20, percentile: 50 },
+                    { min: 20, max: 30, percentile: 25 },
+                    { min: 30, max: 100, percentile: 5 }
+                ]}
+            },
+            amplitudeDecrement: {
+                healthy: { mean: 5, std: 5, ranges: [
+                    { min: -10, max: 0, percentile: 95 },
+                    { min: 0, max: 5, percentile: 75 },
+                    { min: 5, max: 10, percentile: 50 },
+                    { min: 10, max: 20, percentile: 25 },
+                    { min: 20, max: 100, percentile: 5 }
+                ]}
+            }
+        };
         
         // Initialize MediaPipe Hands
         function initializeHands() {
@@ -599,6 +742,13 @@
             if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
                 handDetected = true;
                 const landmarks = results.multiHandLandmarks[0];
+
+                const handedness = results.multiHandedness?.[0]?.label || "Unknown";
+                if ((trialConditions[trialIndex % trialConditions.length].hand === "Right" && handedness !== "Right") ||
+                    (trialConditions[trialIndex % trialConditions.length].hand === "Left" && handedness !== "Left")) {
+                    return; // Skip frames with wrong hand
+                }
+
                 
                 // Draw hand skeleton
                 drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {color: '#00FF00', lineWidth: 2});
@@ -740,11 +890,21 @@
                 // Update charts
                 updateCharts();
             }
+
+            frameData.push({
+                timestamp: currentTime,
+                handSize: handSize,
+                normalizedDistance: normalizedDistance,
+                thumbTip: { x: thumbTip.x, y: thumbTip.y, z: thumbTip.z },
+                indexTip: { x: indexTip.x, y: indexTip.y, z: indexTip.z },
+                wrist: { x: wrist.x, y: wrist.y, z: wrist.z },
+                middleMcp: { x: middleMcp.x, y: middleMcp.y, z: middleMcp.z },
+                rawLandmarks: landmarks.map(lm => ({ x: lm.x, y: lm.y, z: lm.z }))
+            });
+
         }
 
         // Multi-method tap detection for robustness
-// Multi-method tap detection for robustness — debounced so it never
-// registers more than one tap while the fingers stay closed.
         function detectTapsMultiMethod() {
             const rawEvents = [];            // collect all raw detections here
             const added     = new Set();     // prevent duplicate indices
@@ -1008,12 +1168,21 @@
             }
         }
 
-        // Start recording with countdown
+        // Start recording with countdown and condition tracking
         function startRecording() {
             if (!handDetected) {
                 alert('Please position your hand in view of the camera before starting.');
                 return;
             }
+
+            // Check if all trials are done
+            if (trialIndex >= totalTrials) {
+                alert('All trials complete!');
+                return;
+            }
+
+            // Update condition UI and hand selector
+            updateConditionUI();
 
             // Reset all data
             distanceSignal = [];
@@ -1022,13 +1191,19 @@
             velocitySignal = [];
             tapEvents = [];
             frameCount = 0;
+            frameData = []; // Reset before trial
 
+
+            // Start countdown
             let countdown = 3;
             const countdownEl = document.getElementById('countdown');
             countdownEl.style.display = 'block';
             countdownEl.textContent = countdown;
 
-            document.getElementById('startBtn').disabled = true;
+            const startBtn = document.getElementById('startBtn');
+            startBtn.disabled = true;
+            startBtn.style.display = 'none';
+            startBtn.textContent = 'Start'; // reset for future trials
 
             countdownInterval = setInterval(() => {
                 countdown--;
@@ -1063,7 +1238,29 @@
             document.getElementById('status').className = 'status-indicator status-recording';
             document.getElementById('algorithmStatus').textContent = 'Algorithm: Recording signal data...';
 
-            // Auto-stop after 10 seconds
+            // Show main timer
+            const mainTimerEl = document.getElementById('mainTimer');
+            mainTimerEl.style.display = 'block';
+            
+            // Update timer every 100ms for smooth display
+            mainTimerInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const remaining = Math.max(0, Math.ceil((recordingDuration - elapsed) / 1000));
+                mainTimerEl.textContent = `Time Remaining: ${remaining}s`;
+                
+                // Show final countdown in the middle
+                if (remaining <= 3 && remaining > 0) {
+                    const countdownEl = document.getElementById('countdown');
+                    countdownEl.style.display = 'block';
+                    countdownEl.textContent = remaining;
+                    countdownEl.style.animation = 'none';
+                    setTimeout(() => {
+                        countdownEl.style.animation = 'countdownPulse 1s ease-in-out';
+                    }, 10);
+                }
+            }, 100);
+
+            // Auto-stop after 30 seconds
             setTimeout(() => {
                 if (recording) {
                     stopRecording();
@@ -1071,10 +1268,14 @@
             }, recordingDuration);
         }
 
-        // Stop recording
         function stopRecording() {
             recording = false;
-            document.getElementById('startBtn').disabled = false;
+            
+            // Clear timer
+            clearInterval(mainTimerInterval);
+            document.getElementById('mainTimer').style.display = 'none';
+            document.getElementById('countdown').style.display = 'none';
+            
             document.getElementById('stopBtn').disabled = true;
             document.getElementById('status').textContent = 'Analyzing';
             document.getElementById('status').className = 'status-indicator status-analyzing';
@@ -1082,22 +1283,91 @@
 
             // Perform final analysis
             setTimeout(() => {
-                analyzeResults();
-                document.getElementById('status').textContent = 'Complete';
-                document.getElementById('status').className = 'status-indicator status-ready';
-                document.getElementById('algorithmStatus').textContent = 'Algorithm: Analysis complete';
+                // Calculate and store results
+                const result = calculateClinicalAssessment();
+
+                // Get subject name (Prolific ID) from sessionStorage
+                const subjectName = sessionStorage.getItem('prolificID') || 'anonymous';
+
+                // Prepare trial document name
+                const trialDocName = `trial_${trialIndex + 1}`;
+
+                // Save full trial data to Firestore
+                db.collection("Trial Data")
+                .doc(subjectName)
+                .collection("Trials")
+                .doc(trialDocName)
+                .set({
+                    summary: result,
+                    allCapturedData: frameData
+                })
+                .then(() => {
+                    console.log(`Trial ${trialDocName} saved for ${subjectName}`);
+                })
+                .catch((error) => {
+                    console.error("Error saving trial data:", error);
+                });
+
+                allTrialResults.push({
+                    condition: trialConditions[trialIndex % trialConditions.length],
+                    repetition: Math.floor(trialIndex / trialConditions.length) + 1,
+                    result: result
+                });
+
+                // Show brief trial complete message
+                displayTrialComplete(result);
+
+                trialIndex++;
+
+                if (trialIndex < totalTrials) {
+                    // Setup for next trial
+                    document.getElementById('status').textContent = 'Ready for Next Trial';
+                    document.getElementById('status').className = 'status-indicator status-ready';
+                    document.getElementById('algorithmStatus').textContent = 'Click "Start Next Trial" to continue.';
+
+                    // Setup "Start Next Trial" button
+                    const startBtn = document.getElementById('startBtn');
+                    startBtn.textContent = 'Start Next Trial';
+                    startBtn.disabled = false;
+                    startBtn.style.display = 'inline-block';
+                    
+                    // Update condition info for next trial
+                    updateConditionUI();
+                } else {
+                    // All trials complete - show comprehensive results
+                    analyzeAllTrials();
+                }
+
             }, 500);
         }
 
-        // Analyze results and provide clinical assessment
-        function analyzeResults() {
-            if (tapEvents.length < 2) {
-                alert('Insufficient taps detected. Please try again with larger, more distinct tapping movements.');
-                return;
-            }
-
-            const assessment = calculateClinicalAssessment();
-            displayResults(assessment);
+        // Display brief trial complete message
+        function displayTrialComplete(assessment) {
+            const resultsDiv = document.getElementById('resultsDiv');
+            const assessmentResults = document.getElementById('assessmentResults');
+            
+            resultsDiv.style.display = 'block';
+            
+            let html = `
+                <div class="result-item">
+                    <span>Taps Detected:</span>
+                    <span>${assessment.metrics.tapCount}</span>
+                </div>
+                <div class="result-item">
+                    <span>Average Frequency:</span>
+                    <span>${assessment.metrics.avgFrequency.toFixed(2)} Hz</span>
+                </div>
+                <div class="result-item">
+                    <span>Trial Duration:</span>
+                    <span>${assessment.metrics.testDuration.toFixed(1)} seconds</span>
+                </div>
+                <div class="result-item">
+                    <span>Trials Remaining:</span>
+                    <span>${totalTrials - trialIndex}</span>
+                </div>
+            `;
+            
+            assessmentResults.innerHTML = html;
         }
 
         // Calculate clinical assessment based on MDS-UPDRS criteria
@@ -1147,6 +1417,9 @@
             // Hesitations and freezing
             const hesitations = intervals.filter(i => i > 500 && i < 1000).length;
             const freezing = intervals.filter(i => i >= 1000).length;
+            
+            // Speed-amplitude index (novel composite measure)
+            const speedAmplitudeIndex = avgFrequency * (avgAmplitude / 100);
             
             // Clinical scoring based on MDS-UPDRS criteria
             let score = 0;
@@ -1217,60 +1490,396 @@
                     rhythmCV: rhythmCV,
                     hesitations: hesitations,
                     freezing: freezing,
+                    speedAmplitudeIndex: speedAmplitudeIndex,
                     testDuration: (timeSignal[timeSignal.length - 1] || 0) / 1000,
                     signalQuality: {
                         framesProcessed: frameCount,
                         samplingRate: frameCount / ((timeSignal[timeSignal.length - 1] || 1) / 1000),
-                        detectionsConfidence: tapEvents.length / (frameCount / 30) // Taps per second vs expected
+                        detectionsConfidence: tapEvents.length / (frameCount / 30)
                     }
                 }
             };
         }
 
-        // Display results
-        function displayResults(assessment) {
-            const resultsDiv = document.getElementById('resultsDiv');
-            const assessmentResults = document.getElementById('assessmentResults');
+        function updateConditionUI() {
+            const trialNum = trialIndex + 1;
+            const condition = trialConditions[trialIndex % trialConditions.length];
+            const repetition = Math.floor(trialIndex / trialConditions.length) + 1;
+            document.getElementById('conditionInfo').textContent =
+                `Trial ${trialNum} of ${totalTrials} — ${condition.hand.toUpperCase()} hand, ${condition.pace} pace (Rep ${repetition})`;
+            document.getElementById('handSelect').value = condition.hand;
+            updateConditionDescription();
+        }
+
+        function updateConditionDescription() {
+            const condition = trialConditions[trialIndex % trialConditions.length];
+            let msg = "";
+
+            if (condition.pace === 'comfortable') {
+                msg = "Using just your thumb and index finger, tap them together repeatedly at a comfortable, steady pace—like a gentle pinching motion. Keep going for 30 seconds. Try to stay relaxed and consistent throughout.";
+            } else if (condition.pace === 'fast') {
+                msg = "Using just your thumb and index finger, tap them together as quickly as you can, like you're pinching repeatedly. Keep going for 30 seconds. Try to stay relaxed and consistent, but move as fast as possible.";
+            }
+
+            document.getElementById('conditionDescription').textContent = msg;
+        }
+
+        function getPercentile(value, metric) {
+            const ranges = POPULATION_NORMS[metric]?.healthy?.ranges;
+            if (!ranges) return null;
             
-            resultsDiv.style.display = 'block';
+            for (let range of ranges) {
+                if (value >= range.min && value <= range.max) {
+                    return range.percentile;
+                }
+            }
+            return 50; // default
+        }
+
+        function analyzeAllTrials() {
+            // Hide the main interface
+            document.querySelector('.container').style.display = 'none';
+            document.getElementById('finalResults').style.display = 'block';
             
-            // Score interpretation
-            const scoreLabels = ['Normal', 'Slight', 'Mild', 'Moderate', 'Severe'];
-            const scoreClasses = ['severity-normal', 'severity-slight', 'severity-mild', 'severity-moderate', 'severity-severe'];
+            // Separate by conditions
+            let rightComfortable = allTrialResults.filter(t => t.condition.hand === 'right' && t.condition.pace === 'comfortable');
+            let rightFast = allTrialResults.filter(t => t.condition.hand === 'right' && t.condition.pace === 'fast');
+            let leftComfortable = allTrialResults.filter(t => t.condition.hand === 'left' && t.condition.pace === 'comfortable');
+            let leftFast = allTrialResults.filter(t => t.condition.hand === 'left' && t.condition.pace === 'fast');
             
+            // Calculate averages for each condition
+            const calculateAverage = (trials, metric) => {
+                const values = trials.map(t => t.result.metrics[metric]);
+                return values.reduce((a, b) => a + b, 0) / values.length;
+            };
+            
+            // Enhanced analysis with multiple factors
+            let possiblePD = false;
+            let pdScore = 0;
+            let reasoning = [];
+            
+            // 1. Frequency analysis
+            const rightFastFreq = calculateAverage(rightFast, 'avgFrequency');
+            const leftFastFreq = calculateAverage(leftFast, 'avgFrequency');
+            const avgFastFreq = (rightFastFreq + leftFastFreq) / 2;
+            
+            if (avgFastFreq < 1.5) {
+                pdScore += 3;
+                reasoning.push("Severe bradykinesia detected (frequency < 1.5 Hz)");
+            } else if (avgFastFreq < 2.0) {
+                pdScore += 2;
+                reasoning.push("Moderate bradykinesia (frequency < 2.0 Hz)");
+            } else if (avgFastFreq < 2.5) {
+                pdScore += 1;
+                reasoning.push("Mild bradykinesia (frequency < 2.5 Hz)");
+            }
+            
+            // 2. Amplitude decrement
+            const avgDecrement = (
+                calculateAverage(rightFast, 'amplitudeDecrement') +
+                calculateAverage(leftFast, 'amplitudeDecrement')
+            ) / 2;
+            
+            if (avgDecrement > 30) {
+                pdScore += 2;
+                reasoning.push("Significant amplitude decrement (>30%)");
+            } else if (avgDecrement > 15) {
+                pdScore += 1;
+                reasoning.push("Mild amplitude decrement (>15%)");
+            }
+            
+            // 3. Rhythm variability
+            const avgRhythmCV = (
+                calculateAverage(rightFast, 'rhythmCV') +
+                calculateAverage(leftFast, 'rhythmCV')
+            ) / 2;
+            
+            if (avgRhythmCV > 30) {
+                pdScore += 2;
+                reasoning.push("High rhythm variability (CV > 30%)");
+            } else if (avgRhythmCV > 20) {
+                pdScore += 1;
+                reasoning.push("Moderate rhythm variability (CV > 20%)");
+            }
+            
+            // 4. Speed-amplitude index
+            const avgSpeedAmpIndex = (
+                calculateAverage(rightFast, 'speedAmplitudeIndex') +
+                calculateAverage(leftFast, 'speedAmplitudeIndex')
+            ) / 2;
+            
+            if (avgSpeedAmpIndex < 1.0) {
+                pdScore += 2;
+                reasoning.push("Low speed-amplitude index (<1.0)");
+            }
+            
+            // 5. Asymmetry analysis
+            const asymmetry = Math.abs(rightFastFreq - leftFastFreq) / Math.max(rightFastFreq, leftFastFreq) * 100;
+            if (asymmetry > 20) {
+                pdScore += 1;
+                reasoning.push(`Significant hand asymmetry (${asymmetry.toFixed(0)}%)`);
+            }
+            
+            // Determine PD likelihood
+            if (pdScore >= 5) {
+                possiblePD = true;
+                reasoning.unshift("Multiple motor abnormalities detected consistent with parkinsonian features");
+            } else if (pdScore >= 3) {
+                possiblePD = true;
+                reasoning.unshift("Some motor abnormalities detected that may warrant further evaluation");
+            } else {
+                reasoning.unshift("Motor function within normal limits");
+            }
+            
+            // Create comprehensive report
             let html = `
-                <div class="result-item">
-                    <span>MDS-UPDRS Equivalent Score:</span>
-                    <span class="severity-indicator ${scoreClasses[assessment.score]}">${assessment.score} - ${scoreLabels[assessment.score]}</span>
+                <div class="header" style="margin-bottom: 40px;">
+                    <h1>Your Motor Function Analysis Results</h1>
+                    <p>Comprehensive assessment of your finger tapping performance</p>
                 </div>
-                <div class="result-item">
-                    <span>Clinical Observations:</span>
-                    <span>${assessment.details.length > 0 ? assessment.details.join(', ') : 'No significant abnormalities'}</span>
+                
+                <div class="results-summary" style="margin-bottom: 40px;">
+                    <h3>Overall Assessment</h3>
+                    <div class="result-item">
+                        <span>Clinical Impression:</span>
+                        <span class="severity-indicator ${possiblePD ? 'severity-moderate' : 'severity-normal'}">
+                            ${possiblePD ? 'Potential Motor Impairment Detected' : 'Normal Motor Function'}
+                        </span>
+                    </div>
+                    <div class="result-item">
+                        <span>Key Findings:</span>
+                        <span>${reasoning.join('. ')}</span>
+                    </div>
                 </div>
-                <div class="result-item">
-                    <span>Test Duration:</span>
-                    <span>${assessment.metrics.testDuration.toFixed(1)} seconds</span>
-                </div>
-                <div class="result-item">
-                    <span>Total Taps Detected:</span>
-                    <span>${assessment.metrics.tapCount}</span>
-                </div>
-                <div class="result-item">
-                    <span>Signal Quality:</span>
-                    <span>
-                        ${assessment.metrics.signalQuality.samplingRate.toFixed(0)} FPS, 
-                        ${assessment.metrics.signalQuality.framesProcessed} frames
-                    </span>
-                </div>
-                <div class="result-item">
-                    <span>Hand Tested:</span>
-                    <span class="hand-indicator hand-${document.getElementById('handSelect').value}">
-                        ${document.getElementById('handSelect').value.charAt(0).toUpperCase() + document.getElementById('handSelect').value.slice(1)} Hand
-                    </span>
+                
+                <div class="metric-explanation">
+                    <h4>Understanding Your Results</h4>
+                    <p>Your finger tapping test measured several important aspects of motor control. Here's what each metric means for your brain health:</p>
                 </div>
             `;
             
-            assessmentResults.innerHTML = html;
+            // Add detailed metric explanations with percentiles
+            const metrics = [
+                {
+                    name: 'Tapping Frequency',
+                    value: avgFastFreq,
+                    unit: 'Hz',
+                    explanation: 'How fast you can tap your fingers. This measures the speed of your motor neurons and muscle control. Normal adults tap at 2-3 Hz during fast-paced trials.',
+                    percentile: getPercentile(avgFastFreq, 'frequency')
+                },
+                {
+                    name: 'Movement Amplitude',
+                    value: calculateAverage([...rightFast, ...leftFast], 'avgAmplitude'),
+                    unit: '%',
+                    explanation: 'How wide you open your fingers between taps. This reflects the range and control of your movements. Reduced amplitude can indicate muscle weakness or motor planning issues.',
+                    percentile: getPercentile(calculateAverage([...rightFast, ...leftFast], 'avgAmplitude'), 'amplitude')
+                },
+                {
+                    name: 'Amplitude Decrement',
+                    value: avgDecrement,
+                    unit: '%',
+                    explanation: 'Whether your taps get smaller over time. This measures motor fatigue and sustainability. Healthy individuals show minimal decrement (<10%).',
+                    percentile: getPercentile(avgDecrement, 'amplitudeDecrement')
+                },
+                {
+                    name: 'Rhythm Consistency',
+                    value: avgRhythmCV,
+                    unit: '% CV',
+                    explanation: 'How regular your tapping rhythm is. Lower values mean more consistent timing. This reflects the precision of your brain\'s internal timing mechanisms.',
+                    percentile: getPercentile(avgRhythmCV, 'rhythmCV')
+                },
+                {
+                    name: 'Hand Asymmetry',
+                    value: asymmetry,
+                    unit: '%',
+                    explanation: 'The difference in performance between your hands. Most people show <10% difference. Higher asymmetry can indicate unilateral motor issues.',
+                    percentile: asymmetry < 10 ? 95 : asymmetry < 20 ? 50 : 25
+                }
+            ];
+            
+            metrics.forEach(metric => {
+                html += `
+                    <div class="metric-explanation">
+                        <h4>${metric.name}: ${metric.value.toFixed(1)} ${metric.unit}
+                            <span class="percentile-indicator">Top ${metric.percentile}%</span>
+                        </h4>
+                        <p>${metric.explanation}</p>
+                        <p style="color: #667eea;">Your performance is better than ${100 - metric.percentile}% of healthy adults.</p>
+                    </div>
+                `;
+            });
+            
+            // Add condition-specific results
+            html += `
+                <div class="results-summary" style="margin-top: 40px;">
+                    <h3>Detailed Results by Condition</h3>
+                    <table style="width: 100%; color: white; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #667eea;">
+                                <th style="padding: 10px; text-align: left;">Condition</th>
+                                <th style="padding: 10px;">Avg Frequency (Hz)</th>
+                                <th style="padding: 10px;">Avg Amplitude (%)</th>
+                                <th style="padding: 10px;">Rhythm CV (%)</th>
+                                <th style="padding: 10px;">Tap Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            const conditions = [
+                { name: 'Right Hand - Comfortable', data: rightComfortable },
+                { name: 'Right Hand - Fast', data: rightFast },
+                { name: 'Left Hand - Comfortable', data: leftComfortable },
+                { name: 'Left Hand - Fast', data: leftFast }
+            ];
+            
+            conditions.forEach(cond => {
+                const freq = calculateAverage(cond.data, 'avgFrequency');
+                const amp = calculateAverage(cond.data, 'avgAmplitude');
+                const cv = calculateAverage(cond.data, 'rhythmCV');
+                const taps = cond.data.map(t => t.result.metrics.tapCount).reduce((a,b) => a+b, 0) / cond.data.length;
+                
+                html += `
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <td style="padding: 10px;">${cond.name}</td>
+                        <td style="padding: 10px; text-align: center;">${freq.toFixed(2)}</td>
+                        <td style="padding: 10px; text-align: center;">${amp.toFixed(1)}</td>
+                        <td style="padding: 10px; text-align: center;">${cv.toFixed(1)}</td>
+                        <td style="padding: 10px; text-align: center;">${taps.toFixed(0)}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="metric-explanation" style="margin-top: 40px;">
+                    <h4>What These Results Mean</h4>
+                    <p>The finger tapping test is a sensitive measure of motor control that can detect subtle changes in brain function. It evaluates:</p>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li><strong>Basal ganglia function:</strong> Controls movement initiation and speed</li>
+                        <li><strong>Motor cortex integrity:</strong> Plans and executes voluntary movements</li>
+                        <li><strong>Cerebellar coordination:</strong> Maintains rhythm and precision</li>
+                        <li><strong>Neuromuscular efficiency:</strong> How well your brain communicates with muscles</li>
+                    </ul>
+                    ${possiblePD ? 
+                        '<p style="margin-top: 20px; padding: 15px; background: rgba(237, 137, 54, 0.2); border-radius: 10px; border: 1px solid #ed8936;">⚠️ <strong>Important:</strong> Your results suggest some motor function differences that may benefit from medical evaluation. This test is a screening tool, not a diagnosis. Please consult with a healthcare provider for comprehensive assessment.</p>' :
+                        '<p style="margin-top: 20px; padding: 15px; background: rgba(72, 187, 120, 0.2); border-radius: 10px; border: 1px solid #48bb78;">✓ Your motor function appears to be within normal limits. Regular exercise and staying active can help maintain healthy motor control as you age.</p>'
+                    }
+                </div>
+                
+                <div class="export-section" style="margin-top: 40px; text-align: center;">
+                    <button onclick="exportAllResults()" style="margin-right: 10px;">Export Full Report (JSON)</button>
+                    <button onclick="printResults()">Print Results</button>
+                    <button onclick="location.reload()" style="margin-left: 10px;">Start New Test</button>
+                </div>
+            `;
+            
+            document.getElementById('finalResults').innerHTML = html;
+
+            const participantID = sessionStorage.getItem('prolificID') || 'anonymous';
+
+            // Initialize summary trackers
+            let totalFreq = 0, totalAmp = 0, totalCV = 0, totalDec = 0;
+            let rightHand = [], leftHand = [];
+            let conditionBreakdown = {};
+
+            allTrialResults.forEach((trial, index) => {
+            const trialNum = `Trial ${index + 1}`;
+            const metrics = trial.result.metrics;
+
+            // Save individual trial under participant document
+            db.collection("Results")
+                .doc(participantID)
+                .collection("Trials")
+                .doc(trialNum)
+                .set({
+                condition: trial.condition,
+                repetition: trial.repetition,
+                ...metrics,
+                score: trial.result.score,
+                details: trial.result.details,
+                timestamp: new Date().toISOString()
+                });
+
+            // Aggregate for summary
+            totalFreq += metrics.avgFrequency;
+            totalAmp += metrics.avgAmplitude;
+            totalCV += metrics.rhythmCV;
+            totalDec += metrics.amplitudeDecrement;
+
+            if (trial.condition.hand === "right") rightHand.push(metrics.avgAmplitude);
+            if (trial.condition.hand === "left") leftHand.push(metrics.avgAmplitude);
+
+            const condKey = `${trial.condition.hand} - ${trial.condition.pace}`;
+            conditionBreakdown[condKey] = {
+                avgFrequency: metrics.avgFrequency,
+                avgAmplitude: metrics.avgAmplitude,
+                rhythmCV: metrics.rhythmCV,
+                tapCount: metrics.tapEvents?.length || 0
+            };
+            });
+
+            // Now calculate and store Final Prognosis
+            const avgFreq = totalFreq / 8;
+            const avgAmp = totalAmp / 8;
+            const avgCV = totalCV / 8;
+            const avgDec = totalDec / 8;
+
+            const mean = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+            const rightAvg = mean(rightHand);
+            const leftAvg = mean(leftHand);
+            const finalAsymmetry = Math.abs(rightAvg - leftAvg) / Math.max(rightAvg, leftAvg) * 100;
+
+            db.collection("Results")
+            .doc(participantID)
+            .collection("Summary")
+            .doc("Final Prognosis")
+            .set({
+                tappingFrequency: avgFreq,
+                movementAmplitude: avgAmp,
+                amplitudeDecrement: avgDec,
+                rhythmConsistency: avgCV,
+                handAsymmetry: finalAsymmetry,
+                conditionBreakdown: conditionBreakdown,
+                generatedAt: new Date().toISOString()
+            });
+
+
+        }
+
+        // Export all results
+        function exportAllResults() {
+            const exportData = {
+                testDate: new Date().toISOString(),
+                summary: {
+                    totalTrials: allTrialResults.length,
+                    conditions: trialConditions,
+                    overallAssessment: document.querySelector('.severity-indicator').textContent
+                },
+                detailedResults: allTrialResults,
+                populationComparisons: POPULATION_NORMS,
+                processingParameters: {
+                    smoothingWindow: SMOOTHING_WINDOW,
+                    minPeakProminence: MIN_PEAK_PROMINENCE,
+                    minPeakDistance: MIN_PEAK_DISTANCE
+                }
+            };
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `motor_function_analysis_${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Print results
+        function printResults() {
+            window.print();
         }
 
         // Export results as JSON
@@ -1345,13 +1954,19 @@
             velocitySignal = [];
             tapEvents = [];
             frameCount = 0;
+            trialIndex = 0;
+            allTrialResults = [];
             
-            // Clear countdown
+            // Clear countdown and timer
             clearInterval(countdownInterval);
+            clearInterval(mainTimerInterval);
             document.getElementById('countdown').style.display = 'none';
+            document.getElementById('mainTimer').style.display = 'none';
             
             // Reset UI
             document.getElementById('startBtn').disabled = false;
+            document.getElementById('startBtn').textContent = 'Start Recording';
+            document.getElementById('startBtn').style.display = 'inline-block';
             document.getElementById('stopBtn').disabled = true;
             document.getElementById('status').textContent = 'Ready';
             document.getElementById('status').className = 'status-indicator status-ready';
@@ -1378,14 +1993,42 @@
                 dataset.data = [];
             });
             velocityChart.update();
+            
+            // Show main interface again if final results were shown
+            document.querySelector('.container').style.display = 'block';
+            document.getElementById('finalResults').style.display = 'none';
+            
+            // Reset condition UI
+            updateConditionUI();
         }
 
-        // Initialize everything when page loads
+        function showInfoForm() {
+                document.getElementById('container-consent').style.display = 'none';
+                document.getElementById('container-info').style.display = 'block';
+            }
+
+            function startExperiment() {
+                // Optionally validate form fields
+                const pid = document.getElementById('prolificID').value;
+                const age = document.getElementById('age').value;
+
+                if (!pid || !age) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+
+                document.getElementById('consent-section').style.display = 'none';
+                document.querySelector('.container').style.display = 'block';
+            }
+
+
         window.onload = function() {
             initializeHands();
             initializeCamera();
             initializeCharts();
+            updateConditionUI();
         };
+
     </script>
 </body>
 </html>
