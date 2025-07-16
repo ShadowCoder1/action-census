@@ -64,6 +64,21 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
+        .tap-counter {
+            position: fixed;
+            top: 70px;
+            left: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            border-radius: 10px;
+            z-index: 99;
+            display: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
         .main-grid {
             display: grid;
             grid-template-columns: 1fr; /* single column layout */
@@ -432,6 +447,7 @@
 </head>
 <body>
     <div id="mainTimer" class="main-timer"></div>
+    <div id="tapCounter" class="tap-counter">Taps: 0</div>
     <div class="container">
         
         <div class="header">
@@ -794,15 +810,18 @@
                 }
                 
                 // Set colors based on state
-                let dotColor = '#6b7280'; // Default grey
-                let lineColor = 'rgba(107, 114, 128, 0.5)'; // Semi-transparent grey
-                let dotSize = 10; // Default size
+                // Set colors based on state - ENHANCED VISIBILITY
+                let dotColor = '#9ca3af'; // Brighter grey
+                let lineColor = 'rgba(156, 163, 175, 0.8)'; // More visible grey
+                let dotSize = 14; // Larger default size
+                let borderColor = '#ffffff'; // White border for visibility
                 
                 if (justTapped) {
                     // Just completed a tap - bright green with larger size
-                    dotColor = '#10b981'; // Emerald green
-                    lineColor = 'rgba(16, 185, 129, 0.8)';
-                    dotSize = 15; // Larger for emphasis
+                    dotColor = '#10f981'; // Brighter emerald green
+                    lineColor = 'rgba(16, 249, 129, 1)'; // Full opacity bright green
+                    dotSize = 20; // Even larger for emphasis
+                    borderColor = '#ffffff'; // Keep white border
                     
                     // Add glow effect
                     canvasCtx.shadowBlur = 20;
@@ -823,12 +842,29 @@
                 canvasCtx.stroke();
                 
                 // Draw larger circles for thumb with color and potential glow
+// Draw larger circles for thumb with white border for visibility
+                // First draw white border
+                canvasCtx.fillStyle = borderColor;
+                canvasCtx.beginPath();
+                canvasCtx.arc(thumbTip.x * canvasElement.width, thumbTip.y * canvasElement.height, dotSize + 2, 0, 2 * Math.PI);
+                canvasCtx.fill();
+
+                // Then draw colored dot
                 canvasCtx.fillStyle = dotColor;
                 canvasCtx.beginPath();
                 canvasCtx.arc(thumbTip.x * canvasElement.width, thumbTip.y * canvasElement.height, dotSize, 0, 2 * Math.PI);
                 canvasCtx.fill();
                 
                 // Draw index finger dot
+                // Draw index finger dot with white border
+                // First draw white border
+                canvasCtx.fillStyle = borderColor;
+                canvasCtx.beginPath();
+                canvasCtx.arc(indexTip.x * canvasElement.width, indexTip.y * canvasElement.height, dotSize + 2, 0, 2 * Math.PI);
+                canvasCtx.fill();
+
+                // Then draw colored dot
+                canvasCtx.fillStyle = dotColor;
                 canvasCtx.beginPath();
                 canvasCtx.arc(indexTip.x * canvasElement.width, indexTip.y * canvasElement.height, dotSize, 0, 2 * Math.PI);
                 canvasCtx.fill();
@@ -1013,6 +1049,13 @@
                 if (!reopened) continue;              // still the same closed dwell
 
                 tapEvents.push(ev);
+                // Update tap counter display
+                if (recording) {
+                    const tapCounterEl = document.getElementById('tapCounter');
+                    if (tapCounterEl) {
+                        tapCounterEl.textContent = `Taps: ${tapEvents.length}`;
+                    }
+                }
             }
         }
 
@@ -1302,6 +1345,11 @@
             // Show main timer
             const mainTimerEl = document.getElementById('mainTimer');
             mainTimerEl.style.display = 'block';
+
+            // Show tap counter
+            const tapCounterEl = document.getElementById('tapCounter');
+            tapCounterEl.style.display = 'block';
+            tapCounterEl.textContent = 'Taps: 0';
             
             // Update timer every 100ms for smooth display
             mainTimerInterval = setInterval(() => {
@@ -1335,6 +1383,7 @@
             // Clear timer
             clearInterval(mainTimerInterval);
             document.getElementById('mainTimer').style.display = 'none';
+            document.getElementById('tapCounter').style.display = 'none';
             document.getElementById('countdown').style.display = 'none';
             
             document.getElementById('status').textContent = 'Analyzing';
