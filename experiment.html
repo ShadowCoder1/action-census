@@ -49,36 +49,6 @@
             opacity: 0.9;
         }
 
-        .main-timer {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            font-size: 28px;
-            font-weight: bold;
-            color: #ffffff;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px 20px;
-            border-radius: 10px;
-            z-index: 99;
-            display: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
-        .tap-counter {
-            position: fixed;
-            top: 70px;
-            left: 20px;
-            font-size: 24px;
-            font-weight: bold;
-            color: #ffffff;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px 20px;
-            border-radius: 10px;
-            z-index: 99;
-            display: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
         .main-grid {
             display: grid;
             grid-template-columns: 1fr; /* single column layout */
@@ -446,8 +416,6 @@
 
 </head>
 <body>
-    <div id="mainTimer" class="main-timer"></div>
-    <div id="tapCounter" class="tap-counter">Taps: 0</div>
     <div class="container">
         
         <div class="header">
@@ -463,8 +431,7 @@
                 <li><strong>Follow exactly what the trial says:</strong> 
                     <ul style="text-align:left; margin-top: 5px;">
                         <li>If it says <strong>RIGHT hand</strong>, only use your right hand. If it says <strong>LEFT hand</strong>, use your left hand.</li>
-                        <li>If it says <strong>comfortable pace</strong>, tap steadily at a natural, easy speed.</li>
-                        <li>If it says <strong>fast pace</strong>, tap as quickly as you can while staying controlled.</li>
+                        <li>Always tap <strong>as quickly as you can</strong> while staying controlled.</li>
                     </ul>
                 </li>
                 <li>Once you press <strong>Start Recording</strong>, there will be a <strong>3‑second countdown</strong> before the trial begins.</li>
@@ -480,19 +447,60 @@
         <div class="main-grid">
             <div class="video-container">
                 <div class="status-indicator status-ready" id="status">Ready</div>
-                <div id="conditionInfo" style="margin-top: 15px; font-weight: bold; font-size: 1.1em; color: #f6e05e;">
+                <div id="conditionInfo" style="
+                    margin-top: 20px;
+                    font-weight: bold;
+                    font-size: 2em;           /* much larger */
+                    color: #ffdd57;           /* bright yellow */
+                    text-align: center;
+                    text-transform: uppercase; /* emphasizes RIGHT / LEFT */
+                    letter-spacing: 1px;
+                    padding: 10px;
+                    background: rgba(255, 221, 87, 0.1);
+                    border: 2px solid #ffdd57;
+                    border-radius: 10px;
+                ">
                     Trial Info: —
-                  </div>
-                  <div id="conditionDescription" style="margin-bottom: 10px; font-size: 1em; color: #90cdf4;">
+                </div>
+
+                  <div id="conditionDescription" style="
+                    margin-top: 15px;
+                    margin-bottom: 20px;
+                    font-size: 1.4em;        /* larger font */
+                    color: #90cdf4;
+                    text-align: center;
+                    line-height: 1.6;
+                ">
                     <!-- Pace instruction -->
-                  </div>
-                  
+                </div>
+
               
                 <div class="video-wrapper">
                     <video id="inputVideo" autoplay playsinline></video>
                     <canvas id="outputCanvas"></canvas>
+                
+                    <!-- ✅ NEW overlay for time + taps -->
+                    <div id="statusOverlay" style="
+                        position: absolute;
+                        top: 15px;
+                        left: 15px;
+                        background: rgba(0, 0, 0, 0.6);
+                        padding: 12px 20px;
+                        border-radius: 10px;
+                        font-size: 1.3em;
+                        font-weight: bold;
+                        color: #fff;
+                        line-height: 1.4;
+                        z-index: 50;
+                        display: none; /* hidden until recording starts */
+                    ">
+                        <div id="overlayTime">Time Remaining: 30s</div>
+                        <div id="overlayTaps">Taps: 0</div>
+                    </div>
+                
                     <div id="countdown" class="countdown" style="display: none;"></div>
                 </div>
+                
                 <div class="controls" style="display:none;">
                     <button id="startBtn" onclick="startRecording()">Hidden Start</button>
                 </div>
@@ -541,15 +549,15 @@
 
         // Trial management variables
         const trialConditions = [
-            { hand: 'right', pace: 'comfortable' },
             { hand: 'right', pace: 'fast' },
-            { hand: 'left',  pace: 'comfortable' },
             { hand: 'left',  pace: 'fast' },
+            { hand: 'right', pace: 'fast' },
+            { hand: 'left',  pace: 'fast' }
         ];
+
         let trialIndex = 0;
-        let repeatPerCondition = 2; // 2 repeats per condition = 8 trials total
-        let currentRepetition = 0;
-        let totalTrials = trialConditions.length * repeatPerCondition;
+        let totalTrials = trialConditions.length; // now just 4 trials total
+
         let allTrialResults = []
 
 
@@ -1051,10 +1059,8 @@
                 tapEvents.push(ev);
                 // Update tap counter display
                 if (recording) {
-                    const tapCounterEl = document.getElementById('tapCounter');
-                    if (tapCounterEl) {
-                        tapCounterEl.textContent = `Taps: ${tapEvents.length}`;
-                    }
+                    document.getElementById('overlayTaps').textContent = `Taps: ${tapEvents.length}`;
+
                 }
             }
         }
@@ -1342,20 +1348,19 @@
             document.getElementById('status').className = 'status-indicator status-recording';
             document.getElementById('algorithmStatus').textContent = 'Algorithm: Recording signal data...';
 
-            // Show main timer
-            const mainTimerEl = document.getElementById('mainTimer');
-            mainTimerEl.style.display = 'block';
+            // Show new combined overlay
+            const overlay = document.getElementById('statusOverlay');
+            overlay.style.display = 'block';
+            document.getElementById('overlayTime').textContent = `Time Remaining: 30s`;
+            document.getElementById('overlayTaps').textContent = `Taps: 0`;
 
-            // Show tap counter
-            const tapCounterEl = document.getElementById('tapCounter');
-            tapCounterEl.style.display = 'block';
-            tapCounterEl.textContent = 'Taps: 0';
             
             // Update timer every 100ms for smooth display
             mainTimerInterval = setInterval(() => {
                 const elapsed = Date.now() - startTime;
                 const remaining = Math.max(0, Math.ceil((recordingDuration - elapsed) / 1000));
-                mainTimerEl.textContent = `Time Remaining: ${remaining}s`;
+                document.getElementById('overlayTime').textContent = `Time Remaining: ${remaining}s`;
+
                 
                 // Show final countdown in the middle
                 if (remaining <= 3 && remaining > 0) {
@@ -1382,8 +1387,8 @@
             
             // Clear timer
             clearInterval(mainTimerInterval);
-            document.getElementById('mainTimer').style.display = 'none';
-            document.getElementById('tapCounter').style.display = 'none';
+            document.getElementById('statusOverlay').style.display = 'none';
+
             document.getElementById('countdown').style.display = 'none';
             
             document.getElementById('status').textContent = 'Analyzing';
@@ -1609,22 +1614,19 @@
         function updateConditionUI() {
             const trialNum = trialIndex + 1;
             const condition = trialConditions[trialIndex % trialConditions.length];
-            const repetition = Math.floor(trialIndex / trialConditions.length) + 1;
-            document.getElementById('conditionInfo').textContent =
-                `Trial ${trialNum} of ${totalTrials} — ${condition.hand.toUpperCase()} hand, ${condition.pace} pace (Rep ${repetition})`;
+
+            // Pick a color dynamically based on hand
+            let handColor = (condition.hand === 'right') ? '#48bb78' : '#4299e1'; 
+            
+            const conditionEl = document.getElementById('conditionInfo');
+            conditionEl.innerHTML =
+                `Trial ${trialNum} of ${totalTrials} — <span style="color:${handColor}; font-size:1.4em;">${condition.hand.toUpperCase()} HAND</span> (FAST pace)`;
+            
             updateConditionDescription();
         }
-
+        
         function updateConditionDescription() {
-            const condition = trialConditions[trialIndex % trialConditions.length];
-            let msg = "";
-
-            if (condition.pace === 'comfortable') {
-                msg = "Using just your thumb and index finger, tap them together repeatedly at a comfortable, steady pace—like a gentle pinching motion. Keep going for 30 seconds. Try to stay relaxed and consistent throughout.";
-            } else if (condition.pace === 'fast') {
-                msg = "Using just your thumb and index finger, tap them together as quickly as you can, like you're pinching repeatedly. Keep going for 30 seconds. Try to stay relaxed and consistent, but move as fast as possible.";
-            }
-
+            const msg = "Using just your thumb and index finger, tap them together as QUICKLY as you can, like you're pinching repeatedly. Keep going for 30 seconds. Stay relaxed but move as fast as possible.";
             document.getElementById('conditionDescription').textContent = msg;
         }
 
@@ -1646,9 +1648,7 @@
             document.getElementById('finalResults').style.display = 'block';
             
             // Separate by conditions
-            let rightComfortable = allTrialResults.filter(t => t.condition.hand === 'right' && t.condition.pace === 'comfortable');
             let rightFast = allTrialResults.filter(t => t.condition.hand === 'right' && t.condition.pace === 'fast');
-            let leftComfortable = allTrialResults.filter(t => t.condition.hand === 'left' && t.condition.pace === 'comfortable');
             let leftFast = allTrialResults.filter(t => t.condition.hand === 'left' && t.condition.pace === 'fast');
             
             // Calculate averages for each condition
@@ -1831,11 +1831,10 @@
             `;
             
             const conditions = [
-                { name: 'Right Hand - Comfortable', data: rightComfortable },
                 { name: 'Right Hand - Fast', data: rightFast },
-                { name: 'Left Hand - Comfortable', data: leftComfortable },
                 { name: 'Left Hand - Fast', data: leftFast }
             ];
+
             
             conditions.forEach(cond => {
                 const freq = calculateAverage(cond.data, 'avgFrequency');
