@@ -66,10 +66,12 @@
 
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr; /* single column layout */
+            width: 100%;
             gap: 20px;
             margin-bottom: 30px;
         }
+
 
         .video-container {
             background: #1a1f3a;
@@ -79,23 +81,25 @@
             position: relative;
         }
 
+
         .video-wrapper {
             position: relative;
             width: 100%;
-            padding-bottom: 75%;
+            height: 80vh;  /* fills most of screen */
             background: #000;
             border-radius: 10px;
             overflow: hidden;
         }
-
         video, canvas {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            object-fit: cover;
             border-radius: 10px;
         }
+
         video#inputVideo {
             transform: scaleX(-1);
         }
@@ -231,6 +235,17 @@
             margin-bottom: 20px;
             border: 1px solid rgba(255,255,255,0.1);
         }
+
+        .instructions {
+            text-align: center;
+            font-size: 1.2em;   /* slightly larger text */
+            line-height: 1.8;
+        }
+        .instructions ol {
+            display: inline-block; /* keeps list nicely centered */
+            text-align: left;      /* keeps numbers aligned */
+        }
+
 
         .instructions h3 {
             color: #667eea;
@@ -407,17 +422,28 @@
             <h1>Fast Fingers</h1>
             <p>Measuring Motor Function</p>
         </div>
-
         <div class="instructions">
-            <h3>Instructions</h3>
+            <h3>📋 Finger Tapping Test Instructions</h3>
             <ol>
-                <li>Position your hand clearly in view of the camera with palm facing down</li>
-                <li>When ready, click "Start Recording"</li>
-                <li>Follow the pace instructions for each trial</li>
-                <li>Continue for 30 seconds (system will automatically stop)</li>
-                <li>Keep your hand as steady as possible during the test</li>
+                <li><strong>Sit comfortably</strong> with good lighting and make sure your face and hand are clearly visible in the camera view.</li>
+                <li>You will see the trial instructions above the video, for example:<br>
+                    <em>“Trial 1 of 8 — RIGHT hand, comfortable pace (Rep 1)”</em></li>
+                <li><strong>Follow exactly what the trial says:</strong> 
+                    <ul style="text-align:left; margin-top: 5px;">
+                        <li>If it says <strong>RIGHT hand</strong>, only use your right hand. If it says <strong>LEFT hand</strong>, use your left hand.</li>
+                        <li>If it says <strong>comfortable pace</strong>, tap steadily at a natural, easy speed.</li>
+                        <li>If it says <strong>fast pace</strong>, tap as quickly as you can while staying controlled.</li>
+                    </ul>
+                </li>
+                <li>Once you press <strong>Start Recording</strong>, there will be a <strong>3‑second countdown</strong> before the trial begins.</li>
+                <li>During the trial, <strong>tap your thumb and index finger together repeatedly</strong> for <strong>30 seconds</strong> as instructed. Keep your hand steady and in view of the camera the whole time.</li>
+                <li>The system will automatically stop and move to the next trial.</li>
             </ol>
+            <p style="margin-top: 15px; font-size: 1.2em; color: #90cdf4; text-align:center;">
+                ⬇️ Scroll down and press <strong>Start Recording</strong> when you’re ready ⬇️
+            </p>
         </div>
+        
 
         <div class="main-grid">
             <div class="video-container">
@@ -449,57 +475,10 @@
                 </div>
             </div>
 
-            <div class="metrics-panel">
-                <h2 style="margin-bottom: 20px; color: #667eea;">Real-time Metrics</h2>
-                
-                <div class="metric-card">
-                    <div class="metric-label">Tap Count</div>
-                    <div class="metric-value" id="tapCount">0</div>
-                </div>
+    <!-- Real-time metrics removed -->
 
-                <div class="metric-card">
-                    <div class="metric-label">Current Frequency</div>
-                    <div class="metric-value" id="avgFrequency">0.00<span class="metric-unit">Hz</span></div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="metric-label">Average Amplitude</div>
-                    <div class="metric-value" id="avgAmplitude">0.00<span class="metric-unit">%</span></div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="metric-label">Amplitude Change</div>
-                    <div class="metric-value" id="ampDecrement">0.00<span class="metric-unit">%</span></div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="metric-label">Rhythm Consistency</div>
-                    <div class="metric-value" id="rhythmCV">0.00<span class="metric-unit">%</span></div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="metric-label">Pauses Detected</div>
-                    <div class="metric-value" id="hesitations">0</div>
-                </div>
-            </div>
         </div>
 
-        <div class="chart-container">
-            <h2 style="margin-bottom: 20px; color: #667eea;">Movement Analysis</h2>
-            
-            <div class="chart-wrapper">
-                <canvas id="distanceChart"></canvas>
-            </div>
-
-            <div class="chart-wrapper">
-                <canvas id="velocityChart"></canvas>
-            </div>
-
-            <div id="resultsDiv" class="results-summary" style="display: none;">
-                <h3>Trial Complete</h3>
-                <div id="assessmentResults"></div>
-            </div>
-        </div>
     </div>
 
     <div id="finalResults" class="final-results" style="display: none;">
@@ -885,10 +864,10 @@
                 }
                 
                 // Update real-time metrics
-                updateRealtimeMetrics();
+                //updateRealtimeMetrics();
                 
                 // Update charts
-                updateCharts();
+                //updateCharts();
             }
 
             frameData.push({
@@ -1314,9 +1293,7 @@
                     result: result
                 });
 
-                // Show brief trial complete message
-                displayTrialComplete(result);
-
+                // Skip showing intermediate trial UI (we removed metrics)
                 trialIndex++;
 
                 if (trialIndex < totalTrials) {
@@ -1330,13 +1307,15 @@
                     startBtn.textContent = 'Start Next Trial';
                     startBtn.disabled = false;
                     startBtn.style.display = 'inline-block';
-                    
+
                     // Update condition info for next trial
                     updateConditionUI();
+
                 } else {
                     // All trials complete - show comprehensive results
                     analyzeAllTrials();
                 }
+
 
             }, 500);
         }
@@ -1981,18 +1960,6 @@
             document.getElementById('rhythmCV').innerHTML = '0.00<span class="metric-unit">%</span>';
             document.getElementById('hesitations').textContent = '0';
             
-            // Clear charts
-            distanceChart.data.labels = [];
-            distanceChart.data.datasets.forEach(dataset => {
-                dataset.data = [];
-            });
-            distanceChart.update();
-            
-            velocityChart.data.labels = [];
-            velocityChart.data.datasets.forEach(dataset => {
-                dataset.data = [];
-            });
-            velocityChart.update();
             
             // Show main interface again if final results were shown
             document.querySelector('.container').style.display = 'block';
@@ -2025,7 +1992,6 @@
         window.onload = function() {
             initializeHands();
             initializeCamera();
-            initializeCharts();
             updateConditionUI();
         };
 
