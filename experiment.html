@@ -106,6 +106,11 @@
 
         canvas#outputCanvas {
             transform: scaleX(-1);
+            image-rendering: optimizeSpeed;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: optimize-contrast;
+            -ms-interpolation-mode: nearest-neighbor;
         }
 
 
@@ -314,6 +319,17 @@
             100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
         }
 
+        @keyframes tapSuccess {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
         .hand-indicator {
             display: inline-block;
             padding: 6px 12px;
@@ -419,7 +435,7 @@
     <div class="container">
         
         <div class="header">
-            <h1>Fast Fingers</h1>
+            <h1>Fast Fingers Challenge: How Quick Are You?</h1>
             <p>Measuring Motor Function</p>
         </div>
         <div class="instructions">
@@ -440,7 +456,7 @@
                 <li>The system will automatically stop and move to the next trial.</li>
             </ol>
             <p style="margin-top: 15px; font-size: 1.2em; color: #90cdf4; text-align:center;">
-                ⬇️ Scroll down and press <strong>Start Recording</strong> when you’re ready ⬇️
+                ⬇️ Press <strong>SPACEBAR</strong> when you're ready to start ⬇️
             </p>
         </div>
         
@@ -461,17 +477,12 @@
                     <canvas id="outputCanvas"></canvas>
                     <div id="countdown" class="countdown" style="display: none;"></div>
                 </div>
-                <div class="controls">
-                    <button id="startBtn" onclick="startRecording()">Start Recording</button>
-                    <button id="stopBtn" onclick="stopRecording()" disabled>Stop Recording</button>
-                    <button id="resetBtn" onclick="resetAnalysis()">Reset</button>
-                    <select id="handSelect" style="padding: 10px; border-radius: 8px; background: #2a2d4a; color: white; border: 1px solid #667eea;">
-                        <option value="right">Right Hand</option>
-                        <option value="left">Left Hand</option>
-                    </select>
+                <div class="controls" style="display:none;">
+                    <button id="startBtn" onclick="startRecording()">Hidden Start</button>
                 </div>
+                  
                 <div class="algorithm-status" id="algorithmStatus">
-                    Algorithm: Advanced peak detection with signal processing
+                    Press SPACEBAR to begin the test
                 </div>
             </div>
 
@@ -604,15 +615,34 @@
             const canvasElement = document.getElementById('outputCanvas');
             canvasCtx = canvasElement.getContext('2d');
 
-            camera = new Camera(videoElement, {
-                onFrame: async () => {
-                    await hands.send({image: videoElement});
-                },
-                width: 640,
-                height: 480
+            // ✅ Request the best available resolution
+            navigator.mediaDevices.getUserMedia({
+                video: {
+                width: { ideal: 1920 },  // Prefer 1080p
+                height: { ideal: 1080 },
+                facingMode: "user"
+                }
+            }).then(stream => {
+                videoElement.srcObject = stream;
+
+                // Wait until the video actually starts playing
+                videoElement.onloadedmetadata = () => {
+                // Match canvas resolution to actual camera resolution
+                canvasElement.width = videoElement.videoWidth;
+                canvasElement.height = videoElement.videoHeight;
+
+                // Start a render loop to process frames manually
+                const processFrame = async () => {
+                    await hands.send({ image: videoElement });
+                    requestAnimationFrame(processFrame);
+                };
+                requestAnimationFrame(processFrame);
+                };
+            }).catch(err => {
+                console.error("Camera access error:", err);
             });
-            camera.start();
-        }
+            }
+
 
         // Moving average filter
         function movingAverage(data, windowSize) {
@@ -710,6 +740,7 @@
 
 
         // Process hand detection results
+   // Process hand detection results
         function onHandsResults(results) {
             const canvasElement = document.getElementById('outputCanvas');
             canvasCtx.save();
@@ -720,6 +751,11 @@
 
             if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
                 handDetected = true;
+                
+                // Update status to show hand detected
+                if (!recording && document.getElementById('status').textContent === 'Ready') {
+                    document.getElementById('algorithmStatus').textContent = 'Hand detected! Press SPACEBAR to begin';
+                }
                 const landmarks = results.multiHandLandmarks[0];
 
                 const handedness = results.multiHandedness?.[0]?.label || "Unknown";
@@ -727,57 +763,109 @@
                     (trialConditions[trialIndex % trialConditions.length].hand === "Left" && handedness !== "Left")) {
                     return; // Skip frames with wrong hand
                 }
-
                 
-                // Draw hand skeleton
-                drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {color: '#00FF00', lineWidth: 2});
-                drawLandmarks(canvasCtx, landmarks, {color: '#FF0000', lineWidth: 1, radius: 3});
+                // REMOVED: Draw hand skeleton - we only want thumb and index visualization
 
                 // Process finger tap data if recording
                 if (recording) {
                     processFingerTapAdvanced(landmarks, results.image.width, results.image.height);
                 }
 
-                // Highlight thumb and index fingertips
+                // Get thumb and index fingertips
                 const thumbTip = landmarks[THUMB_TIP];
                 const indexTip = landmarks[INDEX_TIP];
                 
-                // Draw larger circles for thumb and index
-                canvasCtx.fillStyle = '#667eea';
-                canvasCtx.beginPath();
-                canvasCtx.arc(thumbTip.x * canvasElement.width, thumbTip.y * canvasElement.height, 8, 0, 2 * Math.PI);
-                canvasCtx.fill();
+                // Calculate distance for color determination
+                const distance = Math.sqrt(
+                    Math.pow((thumbTip.x - indexTip.x) * canvasElement.width, 2) +
+                    Math.pow((thumbTip.y - indexTip.y) * canvasElement.height, 2)
+                );
                 
-                canvasCtx.beginPath();
-                canvasCtx.arc(indexTip.x * canvasElement.width, indexTip.y * canvasElement.height, 8, 0, 2 * Math.PI);
-                canvasCtx.fill();
-
-                // Draw line between thumb and index
-                canvasCtx.strokeStyle = '#667eea';
+                // Determine if fingers are currently tapping (close together)
+                const isTapping = recording && distance < 30; // Threshold for "tapped" state
+                
+                // Check if we just detected a new tap
+                let justTapped = false;
+                if (recording && tapEvents.length > 0) {
+                    const currentTime = Date.now() - startTime;
+                    const lastTap = tapEvents[tapEvents.length - 1];
+                    // If the last tap was within 150ms, show green feedback
+                    justTapped = (currentTime - lastTap.time) < 150;
+                }
+                
+                // Set colors based on state
+                let dotColor = '#6b7280'; // Default grey
+                let lineColor = 'rgba(107, 114, 128, 0.5)'; // Semi-transparent grey
+                let dotSize = 10; // Default size
+                
+                if (justTapped) {
+                    // Just completed a tap - bright green with larger size
+                    dotColor = '#10b981'; // Emerald green
+                    lineColor = 'rgba(16, 185, 129, 0.8)';
+                    dotSize = 15; // Larger for emphasis
+                    
+                    // Add glow effect
+                    canvasCtx.shadowBlur = 20;
+                    canvasCtx.shadowColor = '#10b981';
+                } else if (isTapping) {
+                    // Currently tapping (fingers close) - lighter green
+                    dotColor = '#34d399';
+                    lineColor = 'rgba(52, 211, 153, 0.6)';
+                    dotSize = 12;
+                }
+                
+                // Draw line between thumb and index with color
+                canvasCtx.strokeStyle = lineColor;
                 canvasCtx.lineWidth = 3;
                 canvasCtx.beginPath();
                 canvasCtx.moveTo(thumbTip.x * canvasElement.width, thumbTip.y * canvasElement.height);
                 canvasCtx.lineTo(indexTip.x * canvasElement.width, indexTip.y * canvasElement.height);
                 canvasCtx.stroke();
-
-                // Draw detected peaks
-                if (peakIndices.length > 0 && distanceSignal.length > 0) {
-                    canvasCtx.fillStyle = '#e53e3e';
-                    peakIndices.forEach(peakIdx => {
-                        if (peakIdx < distanceSignal.length) {
-                            // Visual indicator for detected taps
-                            canvasCtx.beginPath();
-                            canvasCtx.arc(
-                                (thumbTip.x + indexTip.x) / 2 * canvasElement.width,
-                                (thumbTip.y + indexTip.y) / 2 * canvasElement.height,
-                                15, 0, 2 * Math.PI
-                            );
-                            canvasCtx.fill();
-                        }
-                    });
+                
+                // Draw larger circles for thumb with color and potential glow
+                canvasCtx.fillStyle = dotColor;
+                canvasCtx.beginPath();
+                canvasCtx.arc(thumbTip.x * canvasElement.width, thumbTip.y * canvasElement.height, dotSize, 0, 2 * Math.PI);
+                canvasCtx.fill();
+                
+                // Draw index finger dot
+                canvasCtx.beginPath();
+                canvasCtx.arc(indexTip.x * canvasElement.width, indexTip.y * canvasElement.height, dotSize, 0, 2 * Math.PI);
+                canvasCtx.fill();
+                
+                // Reset shadow for next frame
+                canvasCtx.shadowBlur = 0;
+                
+                // Add tap success indicator (floating +1 effect)
+                if (justTapped && tapEvents.length > 0) {
+                    const midX = (thumbTip.x + indexTip.x) / 2 * canvasElement.width;
+                    const midY = (thumbTip.y + indexTip.y) / 2 * canvasElement.height;
+                    
+                    // Draw success text
+                    canvasCtx.font = 'bold 24px Arial';
+                    canvasCtx.fillStyle = '#10b981';
+                    canvasCtx.textAlign = 'center';
+                    canvasCtx.shadowBlur = 10;
+                    canvasCtx.shadowColor = '#10b981';
+                    
+                    // Calculate fade based on time since tap
+                    const timeSinceTap = (Date.now() - startTime) - tapEvents[tapEvents.length - 1].time;
+                    const fadeOpacity = Math.max(0, 1 - (timeSinceTap / 150));
+                    canvasCtx.globalAlpha = fadeOpacity;
+                    
+                    canvasCtx.fillText('✓', midX, midY - 20);
+                    canvasCtx.globalAlpha = 1; // Reset opacity
+                    canvasCtx.shadowBlur = 0;
                 }
+                
+                // Remove the old peak detection visualization since we have the new feedback
+                
             } else {
                 handDetected = false;
+                // Update status when hand not detected
+                if (!recording && document.getElementById('status').textContent === 'Ready') {
+                    document.getElementById('algorithmStatus').textContent = 'Position your hand in view, then press SPACEBAR';
+                }
             }
 
             canvasCtx.restore();
@@ -1179,10 +1267,7 @@
             countdownEl.style.display = 'block';
             countdownEl.textContent = countdown;
 
-            const startBtn = document.getElementById('startBtn');
-            startBtn.disabled = true;
-            startBtn.style.display = 'none';
-            startBtn.textContent = 'Start'; // reset for future trials
+
 
             countdownInterval = setInterval(() => {
                 countdown--;
@@ -1210,9 +1295,6 @@
             velocitySignal = [];
             tapEvents = [];
             frameCount = 0;
-
-            document.getElementById('startBtn').disabled = true;
-            document.getElementById('stopBtn').disabled = false;
             document.getElementById('status').textContent = 'Recording';
             document.getElementById('status').className = 'status-indicator status-recording';
             document.getElementById('algorithmStatus').textContent = 'Algorithm: Recording signal data...';
@@ -1255,7 +1337,6 @@
             document.getElementById('mainTimer').style.display = 'none';
             document.getElementById('countdown').style.display = 'none';
             
-            document.getElementById('stopBtn').disabled = true;
             document.getElementById('status').textContent = 'Analyzing';
             document.getElementById('status').className = 'status-indicator status-analyzing';
             document.getElementById('algorithmStatus').textContent = 'Algorithm: Processing signal and detecting peaks...';
@@ -1302,12 +1383,8 @@
                     document.getElementById('status').className = 'status-indicator status-ready';
                     document.getElementById('algorithmStatus').textContent = 'Click "Start Next Trial" to continue.';
 
-                    // Setup "Start Next Trial" button
-                    const startBtn = document.getElementById('startBtn');
-                    startBtn.textContent = 'Start Next Trial';
-                    startBtn.disabled = false;
-                    startBtn.style.display = 'inline-block';
-
+                        // Add instruction to press spacebar for next trial
+                    document.getElementById('algorithmStatus').textContent = 'Press SPACEBAR to start the next trial.';
                     // Update condition info for next trial
                     updateConditionUI();
 
@@ -1486,7 +1563,6 @@
             const repetition = Math.floor(trialIndex / trialConditions.length) + 1;
             document.getElementById('conditionInfo').textContent =
                 `Trial ${trialNum} of ${totalTrials} — ${condition.hand.toUpperCase()} hand, ${condition.pace} pace (Rep ${repetition})`;
-            document.getElementById('handSelect').value = condition.hand;
             updateConditionDescription();
         }
 
@@ -1924,51 +2000,7 @@
             URL.revokeObjectURL(url);
         }
 
-        // Reset analysis
-        function resetAnalysis() {
-            recording = false;
-            distanceSignal = [];
-            timeSignal = [];
-            smoothedSignal = [];
-            velocitySignal = [];
-            tapEvents = [];
-            frameCount = 0;
-            trialIndex = 0;
-            allTrialResults = [];
-            
-            // Clear countdown and timer
-            clearInterval(countdownInterval);
-            clearInterval(mainTimerInterval);
-            document.getElementById('countdown').style.display = 'none';
-            document.getElementById('mainTimer').style.display = 'none';
-            
-            // Reset UI
-            document.getElementById('startBtn').disabled = false;
-            document.getElementById('startBtn').textContent = 'Start Recording';
-            document.getElementById('startBtn').style.display = 'inline-block';
-            document.getElementById('stopBtn').disabled = true;
-            document.getElementById('status').textContent = 'Ready';
-            document.getElementById('status').className = 'status-indicator status-ready';
-            document.getElementById('resultsDiv').style.display = 'none';
-            document.getElementById('algorithmStatus').textContent = 'Algorithm: Advanced peak detection with signal processing';
-            
-            // Reset metrics
-            document.getElementById('tapCount').textContent = '0';
-            document.getElementById('avgFrequency').innerHTML = '0.00<span class="metric-unit">Hz</span>';
-            document.getElementById('avgAmplitude').innerHTML = '0.00<span class="metric-unit">%</span>';
-            document.getElementById('ampDecrement').innerHTML = '0.00<span class="metric-unit">%</span>';
-            document.getElementById('rhythmCV').innerHTML = '0.00<span class="metric-unit">%</span>';
-            document.getElementById('hesitations').textContent = '0';
-            
-            
-            // Show main interface again if final results were shown
-            document.querySelector('.container').style.display = 'block';
-            document.getElementById('finalResults').style.display = 'none';
-            
-            // Reset condition UI
-            updateConditionUI();
-        }
-
+    
         function showInfoForm() {
                 document.getElementById('container-consent').style.display = 'none';
                 document.getElementById('container-info').style.display = 'block';
@@ -1988,6 +2020,33 @@
                 document.querySelector('.container').style.display = 'block';
             }
 
+
+            document.addEventListener('keydown', function(e) {
+                if (e.code === 'Space' || e.key === ' ') {
+                    e.preventDefault(); // Prevent page scroll
+                    
+                    // Check if countdown is already showing
+                    const countdownEl = document.getElementById('countdown');
+                    const isCountdownActive = countdownEl && countdownEl.style.display === 'block';
+                    
+                    // Only allow spacebar when ready and not already recording
+                    if (!recording && !isCountdownActive) {
+                        // Check if hand is detected
+                        if (!handDetected) {
+                            alert('Please position your hand in view of the camera before starting.');
+                            return;
+                        }
+                        
+                        // Check if all trials are done
+                        if (trialIndex >= totalTrials) {
+                            alert('All trials complete!');
+                            return;
+                        }
+                        
+                        startRecording();
+                    }
+                }
+            });
 
         window.onload = function() {
             initializeHands();
