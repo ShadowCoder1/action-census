@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -412,6 +413,14 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+
+        // ✅ Always create a consistent participant ID
+    let participantID = sessionStorage.getItem('prolificID');
+    if (!participantID) {
+    participantID = `anon_${Date.now()}`;
+    sessionStorage.setItem('prolificID', participantID);
+    }
+
     </script>
 
 </head>
@@ -567,42 +576,52 @@
         // Population norms (from literature approximations)
         const POPULATION_NORMS = {
             frequency: {
-                healthy: { mean: 2.5, std: 0.5, ranges: [
-                    { min: 3.0, max: 10, percentile: 95 },
-                    { min: 2.5, max: 3.0, percentile: 75 },
-                    { min: 2.0, max: 2.5, percentile: 50 },
-                    { min: 1.5, max: 2.0, percentile: 25 },
-                    { min: 0, max: 1.5, percentile: 5 }
-                ]},
-                pd: { mean: 1.8, std: 0.6 }
+                healthy: {
+                    mean: 2.0,
+                    std: 0.5,
+                    ranges: [
+                    { min: 2.5,  max: 4.0, percentile: 95 },   // very fast, top healthy range
+                    { min: 2.0,  max: 2.5, percentile: 75 },   // typical healthy adult
+                    { min: 1.5,  max: 2.0, percentile: 50 },   // mild slowing
+                    { min: 1.25, max: 1.5, percentile: 25 },   // moderate slowing
+                    { min: 0,    max: 1.25, percentile: 5 }    // severe slowing
+                    ]
+                },
+                pd: {
+                    mean: 1.4,
+                    std: 0.3
+                }
             },
             amplitude: {
-                healthy: { mean: 45, std: 10, ranges: [
-                    { min: 55, max: 100, percentile: 95 },
-                    { min: 45, max: 55, percentile: 75 },
-                    { min: 35, max: 45, percentile: 50 },
-                    { min: 25, max: 35, percentile: 25 },
-                    { min: 0, max: 25, percentile: 5 }
+                healthy: { mean: 50, std: 8, ranges: [
+                    { min: 60, max: 80, percentile: 95 },   // very wide, elite
+                    { min: 50, max: 60, percentile: 75 },   // typical healthy
+                    { min: 40, max: 50, percentile: 50 },   // mild reduction
+                    { min: 30, max: 40, percentile: 25 },   // moderate PD range
+                    { min: 0,  max: 30, percentile: 5 }     // severe hypometria
                 ]}
             },
+
             rhythmCV: {
-                healthy: { mean: 15, std: 5, ranges: [
-                    { min: 0, max: 10, percentile: 95 },    // Best performance
-                    { min: 10, max: 15, percentile: 75 },
-                    { min: 15, max: 20, percentile: 50 },
-                    { min: 20, max: 30, percentile: 25 },
-                    { min: 30, max: 100, percentile: 5 }   // Worst performance
+                healthy: { mean: 12, std: 3, ranges: [
+                    { min: 0, max: 8, percentile: 95 },    // very steady rhythm
+                    { min: 8, max: 15, percentile: 75 },   // typical healthy
+                    { min: 15, max: 20, percentile: 50 },  // slightly irregular
+                    { min: 20, max: 30, percentile: 25 },  // moderate irregularity (PD)
+                    { min: 30, max: 50, percentile: 5 }    // severe irregularity
                 ]}
             },
+
             amplitudeDecrement: {
-                healthy: { mean: 5, std: 5, ranges: [
-                    { min: -10, max: 0, percentile: 95 },
-                    { min: 0, max: 5, percentile: 75 },
-                    { min: 5, max: 10, percentile: 50 },
-                    { min: 10, max: 20, percentile: 25 },
-                    { min: 20, max: 100, percentile: 5 }
+                healthy: { mean: 8, std: 4, ranges: [
+                    { min: 0, max: 10, percentile: 95 },   // minimal fatigue
+                    { min: 10, max: 20, percentile: 75 },  // mild
+                    { min: 20, max: 30, percentile: 50 },  // moderate PD range
+                    { min: 30, max: 50, percentile: 25 },  // severe decrement
+                    { min: 50, max: 80, percentile: 5 }    // extreme hypometria
                 ]}
             }
+
         };
         
         // Initialize MediaPipe Hands
@@ -992,10 +1011,17 @@
                 //updateCharts();
             }
 
+            if (!frameData) frameData = [];  // ✅ guarantee array exists
             frameData.push({
                 timestamp: currentTime,
-                handSize: handSize,
                 normalizedDistance: normalizedDistance,
+                // Angle between thumb and index for extra detail
+                thumbIndexAngle: Math.atan2(
+                    (indexTip.y - thumbTip.y),
+                    (indexTip.x - thumbTip.x)
+                ) * 180 / Math.PI,
+                handSize: handSize,
+                // Save all key landmarks
                 thumbTip: { x: thumbTip.x, y: thumbTip.y, z: thumbTip.z },
                 indexTip: { x: indexTip.x, y: indexTip.y, z: indexTip.z },
                 wrist: { x: wrist.x, y: wrist.y, z: wrist.z },
@@ -1391,23 +1417,39 @@
                 const subjectName = sessionStorage.getItem('prolificID') || 'anonymous';
 
                 // Prepare trial document name
+// ✅ Unified write: summary + raw frame data in one place
                 const trialDocName = `trial_${trialIndex + 1}`;
+// ✅ Save full trial metrics & raw signals in one document
+                const trialData = {
+                trialNumber: trialIndex + 1,
+                condition: trialConditions[trialIndex % trialConditions.length],
+                timestamp: new Date().toISOString(),
 
-                // Save full trial data to Firestore
-                db.collection("Trial Data")
-                .doc(subjectName)
+                // same metrics shown on UI
+                metrics: result.metrics,
+                score: result.score,
+                details: result.details,
+
+                // full signal arrays
+                signals: {
+                    time: timeSignal,
+                    rawDistance: distanceSignal,
+                    smoothedDistance: smoothedSignal,
+                    velocity: velocitySignal,
+                    taps: tapEvents
+                },
+
+                // ✅ save only first 500 frames to avoid hitting Firestore size limit
+                frameData: frameData.slice(0, 500)
+                };
+
+                db.collection("Participants")
+                .doc(participantID)
                 .collection("Trials")
                 .doc(trialDocName)
-                .set({
-                    summary: result,
-                    allCapturedData: frameData
-                })
-                .then(() => {
-                    console.log(`Trial ${trialDocName} saved for ${subjectName}`);
-                })
-                .catch((error) => {
-                    console.error("Error saving trial data:", error);
-                });
+                .set(trialData)
+                .then(() => console.log(`✅ Trial ${trialDocName} saved for ${participantID}`))
+                .catch(err => console.error("❌ Error saving trial data:", err));
 
                 allTrialResults.push({
                     condition: trialConditions[trialIndex % trialConditions.length],
@@ -1522,17 +1564,17 @@
             let score = 0;
             let details = [];
             
-            // Speed assessment
-            if (avgFrequency < 1.5) {
+            if (avgFrequency < 1.25) {
                 score = Math.max(score, 3);
-                details.push("Moderate to severe slowing");
+                details.push("Severe slowing (<1.25 Hz)");
             } else if (avgFrequency < 2.0) {
                 score = Math.max(score, 2);
-                details.push("Mild slowing");
+                details.push("Moderate slowing (1.25–2.0 Hz)");
             } else if (avgFrequency < 2.5) {
                 score = Math.max(score, 1);
-                details.push("Slight slowing");
-            }
+                details.push("Slight slowing (2.0–2.5 Hz)");
+            } // ≥2.5 Hz = normal (score 0)
+
             
             // Amplitude assessment
             if (avgAmplitude < 20) {
@@ -1718,8 +1760,7 @@
             ) / 2;
 
             const asymmetry = Math.abs(rightFastFreq - leftFastFreq) / Math.max(rightFastFreq, leftFastFreq) * 100;
-
-            // Calculate hesitations and freezing across all trials
+            // ✅ Aggregate hesitations/freezing for all trials
             let totalHesitations = 0;
             let totalFreezing = 0;
             allTrialResults.forEach(trial => {
@@ -1728,8 +1769,9 @@
             });
             const hesitations = Math.round(totalHesitations / allTrialResults.length);
             const freezing = Math.round(totalFreezing / allTrialResults.length);
-            // Determine PD likelihood
 
+            // Calculate hesitations and freezing across all trials
+    
             // Create fun report
             let html = `
                 <div class="header" style="margin-bottom: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
@@ -1772,7 +1814,8 @@
                     unit: '%',
                     explanation: 'How well you maintain your speed. Higher percentage means your brain keeps going strong!',
                     icon: '💪',
-                    percentile: 100 - calculatePercentileFromNorm(avgDecrement, 'amplitudeDecrement')
+                    percentile: calculatePercentileFromNorm(100 - avgDecrement, 'amplitudeDecrement')
+
                 },
                 {
                     name: '🎵 Rhythm',
@@ -1959,20 +2002,31 @@
             const rightAvg = mean(rightHand);
             const leftAvg = mean(leftHand);
             const finalAsymmetry = Math.abs(rightAvg - leftAvg) / Math.max(rightAvg, leftAvg) * 100;
-
             db.collection("Results")
             .doc(participantID)
             .collection("Summary")
-            .doc("Final Prognosis")
+            .doc("FinalSummary")
             .set({
-                tappingFrequency: avgFreq,
-                movementAmplitude: avgAmp,
-                amplitudeDecrement: avgDec,
-                rhythmConsistency: avgCV,
-                handAsymmetry: finalAsymmetry,
-                conditionBreakdown: conditionBreakdown,
-                generatedAt: new Date().toISOString()
-            });
+                completedAt: new Date().toISOString(),
+                totalTrials: allTrialResults.length,
+                finalAverages: {
+                tappingFrequency: avgFastFreq,
+                movementAmplitude: calculateAverage([...rightTrials, ...leftTrials], 'avgAmplitude'),
+                amplitudeDecrement: avgDecrement,
+                rhythmConsistency: avgRhythmCV,
+                handAsymmetry: asymmetry
+                },
+                hesitations: hesitations,
+                freezing: freezing,
+                allTrialMetrics: allTrialResults.map((t, idx) => ({
+                trialNum: idx + 1,
+                condition: t.condition,
+                ...t.result.metrics
+                }))
+            })
+            .then(() => console.log("✅ Final summary saved for", participantID))
+            .catch(err => console.error("❌ Error saving final summary:", err));
+
 
 
         }
@@ -2118,6 +2172,11 @@
                 // Optionally validate form fields
                 const pid = document.getElementById('prolificID').value;
                 const age = document.getElementById('age').value;
+
+                            // ✅ Save participant ID so all trials match
+                sessionStorage.setItem('prolificID', pid);
+                participantID = pid;  // overwrite the anon one
+
 
                 if (!pid || !age) {
                     alert('Please fill in all required fields.');
