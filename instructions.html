@@ -1,0 +1,82 @@
+<div id="page-instructions" 
+  style="
+    display:flex; 
+    flex-direction:column; 
+    align-items:center; 
+    justify-content:center; 
+    height:100vh;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color:white; 
+    padding:60px; 
+    text-align:center; 
+    font-family: 'Segoe UI', sans-serif;
+  "
+>
+  <!-- BIGGER TITLE -->
+  <h1 
+    style="
+      font-size:3.8em; 
+      margin-bottom:30px; 
+      font-weight:800; 
+      text-shadow:0 4px 15px rgba(0,0,0,0.4); 
+      letter-spacing:1px;
+    "
+  >
+    📋 Finger Tapping Test Instructions
+  </h1>
+
+  <!-- NICER INSTRUCTION BOX -->
+  <div 
+    style="
+      max-width:900px; 
+      background:rgba(255,255,255,0.08); 
+      padding:45px; 
+      border-radius:20px; 
+      line-height:2; 
+      text-align:left;
+      box-shadow:0 10px 30px rgba(0,0,0,0.3); 
+      font-size:1.4em;
+    "
+  >
+    <ol style="padding-left:30px; margin:0;">
+      <li style="margin-bottom:18px;">
+        Sit comfortably with good lighting and make sure your hand is clearly visible in the camera view.
+      </li>
+      <li style="margin-bottom:18px;">
+        For each trial, you’ll be told which hand to use.
+      </li>
+      <li style="margin-bottom:18px;">
+        When the trial begins, tap your thumb and index finger together as <strong>QUICKLY</strong> as you can for 20 seconds.
+      </li>
+      <li style="margin-bottom:18px;">
+        Each hand will be tested 3 times (6 trials total).
+      </li>
+      <li>
+        Press <strong>Next</strong> when you’re ready to start.
+      </li>
+    </ol>
+  </div>
+
+  <!-- BIGGER & GLOWING NEXT BUTTON -->
+  <button 
+    style="
+      margin-top:50px; 
+      background: linear-gradient(135deg,#667eea,#764ba2);
+      color:white; 
+      padding:20px 70px; 
+      font-size:1.6em; 
+      font-weight:600; 
+      border:none; 
+      border-radius:12px; 
+      cursor:pointer;
+      box-shadow:0 8px 20px rgba(102,126,234,0.4); 
+      transition:all 0.3s ease;
+    "
+    onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 25px rgba(102,126,234,0.6)';"
+    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 20px rgba(102,126,234,0.4)';"
+    onclick="window.location.href='index.html'"
+
+  >
+    Next →
+  </button>
+</div>
