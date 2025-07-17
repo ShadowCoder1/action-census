@@ -1417,39 +1417,33 @@
                 const subjectName = sessionStorage.getItem('prolificID') || 'anonymous';
 
                 // Prepare trial document name
-// ✅ Unified write: summary + raw frame data in one place
+                // Prepare trial document name
                 const trialDocName = `trial_${trialIndex + 1}`;
-// ✅ Save full trial metrics & raw signals in one document
-                const trialData = {
-                trialNumber: trialIndex + 1,
-                condition: trialConditions[trialIndex % trialConditions.length],
-                timestamp: new Date().toISOString(),
 
-                // same metrics shown on UI
-                metrics: result.metrics,
-                score: result.score,
-                details: result.details,
+                // ✅ Create a lightweight raw frame dataset for future analysis
+                const rawFrames = frameData.slice(0, 500).map(f => ({
+                t: f.timestamp,               // ms since trial start
+                normDist: f.normalizedDistance, // normalized thumb-index distance (% hand size)
+                angle: f.thumbIndexAngle,       // angle between thumb & index
+                handSize: f.handSize,           // scale reference
+                thumb: f.thumbTip,              // {x,y,z}
+                index: f.indexTip,              // {x,y,z}
+                wrist: f.wrist                  // {x,y,z}
+                }));
 
-                // full signal arrays
-                signals: {
-                    time: timeSignal,
-                    rawDistance: distanceSignal,
-                    smoothedDistance: smoothedSignal,
-                    velocity: velocitySignal,
-                    taps: tapEvents
-                },
-
-                // ✅ save only first 500 frames to avoid hitting Firestore size limit
-                frameData: frameData.slice(0, 500)
-                };
-
+                // ✅ Save ONLY raw hand kinematic data in Participants collection
                 db.collection("Participants")
                 .doc(participantID)
                 .collection("Trials")
                 .doc(trialDocName)
-                .set(trialData)
-                .then(() => console.log(`✅ Trial ${trialDocName} saved for ${participantID}`))
-                .catch(err => console.error("❌ Error saving trial data:", err));
+                .set({
+                    trialNumber: trialIndex + 1,
+                    condition: trialConditions[trialIndex % trialConditions.length],
+                    timestamp: new Date().toISOString(),
+                    rawFrames: rawFrames
+                })
+                .then(() => console.log(`✅ Raw hand data saved for ${participantID} / ${trialDocName}`))
+                .catch(err => console.error("❌ Error saving raw hand data:", err));
 
                 allTrialResults.push({
                     condition: trialConditions[trialIndex % trialConditions.length],
