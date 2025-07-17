@@ -416,32 +416,19 @@
 
 </head>
 <body>
+
+    <!-- PAGE 2: Webcam Test -->
+    <div id="page-webcam" style="display:none;">
+    
     <div class="container">
         
         <div class="header">
             <h1>Fast Fingers Challenge: How Quick Are You?</h1>
-            <p>Measuring Motor Function</p>
         </div>
-        <div class="instructions">
-            <h3>📋 Finger Tapping Test Instructions</h3>
-            <ol>
-                <li><strong>Sit comfortably</strong> with good lighting and make sure your face and hand are clearly visible in the camera view.</li>
-                <li>You will see the trial instructions above the video, for example:<br>
-                    <em>“Trial 1 of 8 — RIGHT hand, comfortable pace (Rep 1)”</em></li>
-                <li><strong>Follow exactly what the trial says:</strong> 
-                    <ul style="text-align:left; margin-top: 5px;">
-                        <li>If it says <strong>RIGHT hand</strong>, only use your right hand. If it says <strong>LEFT hand</strong>, use your left hand.</li>
-                        <li>Always tap <strong>as quickly as you can</strong> while staying controlled.</li>
-                    </ul>
-                </li>
-                <li>Once you press <strong>Start Recording</strong>, there will be a <strong>3‑second countdown</strong> before the trial begins.</li>
-                <li>During the trial, <strong>tap your thumb and index finger together repeatedly</strong> for <strong>30 seconds</strong> as instructed. Keep your hand steady and in view of the camera the whole time.</li>
-                <li>The system will automatically stop and move to the next trial.</li>
-            </ol>
-            <p style="margin-top: 15px; font-size: 1.2em; color: #90cdf4; text-align:center;">
-                ⬇️ Press <strong>SPACEBAR</strong> when you're ready to start ⬇️
-            </p>
+        <div class="instructions" style="text-align:center; font-size:1.3em;">
+            Tap your thumb and index finger together as QUICKLY as you can for each trial.
         </div>
+        
         
 
         <div class="main-grid">
@@ -487,7 +474,7 @@
                         background: rgba(0, 0, 0, 0.6);
                         padding: 12px 20px;
                         border-radius: 10px;
-                        font-size: 1.3em;
+                        font-size: 2.6em;
                         font-weight: bold;
                         color: #fff;
                         line-height: 1.4;
@@ -525,7 +512,7 @@
         let camera, hands, canvasCtx, recording = false;
         let startTime, handDetected = false;
         let distanceChart, velocityChart;
-        let recordingDuration = 30000; // 30 seconds
+        let recordingDuration = 20000; // 20 seconds
         let countdownInterval;
         let frameCount = 0;
         let mainTimerInterval;
@@ -547,16 +534,19 @@
         const SAMPLE_RATE = 30; // Assumed 30 FPS
         
 
-        // Trial management variables
         const trialConditions = [
-            { hand: 'right', pace: 'fast' },
-            { hand: 'left',  pace: 'fast' },
-            { hand: 'right', pace: 'fast' },
-            { hand: 'left',  pace: 'fast' }
+            { hand: 'right' },
+            { hand: 'right' },
+            { hand: 'right' },
+            { hand: 'left' },
+            { hand: 'left' },
+            { hand: 'left' }
         ];
 
+
         let trialIndex = 0;
-        let totalTrials = trialConditions.length; // now just 4 trials total
+        let totalTrials = trialConditions.length; // now 6 trials total (3 per hand)
+
 
         let allTrialResults = []
 
@@ -597,11 +587,11 @@
             },
             rhythmCV: {
                 healthy: { mean: 15, std: 5, ranges: [
-                    { min: 0, max: 10, percentile: 95 },
+                    { min: 0, max: 10, percentile: 95 },    // Best performance
                     { min: 10, max: 15, percentile: 75 },
                     { min: 15, max: 20, percentile: 50 },
                     { min: 20, max: 30, percentile: 25 },
-                    { min: 30, max: 100, percentile: 5 }
+                    { min: 30, max: 100, percentile: 5 }   // Worst performance
                 ]}
             },
             amplitudeDecrement: {
@@ -1362,16 +1352,13 @@
                 document.getElementById('overlayTime').textContent = `Time Remaining: ${remaining}s`;
 
                 
-                // Show final countdown in the middle
+                                // Change color to red in the last 3 seconds
                 if (remaining <= 3 && remaining > 0) {
-                    const countdownEl = document.getElementById('countdown');
-                    countdownEl.style.display = 'block';
-                    countdownEl.textContent = remaining;
-                    countdownEl.style.animation = 'none';
-                    setTimeout(() => {
-                        countdownEl.style.animation = 'countdownPulse 1s ease-in-out';
-                    }, 10);
+                    document.getElementById('overlayTime').style.color = 'red';
+                } else {
+                    document.getElementById('overlayTime').style.color = '#fff'; // default white
                 }
+
             }, 100);
 
             // Auto-stop after 30 seconds
@@ -1620,13 +1607,14 @@
             
             const conditionEl = document.getElementById('conditionInfo');
             conditionEl.innerHTML =
-                `Trial ${trialNum} of ${totalTrials} — <span style="color:${handColor}; font-size:1.4em;">${condition.hand.toUpperCase()} HAND</span> (FAST pace)`;
-            
+                `Trial ${trialNum} of ${totalTrials} — Tap your <span style="color:${handColor}; font-size:1.4em;">${condition.hand.toUpperCase()} HAND</span> as quickly as you can for 20 seconds`
+
             updateConditionDescription();
         }
         
         function updateConditionDescription() {
-            const msg = "Using just your thumb and index finger, tap them together as QUICKLY as you can, like you're pinching repeatedly. Keep going for 30 seconds. Stay relaxed but move as fast as possible.";
+            const msg = "Tap your thumb and index finger together as QUICKLY as you can for 20 seconds.";
+
             document.getElementById('conditionDescription').textContent = msg;
         }
 
@@ -1642,176 +1630,209 @@
             return 50; // default
         }
 
+        function calculatePercentileFromNorm(value, metric) {
+            const ranges = POPULATION_NORMS[metric]?.healthy?.ranges;
+            if (!ranges) {
+                // Fallback to z-score calculation if no ranges
+                const norm = POPULATION_NORMS[metric]?.healthy;
+                if (!norm) return 50;
+                const zScore = (value - norm.mean) / norm.std;
+                const percentile = 50 + (zScore * 16);
+                return Math.max(1, Math.min(99, Math.round(percentile)));
+            }
+            
+            // Use actual ranges for accurate percentiles
+            for (let range of ranges) {
+                if (value >= range.min && value <= range.max) {
+                    // Interpolate within the range
+                    const rangeSize = range.max - range.min;
+                    const position = (value - range.min) / rangeSize;
+                    
+                    // Find the next percentile bracket
+                    let nextPercentile = range.percentile;
+                    let prevPercentile = range.percentile;
+                    
+                    if (range.percentile === 95) {
+                        prevPercentile = 75;
+                    } else if (range.percentile === 75) {
+                        nextPercentile = 95;
+                        prevPercentile = 50;
+                    } else if (range.percentile === 50) {
+                        nextPercentile = 75;
+                        prevPercentile = 25;
+                    } else if (range.percentile === 25) {
+                        nextPercentile = 50;
+                        prevPercentile = 5;
+                    } else if (range.percentile === 5) {
+                        nextPercentile = 25;
+                    }
+                    
+                    // Interpolate
+                    const percentileDiff = nextPercentile - prevPercentile;
+                    const interpolated = prevPercentile + (position * percentileDiff);
+                    
+                    return Math.max(1, Math.min(99, Math.round(interpolated)));
+                }
+            }
+            
+            // If value is outside all ranges
+            if (value > ranges[0].max) return 99;
+            if (value < ranges[ranges.length - 1].min) return 1;
+            return 50;
+        }
+
         function analyzeAllTrials() {
             // Hide the main interface
             document.querySelector('.container').style.display = 'none';
             document.getElementById('finalResults').style.display = 'block';
             
-            // Separate by conditions
-            let rightFast = allTrialResults.filter(t => t.condition.hand === 'right' && t.condition.pace === 'fast');
-            let leftFast = allTrialResults.filter(t => t.condition.hand === 'left' && t.condition.pace === 'fast');
-            
+                        // Separate by hand
+            let rightTrials = allTrialResults.filter(t => t.condition.hand === 'right');
+            let leftTrials = allTrialResults.filter(t => t.condition.hand === 'left');
+
             // Calculate averages for each condition
             const calculateAverage = (trials, metric) => {
                 const values = trials.map(t => t.result.metrics[metric]);
                 return values.reduce((a, b) => a + b, 0) / values.length;
             };
             
-            // Enhanced analysis with multiple factors
-            let possiblePD = false;
-            let pdScore = 0;
-            let reasoning = [];
-            
-            // 1. Frequency analysis
-            const rightFastFreq = calculateAverage(rightFast, 'avgFrequency');
-            const leftFastFreq = calculateAverage(leftFast, 'avgFrequency');
+          
+    // Calculate metrics
+            const rightFastFreq = calculateAverage(rightTrials, 'avgFrequency');
+            const leftFastFreq = calculateAverage(leftTrials, 'avgFrequency');
             const avgFastFreq = (rightFastFreq + leftFastFreq) / 2;
-            
-            if (avgFastFreq < 1.5) {
-                pdScore += 3;
-                reasoning.push("Severe bradykinesia detected (frequency < 1.5 Hz)");
-            } else if (avgFastFreq < 2.0) {
-                pdScore += 2;
-                reasoning.push("Moderate bradykinesia (frequency < 2.0 Hz)");
-            } else if (avgFastFreq < 2.5) {
-                pdScore += 1;
-                reasoning.push("Mild bradykinesia (frequency < 2.5 Hz)");
-            }
-            
-            // 2. Amplitude decrement
+
             const avgDecrement = (
-                calculateAverage(rightFast, 'amplitudeDecrement') +
-                calculateAverage(leftFast, 'amplitudeDecrement')
+                calculateAverage(rightTrials, 'amplitudeDecrement') +
+                calculateAverage(leftTrials, 'amplitudeDecrement')
             ) / 2;
-            
-            if (avgDecrement > 30) {
-                pdScore += 2;
-                reasoning.push("Significant amplitude decrement (>30%)");
-            } else if (avgDecrement > 15) {
-                pdScore += 1;
-                reasoning.push("Mild amplitude decrement (>15%)");
-            }
-            
-            // 3. Rhythm variability
+
             const avgRhythmCV = (
-                calculateAverage(rightFast, 'rhythmCV') +
-                calculateAverage(leftFast, 'rhythmCV')
+                calculateAverage(rightTrials, 'rhythmCV') +
+                calculateAverage(leftTrials, 'rhythmCV')
             ) / 2;
-            
-            if (avgRhythmCV > 30) {
-                pdScore += 2;
-                reasoning.push("High rhythm variability (CV > 30%)");
-            } else if (avgRhythmCV > 20) {
-                pdScore += 1;
-                reasoning.push("Moderate rhythm variability (CV > 20%)");
-            }
-            
-            // 4. Speed-amplitude index
+
             const avgSpeedAmpIndex = (
-                calculateAverage(rightFast, 'speedAmplitudeIndex') +
-                calculateAverage(leftFast, 'speedAmplitudeIndex')
+                calculateAverage(rightTrials, 'speedAmplitudeIndex') +
+                calculateAverage(leftTrials, 'speedAmplitudeIndex')
             ) / 2;
-            
-            if (avgSpeedAmpIndex < 1.0) {
-                pdScore += 2;
-                reasoning.push("Low speed-amplitude index (<1.0)");
-            }
-            
-            // 5. Asymmetry analysis
+
             const asymmetry = Math.abs(rightFastFreq - leftFastFreq) / Math.max(rightFastFreq, leftFastFreq) * 100;
-            if (asymmetry > 20) {
-                pdScore += 1;
-                reasoning.push(`Significant hand asymmetry (${asymmetry.toFixed(0)}%)`);
-            }
-            
+
+            // Calculate hesitations and freezing across all trials
+            let totalHesitations = 0;
+            let totalFreezing = 0;
+            allTrialResults.forEach(trial => {
+                totalHesitations += trial.result.metrics.hesitations || 0;
+                totalFreezing += trial.result.metrics.freezing || 0;
+            });
+            const hesitations = Math.round(totalHesitations / allTrialResults.length);
+            const freezing = Math.round(totalFreezing / allTrialResults.length);
             // Determine PD likelihood
-            if (pdScore >= 5) {
-                possiblePD = true;
-                reasoning.unshift("Multiple motor abnormalities detected consistent with parkinsonian features");
-            } else if (pdScore >= 3) {
-                possiblePD = true;
-                reasoning.unshift("Some motor abnormalities detected that may warrant further evaluation");
-            } else {
-                reasoning.unshift("Motor function within normal limits");
-            }
-            
-            // Create comprehensive report
+
+            // Create fun report
             let html = `
-                <div class="header" style="margin-bottom: 40px;">
-                    <h1>Your Motor Function Analysis Results</h1>
-                    <p>Comprehensive assessment of your finger tapping performance</p>
+                <div class="header" style="margin-bottom: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h1 style="font-size: 3em; margin-bottom: 20px;">🎯 Your Finger Speed Results!</h1>
+                    <p style="font-size: 1.5em;">How fast can your brain control your fingers?</p>
                 </div>
                 
-                <div class="results-summary" style="margin-bottom: 40px;">
-                    <h3>Overall Assessment</h3>
-                    <div class="result-item">
-                        <span>Clinical Impression:</span>
-                        <span class="severity-indicator ${possiblePD ? 'severity-moderate' : 'severity-normal'}">
-                            ${possiblePD ? 'Potential Motor Impairment Detected' : 'Normal Motor Function'}
-                        </span>
+                <div style="text-align: center; margin-bottom: 40px; padding: 30px; background: rgba(255,255,255,0.05); border-radius: 20px;">
+                    <h2 style="color: #667eea; font-size: 2.5em; margin-bottom: 20px;">Your Speed Score</h2>
+                    <div style="font-size: 5em; font-weight: bold; color: #ffdd57; text-shadow: 0 0 20px rgba(255, 221, 87, 0.5);">
+                        ${avgFastFreq.toFixed(1)} Hz
                     </div>
-                    <div class="result-item">
-                        <span>Key Findings:</span>
-                        <span>${reasoning.join('. ')}</span>
-                    </div>
-                </div>
-                
-                <div class="metric-explanation">
-                    <h4>Understanding Your Results</h4>
-                    <p>Your finger tapping test measured several important aspects of motor control. Here's what each metric means for your brain health:</p>
+                    <p style="font-size: 1.3em; margin-top: 20px; color: #90cdf4;">
+                        You tap ${(avgFastFreq * 20).toFixed(0)} times in 20 seconds!<br>
+                        Most people tap at 2-3 Hz (40-60 taps)
+                    </p>
                 </div>
             `;
-            
             // Add detailed metric explanations with percentiles
             const metrics = [
                 {
-                    name: 'Tapping Frequency',
+                    name: '⚡ Speed',
                     value: avgFastFreq,
                     unit: 'Hz',
-                    explanation: 'How fast you can tap your fingers. This measures the speed of your motor neurons and muscle control. Normal adults tap at 2-3 Hz during fast-paced trials.',
-                    percentile: getPercentile(avgFastFreq, 'frequency')
+                    explanation: 'How fast you can tap! Like a video game, higher is better. Most adults tap at 2-3 times per second.',
+                    icon: '🏃‍♂️',
+                    percentile: calculatePercentileFromNorm(avgFastFreq, 'frequency')
                 },
                 {
-                    name: 'Movement Amplitude',
-                    value: calculateAverage([...rightFast, ...leftFast], 'avgAmplitude'),
+                    name: '📏 Finger Spread',
+                    value: calculateAverage([...rightTrials, ...leftTrials], 'avgAmplitude'),
                     unit: '%',
-                    explanation: 'How wide you open your fingers between taps. This reflects the range and control of your movements. Reduced amplitude can indicate muscle weakness or motor planning issues.',
-                    percentile: getPercentile(calculateAverage([...rightFast, ...leftFast], 'avgAmplitude'), 'amplitude')
+                    explanation: 'How wide you open your fingers. Bigger movements show confident control!',
+                    icon: '👐',
+                    percentile: calculatePercentileFromNorm(calculateAverage([...rightTrials, ...leftTrials], 'avgAmplitude'), 'amplitude')
                 },
                 {
-                    name: 'Amplitude Decrement',
-                    value: avgDecrement,
+                    name: '🔋 Stamina',
+                    value: Math.max(0, 100 - avgDecrement),
                     unit: '%',
-                    explanation: 'Whether your taps get smaller over time. This measures motor fatigue and sustainability. Healthy individuals show minimal decrement (<10%).',
-                    percentile: getPercentile(avgDecrement, 'amplitudeDecrement')
+                    explanation: 'How well you maintain your speed. Higher percentage means your brain keeps going strong!',
+                    icon: '💪',
+                    percentile: 100 - calculatePercentileFromNorm(avgDecrement, 'amplitudeDecrement')
                 },
                 {
-                    name: 'Rhythm Consistency',
-                    value: avgRhythmCV,
-                    unit: '% CV',
-                    explanation: 'How regular your tapping rhythm is. Lower values mean more consistent timing. This reflects the precision of your brain\'s internal timing mechanisms.',
-                    percentile: getPercentile(avgRhythmCV, 'rhythmCV')
-                },
-                {
-                    name: 'Hand Asymmetry',
-                    value: asymmetry,
+                    name: '🎵 Rhythm',
+                    value: Math.max(0, 100 - avgRhythmCV),
                     unit: '%',
-                    explanation: 'The difference in performance between your hands. Most people show <10% difference. Higher asymmetry can indicate unilateral motor issues.',
-                    percentile: asymmetry < 10 ? 95 : asymmetry < 20 ? 50 : 25
+                    explanation: 'How steady your beat is. Musicians often score high here!',
+                    icon: '🥁',
+                    percentile: calculatePercentileFromNorm(avgRhythmCV, 'rhythmCV') // Don't invert here, the ranges handle it
+                },
+                {
+                    name: '⚖️ Balance',
+                    value: Math.max(0, 100 - asymmetry),
+                    unit: '%',
+                    explanation: 'How similar your hands perform. Most people have a slightly dominant hand.',
+                    icon: '🤝',
+                    percentile: asymmetry < 10 ? 85 : asymmetry < 20 ? 50 : 15
+                },
+                {
+                    name: '💫 Fluidity',
+                    value: Math.max(0, 100 - (hesitations * 10) - (freezing * 25)),
+                    unit: '%',
+                    explanation: 'How smoothly you tap without pauses. Like water flowing - no interruptions!',
+                    icon: '🌊',
+                    percentile: hesitations === 0 && freezing === 0 ? 90 : hesitations <= 2 ? 70 : hesitations <= 5 ? 40 : 20
                 }
             ];
-            
+
+            // Display metrics in a responsive grid
+            html += '<h2 style="text-align: center; color: #667eea; margin-bottom: 30px; font-size: 2em;">Your Performance Breakdown</h2>';
+            html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 40px; max-width: 1400px; margin-left: auto; margin-right: auto;">';
+
             metrics.forEach(metric => {
+                // Determine performance color based on percentile
+                let performanceColor = '#48bb78'; // green
+                if (metric.percentile < 25) performanceColor = '#e53e3e'; // red
+                else if (metric.percentile < 50) performanceColor = '#ed8936'; // orange
+                else if (metric.percentile < 75) performanceColor = '#f6e05e'; // yellow
+                
                 html += `
-                    <div class="metric-explanation">
-                        <h4>${metric.name}: ${metric.value.toFixed(1)} ${metric.unit}
-                            <span class="percentile-indicator">Top ${metric.percentile}%</span>
-                        </h4>
-                        <p>${metric.explanation}</p>
-                        <p style="color: #667eea;">Your performance is better than ${100 - metric.percentile}% of healthy adults.</p>
+                    <div style="background: linear-gradient(135deg, #1e2139 0%, #2a2d4a 100%); 
+                                border-radius: 20px; padding: 30px; text-align: center;
+                                transition: all 0.3s ease; cursor: pointer;
+                                border: 2px solid rgba(102, 126, 234, 0.3);
+                                box-shadow: 0 10px 30px rgba(0,0,0,0.3);"
+                        onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 40px rgba(102,126,234,0.4)'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.3)'">
+                        <div style="font-size: 3.5em; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));">${metric.icon}</div>
+                        <h4 style="color: #90cdf4; font-size: 1.2em; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">${metric.name}</h4>
+                        <div style="font-size: 3em; font-weight: bold; color: #ffdd57; margin-bottom: 10px; text-shadow: 0 0 15px rgba(255, 221, 87, 0.5);">
+                            ${metric.value.toFixed(0)}${metric.unit}
+                        </div>
+                        <div style="background: ${performanceColor}; color: white; padding: 8px 16px; border-radius: 20px; 
+                                    font-weight: bold; margin: 15px auto; display: inline-block; font-size: 1.1em;">
+                            Better than ${metric.percentile}% of people
+                        </div>
+                        <p style="font-size: 0.95em; opacity: 0.9; line-height: 1.5; margin-top: 15px;">${metric.explanation}</p>
                     </div>
                 `;
             });
+            html += '</div>';
             
             // Add condition-specific results
             html += `
@@ -1829,10 +1850,11 @@
                         </thead>
                         <tbody>
             `;
-            
+   
+
             const conditions = [
-                { name: 'Right Hand - Fast', data: rightFast },
-                { name: 'Left Hand - Fast', data: leftFast }
+                { name: 'Right Hand', data: rightTrials },
+                { name: 'Left Hand', data: leftTrials }
             ];
 
             
@@ -1858,25 +1880,27 @@
                     </table>
                 </div>
                 
-                <div class="metric-explanation" style="margin-top: 40px;">
-                    <h4>What These Results Mean</h4>
-                    <p>The finger tapping test is a sensitive measure of motor control that can detect subtle changes in brain function. It evaluates:</p>
-                    <ul style="margin-left: 20px; line-height: 1.8;">
-                        <li><strong>Basal ganglia function:</strong> Controls movement initiation and speed</li>
-                        <li><strong>Motor cortex integrity:</strong> Plans and executes voluntary movements</li>
-                        <li><strong>Cerebellar coordination:</strong> Maintains rhythm and precision</li>
-                        <li><strong>Neuromuscular efficiency:</strong> How well your brain communicates with muscles</li>
-                    </ul>
-                    ${possiblePD ? 
-                        '<p style="margin-top: 20px; padding: 15px; background: rgba(237, 137, 54, 0.2); border-radius: 10px; border: 1px solid #ed8936;">⚠️ <strong>Important:</strong> Your results suggest some motor function differences that may benefit from medical evaluation. This test is a screening tool, not a diagnosis. Please consult with a healthcare provider for comprehensive assessment.</p>' :
-                        '<p style="margin-top: 20px; padding: 15px; background: rgba(72, 187, 120, 0.2); border-radius: 10px; border: 1px solid #48bb78;">✓ Your motor function appears to be within normal limits. Regular exercise and staying active can help maintain healthy motor control as you age.</p>'
-                    }
+                <div style="text-align: center; margin-top: 40px; padding: 30px; 
+                            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+                            border-radius: 20px; border: 2px solid #667eea;">
+                    <h3 style="color: #ffdd57; font-size: 2em; margin-bottom: 20px;">🧠 Fun Brain Facts!</h3>
+                    <p style="font-size: 1.2em; line-height: 1.8; margin-bottom: 20px;">
+                        Your finger tapping speed is controlled by multiple brain regions working together like an orchestra!
+                        Professional gamers often score high on speed, while musicians excel at rhythm.
+                    </p>
+                    <div style="font-size: 1.5em; color: #90cdf4; margin-top: 30px;">
+                        Challenge your friends and see who has the fastest fingers! 🏆
+                    </div>
                 </div>
                 
                 <div class="export-section" style="margin-top: 40px; text-align: center;">
-                    <button onclick="exportAllResults()" style="margin-right: 10px;">Export Full Report (JSON)</button>
-                    <button onclick="printResults()">Print Results</button>
-                    <button onclick="location.reload()" style="margin-left: 10px;">Start New Test</button>
+                    <button onclick="location.reload()" style="font-size: 1.3em; padding: 15px 40px; 
+                            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">
+                        🎮 Play Again!
+                    </button>
+                    <button onclick="shareResults()" style="margin-left: 20px; font-size: 1.3em; padding: 15px 40px;">
+                        📤 Share Results
+                    </button>
                 </div>
             `;
             
@@ -1953,6 +1977,42 @@
 
         }
 
+        function shareResults() {
+            // Calculate the average frequency from the stored results
+            const rightTrials = allTrialResults.filter(t => t.condition.hand === 'right');
+            const leftTrials = allTrialResults.filter(t => t.condition.hand === 'left');
+            
+            const calculateAverage = (trials, metric) => {
+                const values = trials.map(t => t.result.metrics[metric]);
+                return values.reduce((a, b) => a + b, 0) / values.length;
+            };
+            
+            const rightFreq = calculateAverage(rightTrials, 'avgFrequency');
+            const leftFreq = calculateAverage(leftTrials, 'avgFrequency');
+            const avgFreq = (rightFreq + leftFreq) / 2;
+            
+            const text = `🎮 I just tested my finger speed!\n\n⚡ My tapping speed: ${avgFreq.toFixed(1)} Hz (${(avgFreq * 20).toFixed(0)} taps in 20 seconds)\n\n🏆 Think you can tap faster? Try it yourself:\n${window.location.origin}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Finger Speed Challenge Results',
+                    text: text
+                }).catch(err => {
+                    // Fallback to clipboard if share fails
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert('Results copied to clipboard! 📋');
+                    });
+                });
+            } else {
+                // Fallback - copy to clipboard
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Results copied to clipboard! 📋');
+                }).catch(err => {
+                    // Final fallback
+                    alert('Could not copy results. Your average speed was ' + avgFreq.toFixed(1) + ' Hz');
+                });
+            }
+        }
         // Export all results
         function exportAllResults() {
             const exportData = {
@@ -2096,12 +2156,23 @@
                 }
             });
 
+      
         window.onload = function() {
+            // ✅ No instructions here, go straight to webcam
+            document.getElementById('page-webcam').style.display = 'block';
             initializeHands();
             initializeCamera();
             updateConditionUI();
         };
 
+
+
     </script>
 </body>
+
+    <script>
+
+    </script>
+
+
 </html>
