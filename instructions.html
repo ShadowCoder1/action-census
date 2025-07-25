@@ -46,24 +46,34 @@ style="
         🎥 Hand Tapping Video Tutorial
     </h2>
     
-    <video 
-        controls 
-        preload="metadata"
+    <div style="
+      position:relative;
+      padding-bottom:56.25%; /* 16:9 aspect ratio */
+      height:0;
+      overflow:hidden;
+      border-radius:15px;
+      box-shadow:0 8px 25px rgba(0,0,0,0.4);
+      border:3px solid rgba(255,255,255,0.1);
+      max-width:600px;
+      margin:0 auto;
+    ">
+      <iframe
+        src="https://www.youtube.com/embed/73zyyp77mu0"
+        title="Hand Tapping Tutorial"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
         style="
-            width:100%; 
-            max-width:600px; 
-            height:auto; 
-            border-radius:15px; 
-            box-shadow:0 8px 25px rgba(0,0,0,0.4);
-            border:3px solid rgba(255,255,255,0.1);
+          position:absolute;
+          top:0;
+          left:0;
+          width:100%;
+          height:100%;
+          border:none;
         "
-        poster="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMDAwMDAwIi8+PGNpcmNsZSBjeD0iNTAlIiBjeT0iNDUlIiByPSI4MCIgZmlsbD0icmdiYSgzMCw2MCwxMTQsMC4yKSIvPjxjaXJjbGUgY3g9IjUwJSIgY3k9IjQ1JSIgcj0iNjAiIGZpbGw9InJnYmEoNDIsODIsMTUyLDAuMykiLz48Y2lyY2xlIGN4PSI1MCUiIGN5PSI0NSUiIHI9IjQwIiBmaWxsPSJyZ2JhKDEwMiwxMjYsMjM0LDAuNCkiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IidTZWdvZSBVSScsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzJweCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWx0ZXI9ImRyb3Atc2hhZG93KDAgM3B4IDE1cHggcmdiYSgwLDAsMCwwLjcpKSI+SGFuZCBUYXBwaW5nIFR1dG9yaWFsPC90ZXh0Pjx0ZXh0IHg9IjUwJSIgeT0iNjUlIiBmb250LWZhbWlseT0iJ1NlZ29lIFVJJywgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOHB4IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuNykiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5DbGljayB0byBQbGF5PC90ZXh0Pjwvc3ZnPg=="
-    >
-        <source src="/Users/sritejpadmanabhan/Documents/JT work/HandTappingTutorial.mp4" type="video/mp4">
-        <p style="color:#ff6b6b; font-size:1.1em;">
-            Your browser doesn't support video playbook. Please update your browser or contact support.
-        </p>
-    </video>
+      ></iframe>
+    </div>
+    
     
     <p style="
         margin-top:15px; 
