@@ -71,7 +71,7 @@
         .video-wrapper {
             position: relative;
             width: 100%;
-            height: 80vh;  /* fills most of screen */
+            height: 65vh;  /* fills most of screen */
             background: #000;
             border-radius: 10px;
             overflow: hidden;
@@ -213,6 +213,26 @@
             color: white;
         }
 
+        .hand-outline-not-ready {
+            filter: drop-shadow(0 0 40px #ff0000) drop-shadow(0 0 80px #ff0000) drop-shadow(0 0 120px #ff0000);
+            opacity: 0.9 !important;
+            transition: all 0.3s ease;
+        }
+
+        .hand-outline-ready {
+            filter: drop-shadow(0 0 40px #00ff00) drop-shadow(0 0 80px #00ff00) drop-shadow(0 0 120px #00ff00);
+            opacity: 1 !important;
+            animation: readyPulse 1s infinite;
+            transition: all 0.3s ease;
+        }
+        @keyframes readyPulse {
+            0%, 100% { 
+                filter: drop-shadow(0 0 40px #00ff00) drop-shadow(0 0 80px #00ff00) drop-shadow(0 0 120px #00ff00);
+            }
+            50% { 
+                filter: drop-shadow(0 0 60px #00ff00) drop-shadow(0 0 120px #00ff00) drop-shadow(0 0 180px #00ff00);
+            }
+        }
         @keyframes pulse {
             0% { opacity: 1; }
             50% { opacity: 0.7; }
@@ -225,6 +245,28 @@
             padding: 15px;
             margin-bottom: 20px;
             border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .open-fingers-warning {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 221, 87, 0.95);
+            color: #000;
+            padding: 30px 50px;
+            border-radius: 20px;
+            font-size: 2.5em;
+            font-weight: bold;
+            z-index: 500;
+            animation: flash 0.8s infinite;
+            text-align: center;
+            display: none;
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
 
         .instructions {
@@ -393,6 +435,40 @@
                 grid-column: span 1;
             }
         }
+
+                /* Hand position feedback states */
+        .palm-correct {
+            border-color: #48bb78 !important;
+            background: rgba(72, 187, 120, 0.1) !important;
+        }
+
+        .palm-correct #palm-status {
+            color: #48bb78 !important;
+        }
+
+        .position-feedback {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.3em;
+            font-weight: bold;
+            z-index: 200;
+            display: none;
+        }
+
+        .feedback-good {
+            border: 2px solid #48bb78;
+            color: #48bb78;
+        }
+
+        .feedback-bad {
+            border: 2px solid #ff4444;
+            color: #ff4444;
+        }
     </style>
 
 
@@ -425,6 +501,28 @@
 
 </head>
 <body>
+        <!-- Instruction overlay shown before each trial -->
+    <div id="trial-instructions-overlay" style="
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(10, 14, 39, 0.95);
+        color: #fff;
+        font-size: 2em;
+        text-align: center;
+        padding: 50px;
+        z-index: 9999;
+    ">
+    <div id="trial-instructions-text" style="max-width: 80%; margin: 20% auto 40px auto; line-height: 1.6;">
+        <!-- dynamically filled -->
+
+    <div style="font-size: 3em; color: #ffdd57; margin: 30px 0; animation: pulse 1.5s infinite;">
+            👐 START WITH FINGERS WIDE OPEN! 👐
+    </div>
+    </div>
+    <p style="font-size: 1.2em; opacity: 0.8;">Press SPACEBAR to confirm you understand</p>
+    </div>
+
 
     <!-- PAGE 2: Webcam Test -->
     <div id="page-webcam" style="display:none;">
@@ -474,8 +572,114 @@
                 <div class="video-wrapper">
                     <video id="inputVideo" autoplay playsinline></video>
                     <canvas id="outputCanvas"></canvas>
+                    <!-- Transparent Hand Outline Overlay -->
+                    <img id="hand-outline" src="/Users/sritejpadmanabhan/Documents/JT work/JT/Parkinson's Project - Masason/Assets/download.png" alt="Hand Outline Guide" 
+                    style="
+                        position:absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        width: 300px; /* adjust size */
+                        height: auto;
+                        opacity: 0.4; /* semi-transparent for better visibility */
+                        pointer-events: none;
+                        z-index: 80;
+                    ">
+
+
+                    <!-- Within .video-wrapper, right before video tag -->
+                <!-- Hand Position Guide -->
+                <!-- Hand Position Guide -->
+<!-- Simple Hand Position Guide -->
+                <!-- Hand Position Guide -->
+                    <!-- Simple Hand Position Guide -->
+                <div id="hand-guide-overlay" style="
+                    position:absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    pointer-events:none;
+                    width: 350px;
+                    height: 300px;
+                    z-index: 100;">
+                                    
+                    <!-- Simple target box -->
+                    <div id="palm-zone" style="
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 15px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: border-color 0.3s ease;
+                ">
+<!-- Moved lower and to the right -->
+<div id="position-status" style="
+    position: absolute;
+    top: 65%;        
+    left: 56%;       
+    transform: translate(-50%, -50%);
+    font-size: 1.2em; 
+    font-weight: bold; 
+    color: #ffdd57;
+    text-align: center;
+">
+    Put palm here
+</div>
+
+                </div>
                 
-                    <!-- ✅ NEW overlay for time + taps -->
+                </div>
+
+<!-- Simple instructions at top-right -->
+<!-- Simple instructions at top-right -->
+<div id="tap-instructions" style="
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0,0,0,0.9);
+    padding: 25px 30px;
+    border-radius: 15px;
+    text-align: left;
+    z-index: 100;
+    border: 3px solid #ffdd57;
+    box-shadow: 0 0 30px rgba(255, 221, 87, 0.5);
+">
+    <div style="font-size: 1.8em; color: #ffdd57; margin-bottom: 10px; font-weight: bold;">
+        ⚠️ IMPORTANT: Start Position!
+    </div>
+    <div style="font-size: 1.5em; line-height: 1.8;">
+        👐 Fingers WIDE OPEN<br>
+        ✋ Palm facing camera<br>
+        💨 Then tap BIG and FAST
+    </div>
+    <div style="font-size: 1.3em; color: #ff4444; margin-top: 10px; font-weight: bold;">
+        DO NOT START WITH FINGERS CLOSED!
+    </div>
+</div>
+
+                    
+                    <!-- ✅ NEW: Visual guide overlay -->
+           
+                    <!-- ✅ NEW: Hand position feedback -->
+                    <div id="handPositionMessage" style="
+                        position: absolute;
+                        bottom: 20px; left: 50%;
+                        transform: translateX(-50%);
+                        font-size: 1.2em;
+                        color: #ff4444;
+                        background: rgba(0,0,0,0.6);
+                        padding: 10px 20px;
+                        border-radius: 10px;
+                        display: none;
+                        z-index: 99;
+                    ">
+                        Move your hand into the circle!
+                    </div>
+                    
+                                    
+                    <!-- Recording status overlay -->
                     <div id="statusOverlay" style="
                         position: absolute;
                         top: 15px;
@@ -488,14 +692,34 @@
                         color: #fff;
                         line-height: 1.4;
                         z-index: 50;
-                        display: none; /* hidden until recording starts */
+                        display: none;
                     ">
-                        <div id="overlayTime">Time Remaining: 30s</div>
+                        <div id="overlayTime">Time Remaining: 20s</div>
                         <div id="overlayTaps">Taps: 0</div>
                     </div>
-                
+
+                    <!-- Tap width feedback -->
+                    <div id="tapWidthFeedback" style="
+                        position: absolute;
+                        bottom: 50px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        background: rgba(0, 0, 0, 0.8);
+                        padding: 15px 30px;
+                        border-radius: 10px;
+                        font-size: 1.8em;
+                        font-weight: bold;
+                        text-align: center;
+                        z-index: 100;
+                        display: none;
+                    ">
+                        <div id="tapWidthMessage" style="color: #ffdd57;">TAP BIGGER!</div>
+                    </div>
                     <div id="countdown" class="countdown" style="display: none;"></div>
                 </div>
+
+                <!-- Position feedback message -->
+                <div id="position-feedback" class="position-feedback"></div>
                 
                 <div class="controls" style="display:none;">
                     <button id="startBtn" onclick="startRecording()">Hidden Start</button>
@@ -510,6 +734,10 @@
 
         </div>
 
+    </div>
+        <!-- Add this right after the countdown div -->
+    <div id="openFingersWarning" class="open-fingers-warning">
+        👐 OPEN YOUR FINGERS FIRST! 👐
     </div>
 
     <div id="finalResults" class="final-results" style="display: none;">
@@ -534,6 +762,25 @@
         let peakIndices = [];
         let landmarkSeries = []; // stores full landmark history per frame
         let frameData = [];
+
+                // Reset position checking state
+        window.handPositionCorrect = false;
+                // Reset frame counter so position checking works
+        frameCount = 0;
+        window.tapFeedbackTimer = 0;
+
+
+
+        let currentDetectedHand = null; // will store "Right", "Left", or null
+
+        // ✅ Helper: check if the correct hand for this trial is visible
+        function isCorrectHandDetectedForCurrentTrial() {
+            const requiredHand = trialConditions[trialIndex % trialConditions.length].hand.toLowerCase(); // 'right' or 'left'
+            if (!currentDetectedHand) return false; // no hand detected
+            return currentDetectedHand.toLowerCase() === requiredHand;
+        }
+
+
 
 
         let tapEvents = [];
@@ -565,6 +812,8 @@
         const MIN_PEAK_DISTANCE = 100; // Minimum ms between peaks
         const CLOSED_THRESHOLD_PCT      = 30;  // below this = fingers counted "closed"
         const OPEN_THRESHOLD_PCT        = 35;  // must reopen past this before next tap
+        const HAND_TOO_FAR_THRESHOLD = 0.2;  // Adjust this value - smaller = more sensitive
+        const HAND_TOO_CLOSE_THRESHOLD = 0.6; // For reference
         const VELOCITY_THRESHOLD_PERCENTILE = 70; // Percentile for adaptive threshold
 
         // Hand landmarks indices
@@ -577,19 +826,19 @@
         const POPULATION_NORMS = {
             frequency: {
                 healthy: {
-                    mean: 2.0,
-                    std: 0.5,
+                    mean: 5.0,
+                    std: 0.6,
                     ranges: [
-                    { min: 2.5,  max: 4.0, percentile: 95 },   // very fast, top healthy range
-                    { min: 2.0,  max: 2.5, percentile: 75 },   // typical healthy adult
-                    { min: 1.5,  max: 2.0, percentile: 50 },   // mild slowing
-                    { min: 1.25, max: 1.5, percentile: 25 },   // moderate slowing
-                    { min: 0,    max: 1.25, percentile: 5 }    // severe slowing
+                    { min: 6.5,  max: 8.0, percentile: 95 },   // very fast, top healthy range
+                    { min: 5.5,  max: 6.5, percentile: 75 },   // above average
+                    { min: 4.5,  max: 5.5, percentile: 50 },   // average (most people)
+                    { min: 3.5,  max: 4.5, percentile: 25 },   // below average
+                    { min: 0,    max: 3.5, percentile: 5 }     // significantly slow
                     ]
                 },
                 pd: {
-                    mean: 1.4,
-                    std: 0.3
+                    mean: 3.5,
+                    std: 0.8
                 }
             },
             amplitude: {
@@ -664,12 +913,32 @@
                 canvasElement.width = videoElement.videoWidth;
                 canvasElement.height = videoElement.videoHeight;
 
-                // Start a render loop to process frames manually
+                let lastFrameTime = Date.now();  // track last successful frame
+                let freezeWatchdog = null;       // watchdog timer to restart if needed
+
                 const processFrame = async () => {
-                    await hands.send({ image: videoElement });
+                    try {
+                        await hands.send({ image: videoElement });
+                        lastFrameTime = Date.now(); // update whenever processing succeeds
+                    } catch (err) {
+                        console.warn("⚠️ MediaPipe processing error:", err);
+                    }
                     requestAnimationFrame(processFrame);
                 };
+
+                // ✅ Watchdog: restart MediaPipe if no frame processed for >2 seconds
+                freezeWatchdog = setInterval(() => {
+                    const now = Date.now();
+                    if (now - lastFrameTime > 2000) {
+                        console.warn("🛑 Hand tracking seems frozen. Restarting MediaPipe Hands...");
+                        hands.close();       // stop the old instance
+                        initializeHands();   // re-init the model
+                    }
+                }, 1000);
+
+                // ✅ Start the processing loop
                 requestAnimationFrame(processFrame);
+
                 };
             }).catch(err => {
                 console.error("Camera access error:", err);
@@ -783,31 +1052,165 @@
             canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
             if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                // ✅ Check hand alignment with outline
+            const outlineEl = document.getElementById('hand-outline');
+            if (outlineEl) {
+                const landmarks = results.multiHandLandmarks[0];
+                const thumbTip = landmarks[THUMB_TIP];
+                const indexTip = landmarks[INDEX_TIP];
+                const wrist = landmarks[WRIST];
+                
+                // Get median hand position (approx center)
+                const centerX = (thumbTip.x + indexTip.x + wrist.x) / 3;
+                const centerY = (thumbTip.y + indexTip.y + wrist.y) / 3;
+
+                // Target center for outline (roughly normalized middle)
+                const targetX = 0.5;  
+                const targetY = 0.55;
+
+                // Distance between hand center and outline center
+                const dx = Math.abs(centerX - targetX);
+                const dy = Math.abs(centerY - targetY);
+
+                // Allowable tolerance (normalized)
+                const tolerance = 0.08; // ~8% of frame
+
+                // Hand spread check (ensures fingers open)
+                const fingerSpread = Math.sqrt(
+                    Math.pow(thumbTip.x - indexTip.x, 2) +
+                    Math.pow(thumbTip.y - indexTip.y, 2)
+                );
+
+                const isCentered = dx < tolerance && dy < tolerance;
+                const isSpreadEnough = fingerSpread > 0.08;
+
+                // Final condition for alignment
+                window.handAlignedWithOutline = isCentered && isSpreadEnough;
+
+                // Give visual feedback by changing outline opacity
+                outlineEl.style.opacity = window.handAlignedWithOutline ? "0.8" : "0.4";
+            }
+
                 handDetected = true;
+                const landmarks = results.multiHandLandmarks[0];
+                frameCount++;
+                
+                // Check hand position and provide feedback
+
+                // Simple hand position check - only update every 10 frames to prevent glitching
+// Check hand position - only update every 10 frames to prevent glitching
+            // Simple distance check - only update every 10 frames
+
+            // Simple distance check - check immediately for first few frames, then every 10
+            if (!recording && (frameCount < 10 || frameCount % 10 === 0)) {
+                const wrist = landmarks[WRIST];
+                const thumbTip = landmarks[THUMB_TIP];
+                const indexTip = landmarks[INDEX_TIP];
+                const middleMcp = landmarks[MIDDLE_MCP];
+                const guideOverlay = document.getElementById('hand-guide-overlay');
+                
+                if (guideOverlay && guideOverlay.style.display !== 'none') {
+                    // Calculate hand size as distance check
+                    const handSize = Math.sqrt(
+                        Math.pow((wrist.x - middleMcp.x), 2) +
+                        Math.pow((wrist.y - middleMcp.y), 2)
+                    );
+                    
+                    const goodDistance = handSize > 0.2 && handSize < 0.3; 
+                    
+                    
+                    
+                    // Check finger spread
+                    const fingerDistance = Math.sqrt(
+                        Math.pow((thumbTip.x - indexTip.x), 2) +
+                        Math.pow((thumbTip.y - indexTip.y), 2)
+                    );
+                    const fingersOpen = fingerDistance > 0.12; // relative to screen
+                    
+                    const palmZone = document.getElementById('palm-zone');
+                    const statusText = document.getElementById('position-status');
+                    
+                    // Store position status globally
+                    window.handPositionCorrect = goodDistance && fingersOpen;
+                    
+                    // Get the hand outline image
+                    const handOutline = document.getElementById('hand-outline');
+
+  // Check wrong hand FIRST - if wrong hand, show only that message
+                if (!isCorrectHandDetectedForCurrentTrial()) {
+                    const requiredHand = trialConditions[trialIndex % trialConditions.length].hand.toUpperCase();
+                    palmZone.style.borderColor = '#ff4444';
+                    statusText.textContent = `Wrong hand! Use your ${requiredHand} hand`;
+                    statusText.style.fontSize = '1.4em';
+                    statusText.style.color = '#ff4444';
+                    handOutline.classList.remove('hand-outline-ready');
+                    handOutline.classList.add('hand-outline-not-ready');
+                } else if (goodDistance && fingersOpen) {
+                    palmZone.style.borderColor = '#48bb78';
+                    statusText.textContent = '✓ Ready! Press SPACE';
+                    statusText.style.color = '#0d5a0d';
+                    handOutline.classList.remove('hand-outline-not-ready');
+                    handOutline.classList.add('hand-outline-ready');
+                } else {
+                    // RED GLOW for any problem
+                    handOutline.classList.remove('hand-outline-ready');
+                    handOutline.classList.add('hand-outline-not-ready');
+                    
+                    if (!goodDistance) {
+                        palmZone.style.borderColor = '#ff4444';
+                        if (handSize < 0.15) {
+                            statusText.textContent = 'Hand too far - Move closer!';
+                            statusText.style.fontSize = '1.4em';
+                        } else if (handSize > 0.3) {
+                            statusText.textContent = 'Hand too close - Move back!';
+                            statusText.style.fontSize = '1.4em';
+                        } else {
+                            statusText.textContent = 'Move hand closer to the screen';
+                            statusText.style.fontSize = '1.2em';
+                        }
+                        statusText.style.color = '#ff4444';
+                    } else if (!fingersOpen) {
+                        palmZone.style.borderColor = '#ffdd57';
+                        statusText.textContent = 'Start with fingers OPEN';
+                        statusText.style.color = '#ffdd57';
+                    }
+                }
+                }
+            }
+                if (results.multiHandedness && results.multiHandedness.length > 0) {
+                    let rawLabel = results.multiHandedness[0].label;
+                    currentDetectedHand = (rawLabel === "Right") ? "Left" : "Right";
+       
+
+            } else {
+                currentDetectedHand = null;
+            }
+
                 
                 // Update status to show hand detected
                 if (!recording && document.getElementById('status').textContent === 'Ready') {
                     document.getElementById('algorithmStatus').textContent = 'Hand detected! Press SPACEBAR to begin';
                 }
-                const landmarks = results.multiHandLandmarks[0];
 
-                const handedness = results.multiHandedness?.[0]?.label || "Unknown";
-                if ((trialConditions[trialIndex % trialConditions.length].hand === "Right" && handedness !== "Right") ||
-                    (trialConditions[trialIndex % trialConditions.length].hand === "Left" && handedness !== "Left")) {
-                    return; // Skip frames with wrong hand
+                const requiredHand = trialConditions[trialIndex % trialConditions.length].hand.toLowerCase();
+
+                // ✅ Use the mirrored label, NOT the raw label
+                if (!currentDetectedHand || currentDetectedHand.toLowerCase() !== requiredHand) {
+                    document.getElementById('algorithmStatus').textContent =
+                        `❌ Wrong hand detected! Please use your ${requiredHand.toUpperCase()} hand.`;
+                    return; // Skip processing for wrong hand
                 }
-                
+
+                                
                 // REMOVED: Draw hand skeleton - we only want thumb and index visualization
 
                 // Process finger tap data if recording
                 if (recording) {
                     processFingerTapAdvanced(landmarks, results.image.width, results.image.height);
                 }
-
                 // Get thumb and index fingertips
                 const thumbTip = landmarks[THUMB_TIP];
                 const indexTip = landmarks[INDEX_TIP];
-                
                 // Calculate distance for color determination
                 const distance = Math.sqrt(
                     Math.pow((thumbTip.x - indexTip.x) * canvasElement.width, 2) +
@@ -914,12 +1317,35 @@
                 // Remove the old peak detection visualization since we have the new feedback
                 
             } else {
-                handDetected = false;
-                // Update status when hand not detected
-                if (!recording && document.getElementById('status').textContent === 'Ready') {
-                    document.getElementById('algorithmStatus').textContent = 'Position your hand in view, then press SPACEBAR';
-                }
+            handDetected = false;
+            currentDetectedHand = null;
+            
+            // RESET VISUAL STATES WHEN NO HAND
+            const handOutline = document.getElementById('hand-outline');
+            const palmZone = document.getElementById('palm-zone');
+            const statusText = document.getElementById('position-status');
+            const guideOverlay = document.getElementById('hand-guide-overlay');
+            
+            if (guideOverlay && guideOverlay.style.display !== 'none' && !recording) {
+                // Remove any glow classes
+                handOutline.classList.remove('hand-outline-ready');
+                handOutline.classList.remove('hand-outline-not-ready');
+                handOutline.style.opacity = "0.4"; // dim when no hand
+                
+                // Reset palm zone
+                palmZone.style.borderColor = '#666666';
+                statusText.textContent = '👋 No hand detected';
+                statusText.style.color = '#999999';
+                
+                // Reset the global position state
+                window.handPositionCorrect = false;
             }
+            
+            // Update status when hand not detected
+            if (!recording && document.getElementById('status').textContent === 'Ready') {
+                document.getElementById('algorithmStatus').textContent = 'Position your hand in view, then press SPACEBAR';
+            }
+        }
 
             canvasCtx.restore();
         }
@@ -964,7 +1390,8 @@
         // Advanced finger tap processing with signal analysis
         function processFingerTapAdvanced(landmarks, imageWidth, imageHeight) {
             const currentTime = Date.now() - startTime;
-            frameCount++;
+            // Only increment during recording
+           
             
             // Calculate 3D distance between thumb and index tips
             const thumbTip = landmarks[THUMB_TIP];
@@ -990,7 +1417,41 @@
             // Add to signal arrays
             distanceSignal.push(normalizedDistance);
             timeSignal.push(currentTime);
-            
+
+            // Check tap width and provide feedback during recording
+            // Check tap width and provide feedback during recording
+            if (recording) {
+                const tapWidthFeedback = document.getElementById('tapWidthFeedback');
+                const tapWidthMessage = document.getElementById('tapWidthMessage');
+                
+                // Get maximum amplitude from recent samples (last ~1 second)
+                const recentSamples = distanceSignal.slice(-30);
+                const maxRecentAmplitude = Math.max(...recentSamples);
+                
+                // Initialize or update feedback timer
+                if (!window.tapFeedbackTimer) {
+                    window.tapFeedbackTimer = 0;
+                }
+                
+                // Based on research: healthy = 50-60%, mild impairment = 40-50%, significant = <40%
+                if (maxRecentAmplitude < 35) {
+                    tapWidthFeedback.style.display = 'block';
+                    tapWidthMessage.textContent = 'TAP MUCH BIGGER! 👐';
+                    tapWidthMessage.style.color = '#ff4444';
+                    window.tapFeedbackTimer = 60; // Show for 2 seconds (60 frames)
+                } else if (maxRecentAmplitude < 45) {
+                    tapWidthFeedback.style.display = 'block';
+                    tapWidthMessage.textContent = 'Open fingers wider';
+                    tapWidthMessage.style.color = '#ffdd57';
+                    window.tapFeedbackTimer = 45; // Show for 1.5 seconds
+                } else if (window.tapFeedbackTimer > 0) {
+                    // Keep showing message for a bit after improvement
+                    window.tapFeedbackTimer--;
+                } else {
+                    tapWidthFeedback.style.display = 'none';
+                }
+            }
+                        
             // Apply signal processing every few frames
             if (frameCount % 2 === 0 && distanceSignal.length > SMOOTHING_WINDOW) {
                 // Smooth the signal
@@ -1302,10 +1763,27 @@
 
         // Start recording with countdown and condition tracking
         function startRecording() {
+    // ✅ First ensure a hand is visible
+            // Check hand is visible and in correct position
             if (!handDetected) {
                 alert('Please position your hand in view of the camera before starting.');
                 return;
             }
+
+            // Check hand position is correct (using global variable set in position check)
+            if (!window.handPositionCorrect) {
+                alert('Please position your hand correctly in the green box with fingers open before starting.');
+                return;
+            }
+
+            // ✅ NEW: ensure the detected hand matches the required hand
+            if (!isCorrectHandDetectedForCurrentTrial()) {
+                const required = trialConditions[trialIndex % trialConditions.length].hand.toUpperCase();
+                alert(`Please show your ${required} hand before starting.`);
+                return;
+            }
+
+    // Check if all trials are done
 
             // Check if all trials are done
             if (trialIndex >= totalTrials) {
@@ -1313,8 +1791,6 @@
                 return;
             }
 
-            // Update condition UI and hand selector
-            updateConditionUI();
 
             // Reset all data
             distanceSignal = [];
@@ -1325,16 +1801,34 @@
             frameCount = 0;
             frameData = []; // Reset before trial
 
-
             // Start countdown
             let countdown = 3;
             const countdownEl = document.getElementById('countdown');
             countdownEl.style.display = 'block';
             countdownEl.textContent = countdown;
 
-
-
             countdownInterval = setInterval(() => {
+                // CHECK HAND DURING COUNTDOWN
+                if (!handDetected || !isCorrectHandDetectedForCurrentTrial()) {
+                    // CANCEL COUNTDOWN IF HAND REMOVED
+                    clearInterval(countdownInterval);
+                    countdownEl.style.display = 'none';
+                    
+                    // Reset UI to "no hand" state
+                    document.getElementById('status').textContent = 'Ready';
+                    document.getElementById('status').className = 'status-indicator status-ready';
+                    document.getElementById('algorithmStatus').textContent = 'Hand removed! Position your hand in view, then press SPACEBAR';
+                    
+                    // Show hand guide again
+                    document.getElementById('hand-guide-overlay').style.display = 'block';
+                    document.getElementById('tap-instructions').style.display = 'block';
+                    
+                    // Reset position states
+                    window.handPositionCorrect = false;
+                    
+                    return; // Exit the function
+                }
+                
                 countdown--;
                 if (countdown > 0) {
                     countdownEl.textContent = countdown;
@@ -1350,9 +1844,14 @@
             }, 1000);
         }
 
+
         // Start actual recording
         function startActualRecording() {
-            recording = true;
+            document.getElementById('hand-guide-overlay').style.display = 'none';
+            document.getElementById('tap-instructions').style.display = 'none';
+            document.getElementById('hand-outline').style.display = 'none'; 
+            
+            recording = true; 
             startTime = Date.now();
             distanceSignal = [];
             timeSignal = [];
@@ -1401,6 +1900,16 @@
             // Clear timer
             clearInterval(mainTimerInterval);
             document.getElementById('statusOverlay').style.display = 'none';
+            document.getElementById('tapWidthFeedback').style.display = 'none';
+
+            // Reset tap feedback timer
+            window.tapFeedbackTimer = 0;
+            
+            // Reset hand position state
+            window.handPositionCorrect = false;
+            // Reset hand position state
+            window.handPositionCorrect = false;
+          
 
             document.getElementById('countdown').style.display = 'none';
             
@@ -1419,6 +1928,14 @@
                 // Prepare trial document name
                 // Prepare trial document name
                 const trialDocName = `trial_${trialIndex + 1}`;
+                if (trialIndex === 0) { 
+                    console.log("✅ DEBUG: FIRST TRIAL HAND DATA");
+                    console.log("Detected Hand Label:", currentDetectedHand);
+                    console.log("Trial Condition Hand:", trialConditions[trialIndex % trialConditions.length].hand);
+                    console.log("Raw Frame Data Sample:", frameData.slice(0, 10)); // only first 10 frames for brevity
+                    console.log("Tap Events:", tapEvents);
+                }
+
 
                 // ✅ Create a lightweight raw frame dataset for future analysis
                 const rawFrames = frameData.slice(0, 500).map(f => ({
@@ -1428,7 +1945,8 @@
                 handSize: f.handSize,           // scale reference
                 thumb: f.thumbTip,              // {x,y,z}
                 index: f.indexTip,              // {x,y,z}
-                wrist: f.wrist                  // {x,y,z}
+                wrist: f.wrist,                 // {x,y,z}
+                allLandmarks: f.rawLandmarks    // All 21 hand landmarks {x,y,z}
                 }));
 
                 // ✅ Save ONLY raw hand kinematic data in Participants collection
@@ -1588,6 +2106,8 @@
                 details.push("Amplitude decrements near the end");
             }
             
+
+            
             // Hesitations/interruptions
             if (freezing > 0) {
                 score = Math.max(score, 3);
@@ -1637,16 +2157,61 @@
         function updateConditionUI() {
             const trialNum = trialIndex + 1;
             const condition = trialConditions[trialIndex % trialConditions.length];
-
-            // Pick a color dynamically based on hand
-            let handColor = (condition.hand === 'right') ? '#48bb78' : '#4299e1'; 
+            const handText = condition.hand.toUpperCase() + " HAND";
+            const total = totalTrials;
+            // Reset hand position state for new trial
+            window.handPositionCorrect = false;
+            // Show and reset the hand guide
+            const handGuide = document.getElementById('hand-guide-overlay');
+            handGuide.style.display = 'block';
+            document.getElementById('hand-outline').style.display = 'block'; // Make sure hand outline is visible between trials
+            // Flip hand outline for left hand trials
+// Flip hand outline for left hand trials
+            const handOutline = document.getElementById('hand-outline');
+            if (condition.hand === 'left') {
+                handOutline.style.transform = 'translate(-50%, -50%) scaleX(-1)'; // Flip horizontally
+                // Move text to the left for left hand trials
+                document.getElementById('position-status').style.left = '45%';
+            } else {
+                handOutline.style.transform = 'translate(-50%, -50%) scaleX(1)'; // Normal orientation
+                // Reset text position for right hand trials
+                document.getElementById('position-status').style.left = '56%';
+            }
+                        
+            // Reset palm zone to initial state
+            const palmZone = document.getElementById('palm-zone');
+            palmZone.style.borderColor = '#ffdd57';
             
+            const statusText = document.getElementById('position-status');
+            statusText.textContent = 'Put palm here';
+            statusText.style.color = '#ffdd57';
+            
+            // Also show tap instructions again
+            document.getElementById('tap-instructions').style.display = 'block';
+
+            const instructionHTML = `
+                <h1>Trial ${trialNum} of ${total}</h1>
+                <p style="margin-top:20px;">
+                    Tap your <span style="color:#ffdd57; font-weight:bold;">${handText}</span> as quickly as you can for <strong>20 seconds</strong>.
+                </p>
+                <p style="margin-top:15px; font-size:0.8em; opacity:0.9;">
+                    Keep your thumb and index finger in the camera view.
+                </p>
+            `;
+
+            // Show overlay with this text
+            document.getElementById('trial-instructions-text').innerHTML = instructionHTML;
+            document.getElementById('trial-instructions-overlay').style.display = 'block';
+
+            // Update the small UI text below video for when they are in trial
+            const handColor = (condition.hand === 'right') ? '#48bb78' : '#4299e1';
             const conditionEl = document.getElementById('conditionInfo');
             conditionEl.innerHTML =
-                `Trial ${trialNum} of ${totalTrials} — Tap your <span style="color:${handColor}; font-size:1.4em;">${condition.hand.toUpperCase()} HAND</span> as quickly as you can for 20 seconds`
+                `Trial ${trialNum} of ${total} — Tap your <span style="color:${handColor}; font-size:1.4em;">${handText}</span> as quickly as you can for 20 seconds`;
 
             updateConditionDescription();
         }
+
         
         function updateConditionDescription() {
             const msg = "Tap your thumb and index finger together as QUICKLY as you can for 20 seconds.";
@@ -1780,7 +2345,7 @@
                     </div>
                     <p style="font-size: 1.3em; margin-top: 20px; color: #90cdf4;">
                         You tap ${(avgFastFreq * 20).toFixed(0)} times in 20 seconds!<br>
-                        Most people tap at 2-3 Hz (40-60 taps)
+                        Most people tap at 4.5-5.5 Hz (90-110 taps in 20 seconds)
                     </p>
                 </div>
             `;
@@ -1841,34 +2406,59 @@
             html += '<h2 style="text-align: center; color: #667eea; margin-bottom: 30px; font-size: 2em;">Your Performance Breakdown</h2>';
             html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 40px; max-width: 1400px; margin-left: auto; margin-right: auto;">';
 
-            metrics.forEach(metric => {
-                // Determine performance color based on percentile
-                let performanceColor = '#48bb78'; // green
-                if (metric.percentile < 25) performanceColor = '#e53e3e'; // red
-                else if (metric.percentile < 50) performanceColor = '#ed8936'; // orange
-                else if (metric.percentile < 75) performanceColor = '#f6e05e'; // yellow
-                
-                html += `
-                    <div style="background: linear-gradient(135deg, #1e2139 0%, #2a2d4a 100%); 
-                                border-radius: 20px; padding: 30px; text-align: center;
-                                transition: all 0.3s ease; cursor: pointer;
-                                border: 2px solid rgba(102, 126, 234, 0.3);
-                                box-shadow: 0 10px 30px rgba(0,0,0,0.3);"
-                        onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 40px rgba(102,126,234,0.4)'"
-                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.3)'">
-                        <div style="font-size: 3.5em; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));">${metric.icon}</div>
-                        <h4 style="color: #90cdf4; font-size: 1.2em; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">${metric.name}</h4>
-                        <div style="font-size: 3em; font-weight: bold; color: #ffdd57; margin-bottom: 10px; text-shadow: 0 0 15px rgba(255, 221, 87, 0.5);">
-                            ${metric.value.toFixed(0)}${metric.unit}
+                metrics.forEach(metric => {
+                    // Determine performance color based on percentile
+                    let performanceColor = '#48bb78'; // green
+                    if (metric.percentile < 25) performanceColor = '#e53e3e'; // red
+                    else if (metric.percentile < 50) performanceColor = '#ed8936'; // orange
+                    else if (metric.percentile < 75) performanceColor = '#f6e05e'; // yellow
+                    
+                    // Add source citation for well-supported metrics
+                    let sourceInfo = '';
+                    let percentileText = `Better than ${metric.percentile}% of people`;
+                    
+                    if (metric.name === '⚡ Speed') {
+                        sourceInfo = `
+                            <div style="margin-top: 10px; font-size: 0.85em; opacity: 0.8; cursor: pointer;" 
+                                onclick="window.open('https://pubmed.ncbi.nlm.nih.gov/8337069/', '_blank')">
+                                📄 Based on clinical research • Click to view source
+                            </div>`;
+                    } else if (metric.name === '🎵 Rhythm') {
+                        sourceInfo = `
+                            <div style="margin-top: 10px; font-size: 0.85em; opacity: 0.8;">
+                                📄 Based on motor research studies
+                            </div>`;
+                    } else {
+                        percentileText = `Estimated performance level*`;
+                        sourceInfo = `
+                            <div style="margin-top: 10px; font-size: 0.85em; opacity: 0.7; font-style: italic;">
+                                *Estimates based on clinical patterns
+                            </div>`;
+                    }
+                    
+                    html += `
+                        <div style="background: linear-gradient(135deg, #1e2139 0%, #2a2d4a 100%); 
+                                    border-radius: 20px; padding: 30px; text-align: center;
+                                    transition: all 0.3s ease; cursor: pointer;
+                                    border: 2px solid rgba(102, 126, 234, 0.3);
+                                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);"
+                            onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 40px rgba(102,126,234,0.4)'"
+                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.3)'">
+                            <div style="font-size: 3.5em; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));">${metric.icon}</div>
+                            <h4 style="color: #90cdf4; font-size: 1.2em; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">${metric.name}</h4>
+                            <div style="font-size: 3em; font-weight: bold; color: #ffdd57; margin-bottom: 10px; text-shadow: 0 0 15px rgba(255, 221, 87, 0.5);">
+                                ${metric.value.toFixed(0)}${metric.unit}
+                            </div>
+                            <div style="background: ${performanceColor}; color: white; padding: 8px 16px; border-radius: 20px; 
+                                        font-weight: bold; margin: 15px auto; display: inline-block; font-size: 1.1em;">
+                                ${percentileText}
+                            </div>
+                            <p style="font-size: 0.95em; opacity: 0.9; line-height: 1.5; margin-top: 15px;">${metric.explanation}</p>
+                            ${sourceInfo}
                         </div>
-                        <div style="background: ${performanceColor}; color: white; padding: 8px 16px; border-radius: 20px; 
-                                    font-weight: bold; margin: 15px auto; display: inline-block; font-size: 1.1em;">
-                            Better than ${metric.percentile}% of people
-                        </div>
-                        <p style="font-size: 0.95em; opacity: 0.9; line-height: 1.5; margin-top: 15px;">${metric.explanation}</p>
-                    </div>
-                `;
-            });
+                    `;
+                });
+
             html += '</div>';
             
             // Add condition-specific results
@@ -1920,6 +2510,9 @@
                 <div style="text-align: center; margin-top: 40px; padding: 30px; 
                             background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
                             border-radius: 20px; border: 2px solid #667eea;">
+                    <div style="font-size: 0.9em; opacity: 0.7; margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                        <strong>Research Note:</strong> Speed comparisons are based on peer-reviewed studies. Other performance estimates use clinical research patterns and may vary between individuals and populations.
+                    </div>
                     <h3 style="color: #ffdd57; font-size: 2em; margin-bottom: 20px;">🧠 Fun Brain Facts!</h3>
                     <p style="font-size: 1.2em; line-height: 1.8; margin-bottom: 20px;">
                         Your finger tapping speed is controlled by multiple brain regions working together like an orchestra!
@@ -2158,56 +2751,74 @@
 
     
         function showInfoForm() {
-                document.getElementById('container-consent').style.display = 'none';
-                document.getElementById('container-info').style.display = 'block';
+                document.getElementById('container-consent').style.display = 'none';
+                document.getElementById('container-info').style.display = 'block';
             }
 
             function startExperiment() {
-                // Optionally validate form fields
-                const pid = document.getElementById('prolificID').value;
-                const age = document.getElementById('age').value;
+                // Optionally validate form fields
+                const pid = document.getElementById('prolificID').value;
+                const age = document.getElementById('age').value;
 
                             // ✅ Save participant ID so all trials match
                 sessionStorage.setItem('prolificID', pid);
                 participantID = pid;  // overwrite the anon one
 
 
-                if (!pid || !age) {
-                    alert('Please fill in all required fields.');
-                    return;
-                }
+                if (!pid || !age) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
 
-                document.getElementById('consent-section').style.display = 'none';
-                document.querySelector('.container').style.display = 'block';
+                document.getElementById('consent-section').style.display = 'none';
+                document.querySelector('.container').style.display = 'block';
             }
 
+            let overlayJustDismissed = false; // tracks whether we just closed overlay
 
             document.addEventListener('keydown', function(e) {
                 if (e.code === 'Space' || e.key === ' ') {
-                    e.preventDefault(); // Prevent page scroll
-                    
-                    // Check if countdown is already showing
+                    e.preventDefault(); // prevent page scroll
+
+                    const overlay = document.getElementById('trial-instructions-overlay');
                     const countdownEl = document.getElementById('countdown');
                     const isCountdownActive = countdownEl && countdownEl.style.display === 'block';
-                    
-                    // Only allow spacebar when ready and not already recording
-                    if (!recording && !isCountdownActive) {
-                        // Check if hand is detected
+
+                    // CASE 1: If overlay is visible → dismiss it and mark flag
+// CASE 1: If overlay is visible → dismiss it and mark flag
+                    if (overlay.style.display === 'block') {
+                        overlay.style.display = 'none';
+                        document.getElementById('hand-outline').style.display = 'block'; // Show hand outline when overlay is dismissed
+                        overlayJustDismissed = true; // next SPACE triggers trial
+                        return;
+                    }
+
+                    // CASE 2: If we *just* dismissed overlay → next SPACE actually starts trial
+                    if (overlayJustDismissed) {
+                        overlayJustDismissed = false; // reset
+                        // Do NOT re-show overlay here
                         if (!handDetected) {
                             alert('Please position your hand in view of the camera before starting.');
                             return;
                         }
-                        
-                        // Check if all trials are done
                         if (trialIndex >= totalTrials) {
                             alert('All trials complete!');
                             return;
                         }
-                        
                         startRecording();
+                        return;
+                    }
+
+                    // CASE 3: Already in trial or countdown, ignore SPACE
+                    if (recording || isCountdownActive) return;
+
+                    // CASE 4: Between trials → show overlay for next trial
+                    if (trialIndex < totalTrials) {
+                        updateConditionUI(); // will show overlay for the *next* trial
                     }
                 }
             });
+
 
       
         window.onload = function() {
