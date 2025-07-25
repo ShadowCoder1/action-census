@@ -1,65 +1,150 @@
 <div id="page-instructions" 
-  style="
+style="
     display:flex; 
     flex-direction:column; 
     align-items:center; 
-    justify-content:center; 
-    height:100vh;
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    justify-content:flex-start; 
+    min-height:100vh;
+    background: #000000;
     color:white; 
-    padding:60px; 
+    padding:40px 60px; 
     text-align:center; 
     font-family: 'Segoe UI', sans-serif;
+    overflow-y: auto;
   "
 >
-  <!-- BIGGER TITLE -->
-  <h1 
-    style="
-      font-size:3.8em; 
-      margin-bottom:30px; 
+<!-- BIGGER TITLE -->
+<h1 
+style="
+      font-size:2.8em; 
+      margin-bottom:15px; 
       font-weight:800; 
       text-shadow:0 4px 15px rgba(0,0,0,0.4); 
       letter-spacing:1px;
     "
-  >
+>
     📋 Finger Tapping Test Instructions
-  </h1>
+</h1>
 
-  <!-- NICER INSTRUCTION BOX -->
-  <div 
-    style="
-      max-width:900px; 
+<!-- VIDEO TUTORIAL SECTION -->
+<div style="
+    max-width:700px; 
+    width:100%; 
+    margin-bottom:30px;
+    background:rgba(255,255,255,0.05); 
+    padding:25px; 
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.3);
+">
+    <h2 style="
+        font-size:1.5em; 
+        margin-bottom:20px; 
+        font-weight:600; 
+        color:#90cdf4;
+        text-shadow:0 2px 8px rgba(0,0,0,0.3);
+    ">
+        🎥 Hand Tapping Video Tutorial
+    </h2>
+    
+    <video 
+        controls 
+        preload="metadata"
+        style="
+            width:100%; 
+            max-width:600px; 
+            height:auto; 
+            border-radius:15px; 
+            box-shadow:0 8px 25px rgba(0,0,0,0.4);
+            border:3px solid rgba(255,255,255,0.1);
+        "
+        poster="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMDAwMDAwIi8+PGNpcmNsZSBjeD0iNTAlIiBjeT0iNDUlIiByPSI4MCIgZmlsbD0icmdiYSgzMCw2MCwxMTQsMC4yKSIvPjxjaXJjbGUgY3g9IjUwJSIgY3k9IjQ1JSIgcj0iNjAiIGZpbGw9InJnYmEoNDIsODIsMTUyLDAuMykiLz48Y2lyY2xlIGN4PSI1MCUiIGN5PSI0NSUiIHI9IjQwIiBmaWxsPSJyZ2JhKDEwMiwxMjYsMjM0LDAuNCkiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IidTZWdvZSBVSScsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzJweCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWx0ZXI9ImRyb3Atc2hhZG93KDAgM3B4IDE1cHggcmdiYSgwLDAsMCwwLjcpKSI+SGFuZCBUYXBwaW5nIFR1dG9yaWFsPC90ZXh0Pjx0ZXh0IHg9IjUwJSIgeT0iNjUlIiBmb250LWZhbWlseT0iJ1NlZ29lIFVJJywgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOHB4IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuNykiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5DbGljayB0byBQbGF5PC90ZXh0Pjwvc3ZnPg=="
+    >
+        <source src="/Users/sritejpadmanabhan/Documents/JT work/HandTappingTutorial.mp4" type="video/mp4">
+        <p style="color:#ff6b6b; font-size:1.1em;">
+            Your browser doesn't support video playbook. Please update your browser or contact support.
+        </p>
+    </video>
+    
+    <p style="
+        margin-top:15px; 
+        font-size:1em; 
+        opacity:0.8; 
+        font-style:italic;
+        color:#e2e8f0;
+    ">
+        💡 Watch this tutorial to see the proper hand tapping technique
+    </p>
+</div>
+
+<!-- NICER INSTRUCTION BOX -->
+<div 
+style="
+      max-width:800px; 
       background:rgba(255,255,255,0.08); 
-      padding:45px; 
+      padding:35px; 
       border-radius:20px; 
-      line-height:2; 
+      line-height:1.8; 
       text-align:left;
       box-shadow:0 10px 30px rgba(0,0,0,0.3); 
-      font-size:1.4em;
+      font-size:1.2em;
+      border:1px solid rgba(255,255,255,0.1);
     "
-  >
-    <ol style="padding-left:30px; margin:0;">
-      <li style="margin-bottom:18px;">
-        Sit comfortably with good lighting and make sure your hand is clearly visible in the camera view.
-      </li>
-      <li style="margin-bottom:18px;">
-        For each trial, you’ll be told which hand to use.
-      </li>
-      <li style="margin-bottom:18px;">
-        When the trial begins, tap your thumb and index finger together as <strong>QUICKLY</strong> as you can for 20 seconds.
-      </li>
-      <li style="margin-bottom:18px;">
-        Each hand will be tested 3 times (6 trials total).
-      </li>
-      <li>
-        Press <strong>Next</strong> when you’re ready to start.
-      </li>
-    </ol>
-  </div>
+>
+<div style="margin-bottom:30px; text-align:center;">
+    <h3 style="
+        color:#ffdd57; 
+        font-size:1.6em; 
+        margin-bottom:10px;
+        text-shadow:0 2px 8px rgba(0,0,0,0.3);
+    ">
+        ✋ Step-by-Step Instructions
+    </h3>
+</div>
 
-  <!-- BIGGER & GLOWING NEXT BUTTON -->
-  <button 
-    style="
+<ol style="padding-left:30px; margin:0;">
+<li style="margin-bottom:20px; display:flex; align-items:flex-start;">
+    <span style="color:#48bb78; font-weight:bold; margin-right:12px; font-size:1.1em;">1.</span>
+    <span>Sit comfortably with good lighting and make sure your hand is clearly visible in the camera view.</span>
+</li>
+<li style="margin-bottom:20px; display:flex; align-items:flex-start;">
+    <span style="color:#48bb78; font-weight:bold; margin-right:12px; font-size:1.1em;">2.</span>
+    <span>For each trial, you'll be told which hand to use.</span>
+</li>
+<li style="margin-bottom:20px; display:flex; align-items:flex-start;">
+    <span style="color:#48bb78; font-weight:bold; margin-right:12px; font-size:1.1em;">3.</span>
+    <span>When the trial begins, tap your <strong style="color:#ffdd57;">thumb and index finger</strong> together as <strong style="color:#ff6b6b;">QUICKLY</strong> as you can for <strong style="color:#90cdf4;">20 seconds</strong>.</span>
+</li>
+<li style="margin-bottom:20px; display:flex; align-items:flex-start;">
+    <span style="color:#48bb78; font-weight:bold; margin-right:12px; font-size:1.1em;">4.</span>
+    <span>Each hand will be tested <strong style="color:#ffdd57;">3 times</strong> (6 trials total).</span>
+</li>
+<li style="display:flex; align-items:flex-start;">
+    <span style="color:#48bb78; font-weight:bold; margin-right:12px; font-size:1.1em;">5.</span>
+    <span>Press <strong style="color:#667eea;">Next</strong> when you're ready to start.</span>
+</li>
+</ol>
+
+<!-- PRO TIP BOX -->
+<div style="
+    margin-top:30px; 
+    padding:20px; 
+    background:linear-gradient(135deg, rgba(255,221,87,0.15) 0%, rgba(255,165,0,0.15) 100%);
+    border-radius:12px; 
+    border-left:4px solid #ffdd57;
+">
+    <div style="display:flex; align-items:center; margin-bottom:10px;">
+        <span style="font-size:1.3em; margin-right:8px;">💡</span>
+        <strong style="color:#ffdd57; font-size:1.2em;">Pro Tip:</strong>
+    </div>
+    <p style="margin:0; font-size:1.1em; opacity:0.9;">
+        Start with your fingers <strong>wide open</strong>, then tap as big and fast as possible. Quality taps are better than rushed small movements!
+    </p>
+</div>
+</div>
+
+<!-- BIGGER & GLOWING NEXT BUTTON -->
+<button 
+style="
       margin-top:50px; 
       background: linear-gradient(135deg,#667eea,#764ba2);
       color:white; 
@@ -71,12 +156,20 @@
       cursor:pointer;
       box-shadow:0 8px 20px rgba(102,126,234,0.4); 
       transition:all 0.3s ease;
+      position:relative;
+      overflow:hidden;
     "
-    onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 25px rgba(102,126,234,0.6)';"
-    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 20px rgba(102,126,234,0.4)';"
-    onclick="window.location.href='experiment.html'"
-
-  >
-    Next →
-  </button>
+onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 25px rgba(102,126,234,0.6)';"
+onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 20px rgba(102,126,234,0.4)';"
+onclick="window.location.href='experiment.html'"
+>
+    <span style="position:relative; z-index:2;">🚀 Start Test →</span>
+    <div style="
+        position:absolute;
+        top:0; left:-100%;
+        width:100%; height:100%;
+        background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition:left 0.5s ease;
+    " onmouseover="this.style.left='100%'"></div>
+</button>
 </div>
