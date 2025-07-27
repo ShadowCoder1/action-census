@@ -573,7 +573,7 @@
                     <video id="inputVideo" autoplay playsinline></video>
                     <canvas id="outputCanvas"></canvas>
                     <!-- Transparent Hand Outline Overlay -->
-                   <img id="hand-outline" src="download.png" alt="Hand Outline Guide"
+                    <img id="hand-outline" src="/Users/sritejpadmanabhan/Documents/JT work/JT/Parkinson's Project - Masason/Assets/download.png" alt="Hand Outline Guide" 
                     style="
                         position:absolute;
                         top: 50%;
@@ -650,9 +650,9 @@
         ⚠️ IMPORTANT: Start Position!
     </div>
     <div style="font-size: 1.5em; line-height: 1.8;">
-        👐 Fingers WIDE OPEN<br>
-        ✋ Palm facing camera<br>
-        💨 Then tap BIG and FAST
+        Fingers WIDE OPEN<br>
+        Palm facing camera<br>
+        Then tap BIG and FAST
     </div>
     <div style="font-size: 1.3em; color: #ff4444; margin-top: 10px; font-weight: bold;">
         DO NOT START WITH FINGERS CLOSED!
@@ -737,7 +737,7 @@
     </div>
         <!-- Add this right after the countdown div -->
     <div id="openFingersWarning" class="open-fingers-warning">
-        👐 OPEN YOUR FINGERS FIRST! 👐
+        OPEN YOUR FINGERS FIRST!
     </div>
 
     <div id="finalResults" class="final-results" style="display: none;">
@@ -792,13 +792,12 @@
 
         const trialConditions = [
             { hand: 'right' },
-            { hand: 'right' },
+            { hand: 'left' },
             { hand: 'right' },
             { hand: 'left' },
-            { hand: 'left' },
+            { hand: 'right' },
             { hand: 'left' }
         ];
-
 
         let trialIndex = 0;
         let totalTrials = trialConditions.length; // now 6 trials total (3 per hand)
@@ -930,7 +929,7 @@
                 freezeWatchdog = setInterval(() => {
                     const now = Date.now();
                     if (now - lastFrameTime > 2000) {
-                        console.warn("🛑 Hand tracking seems frozen. Restarting MediaPipe Hands...");
+                        console.warn("Hand tracking seems frozen. Restarting MediaPipe Hands...");
                         hands.close();       // stop the old instance
                         initializeHands();   // re-init the model
                     }
@@ -1334,7 +1333,7 @@
                 
                 // Reset palm zone
                 palmZone.style.borderColor = '#666666';
-                statusText.textContent = '👋 No hand detected';
+                statusText.textContent = 'No hand detected';
                 statusText.style.color = '#999999';
                 
                 // Reset the global position state
@@ -1433,13 +1432,7 @@
                     window.tapFeedbackTimer = 0;
                 }
                 
-                // Based on research: healthy = 50-60%, mild impairment = 40-50%, significant = <40%
-                if (maxRecentAmplitude < 35) {
-                    tapWidthFeedback.style.display = 'block';
-                    tapWidthMessage.textContent = 'TAP MUCH BIGGER! 👐';
-                    tapWidthMessage.style.color = '#ff4444';
-                    window.tapFeedbackTimer = 60; // Show for 2 seconds (60 frames)
-                } else if (maxRecentAmplitude < 45) {
+                if (maxRecentAmplitude < 45) {
                     tapWidthFeedback.style.display = 'block';
                     tapWidthMessage.textContent = 'Open fingers wider';
                     tapWidthMessage.style.color = '#ffdd57';
@@ -2167,17 +2160,32 @@
             document.getElementById('hand-outline').style.display = 'block'; // Make sure hand outline is visible between trials
             // Flip hand outline for left hand trials
 // Flip hand outline for left hand trials
+// Position and flip hand outline based on hand
+// Position and flip hand outline based on hand
+// Position and flip hand outline based on hand
             const handOutline = document.getElementById('hand-outline');
+            const handGuideOverlay = document.getElementById('hand-guide-overlay');
+            const tapInstructions = document.getElementById('tap-instructions');
             if (condition.hand === 'left') {
-                handOutline.style.transform = 'translate(-50%, -50%) scaleX(-1)'; // Flip horizontally
-                // Move text to the left for left hand trials
+                // Move to left side and flip
+                handOutline.style.left = '25%';
+                handOutline.style.transform = 'translate(-50%, -50%) scaleX(-1)';
+                handGuideOverlay.style.left = '25%'; // Move guide to left side
                 document.getElementById('position-status').style.left = '45%';
+                // Move instructions to right when hand is on left
+                tapInstructions.style.right = '20px';
+                tapInstructions.style.left = 'auto';
             } else {
-                handOutline.style.transform = 'translate(-50%, -50%) scaleX(1)'; // Normal orientation
-                // Reset text position for right hand trials
+                // Move to right side, normal orientation  
+                handOutline.style.left = '75%';
+                handOutline.style.transform = 'translate(-50%, -50%) scaleX(1)';
+                handGuideOverlay.style.left = '75%'; // Move guide to right side
                 document.getElementById('position-status').style.left = '56%';
+                // Move instructions to left when hand is on right
+                tapInstructions.style.left = '20px';
+                tapInstructions.style.right = 'auto';
             }
-                        
+                                                
             // Reset palm zone to initial state
             const palmZone = document.getElementById('palm-zone');
             palmZone.style.borderColor = '#ffdd57';
@@ -2214,7 +2222,7 @@
 
         
         function updateConditionDescription() {
-            const msg = "Tap your thumb and index finger together as QUICKLY as you can for 20 seconds.";
+
 
             document.getElementById('conditionDescription').textContent = msg;
         }
@@ -2355,7 +2363,7 @@
                     name: '⚡ Speed',
                     value: avgFastFreq,
                     unit: 'Hz',
-                    explanation: 'How fast you can tap! Like a video game, higher is better. Most people tap at 4.5-5.5 Hz (90-110 taps in 20 seconds)',
+                    explanation: 'How fast you can tap! Like a video game, higher is better. Most adults tap at 2-3 times per second.',
                     icon: '🏃‍♂️',
                     percentile: calculatePercentileFromNorm(avgFastFreq, 'frequency')
                 },
