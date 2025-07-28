@@ -41,6 +41,26 @@
             pointer-events: none;
             z-index: 1;
         }
+        h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #1a1a1a;
+        }
+        
+        /* Responsive sizing for smaller screens */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+        }
 
         /* Animated grid lights */
         .grid-light {
