@@ -11,20 +11,21 @@
       box-sizing: border-box;
     }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      background-color: #ffffff;
-      background-image: 
-          linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
-      background-size: 50px 50px;
-      background-position: 0 0, 0 0;
-      color: #1a1a1a;
-      line-height: 1.6;
-      min-height: 100vh;
-      padding: 2rem;
-      position: relative;
-    }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background-color: #ffffff;
+  background-image: 
+      linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: 0 0, 0 0;
+  color: #1a1a1a;
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: 2rem;
+  position: relative;
+  font-size: 1.25rem; /* Increases base text size by 25% */
+}
 
     body::before {
       content: '';
@@ -71,7 +72,6 @@ button, input[type="submit"], .btn {
         font-size: 1.1rem;
     }
 }
-
     /* Animated grid lights */
     .grid-light {
       position: fixed;
