@@ -1,185 +1,514 @@
-<div id="page-instructions" 
-style="
-    display:flex; 
-    flex-direction:column; 
-    align-items:center; 
-    justify-content:flex-start; 
-    min-height:100vh;
-    background: #000000;
-    color:white; 
-    padding:40px 60px; 
-    text-align:center; 
-    font-family: 'Segoe UI', sans-serif;
-    overflow-y: auto;
-  "
->
-<!-- BIGGER TITLE -->
-<h1 
-style="
-      font-size:2.8em; 
-      margin-bottom:15px; 
-      font-weight:800; 
-      text-shadow:0 4px 15px rgba(0,0,0,0.4); 
-      letter-spacing:1px;
-    "
->
-    📋 Finger Tapping Test Instructions
-</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Assessment Instructions | Parkinsense</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-<!-- VIDEO TUTORIAL SECTION -->
-<div style="
-    max-width:700px; 
-    width:100%; 
-    margin-bottom:30px;
-    background:rgba(255,255,255,0.05); 
-    padding:25px; 
-    border-radius:20px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.3);
-">
-    <h2 style="
-        font-size:1.5em; 
-        margin-bottom:20px; 
-        font-weight:600; 
-        color:#90cdf4;
-        text-shadow:0 2px 8px rgba(0,0,0,0.3);
-    ">
-        🎥 Hand Tapping Video Tutorial
-    </h2>
-    
-    <div style="
-      position:relative;
-      padding-bottom:56.25%; /* 16:9 aspect ratio */
-      height:0;
-      overflow:hidden;
-      border-radius:15px;
-      box-shadow:0 8px 25px rgba(0,0,0,0.4);
-      border:3px solid rgba(255,255,255,0.1);
-      max-width:600px;
-      margin:0 auto;
-    ">
-      <iframe
-        src="https://www.youtube.com/embed/aq-vBvjhvt0"
-        title="Hand Tapping Tutorial"
-        frameborder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen
-        style="
-          position:absolute;
-          top:0;
-          left:0;
-          width:100%;
-          height:100%;
-          border:none;
-        "
-      ></iframe>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background-color: #ffffff;
+      background-image: 
+          linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+      background-size: 50px 50px;
+      background-position: 0 0, 0 0;
+      color: #1a1a1a;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 2rem;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 1) 20%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0) 80%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Animated grid lights */
+    .grid-light {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      background: radial-gradient(circle, #888888 0%, rgba(136, 136, 136, 0.6) 50%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.6;
+    }
+
+    .grid-light-1 {
+      top: 10%;
+      left: -10px;
+      animation: moveRightHorizontal 16s linear infinite, greenGlow 3.4s ease-in-out infinite;
+    }
+
+    .grid-light-2 {
+      top: 90%;
+      left: -10px;
+      animation: moveRightHorizontal 13s linear infinite, greenGlow 2.9s ease-in-out infinite;
+      animation-delay: 2.5s, 0.7s;
+    }
+
+    .grid-light-3 {
+      top: -10px;
+      left: 20%;
+      animation: moveDownVertical 14s linear infinite, greenGlow 3.1s ease-in-out infinite;
+      animation-delay: 1.2s, 1.8s;
+    }
+
+    .grid-light-4 {
+      bottom: -10px;
+      left: 80%;
+      animation: moveUpVertical 11s linear infinite, greenGlow 2.7s ease-in-out infinite;
+      animation-delay: 3.5s, 0.3s;
+    }
+
+    .grid-light-5 {
+      top: 50%;
+      right: -10px;
+      animation: moveLeftHorizontal 15s linear infinite, greenGlow 3.3s ease-in-out infinite;
+      animation-delay: 4s, 1.5s;
+    }
+
+    @keyframes moveRightHorizontal {
+      0% { left: -10px; }
+      100% { left: calc(100% + 10px); }
+    }
+
+    @keyframes moveLeftHorizontal {
+      0% { right: -10px; }
+      100% { right: calc(100% + 10px); }
+    }
+
+    @keyframes moveDownVertical {
+      0% { top: -10px; }
+      100% { top: calc(100% + 10px); }
+    }
+
+    @keyframes moveUpVertical {
+      0% { bottom: -10px; }
+      100% { bottom: calc(100% + 10px); }
+    }
+
+    @keyframes greenGlow {
+      0%, 70%, 100% { 
+        background: radial-gradient(circle, #888888 0%, rgba(136, 136, 136, 0.6) 50%, transparent 70%);
+        box-shadow: 0 0 0 rgba(34, 197, 94, 0);
+        opacity: 0.6;
+        transform: scale(1);
+      }
+      15%, 55% { 
+        background: radial-gradient(circle, #22c55e 0%, rgba(34, 197, 94, 0.8) 50%, rgba(34, 197, 94, 0.2) 70%);
+        box-shadow: 0 0 15px rgba(34, 197, 94, 0.8), 0 0 30px rgba(34, 197, 94, 0.4);
+        opacity: 1;
+        transform: scale(1.3);
+      }
+    }
+
+    .container {
+      max-width: 1000px;
+      width: 100%;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 3rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 400;
+      color: #1a1a1a;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 1.25rem;
+      color: #4a4a4a;
+      max-width: 60ch;
+      margin: 0 auto;
+    }
+
+    .video-section {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    .video-title {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+    }
+
+    .video-container #player {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 12px;
+    }
+
+    .progress-container {
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background-color: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+      width: 0%;
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+
+    .progress-text {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .video-caption {
+      text-align: center;
+      color: #6b7280;
+      font-size: 0.95rem;
+      font-style: italic;
+    }
+
+    .instructions-section {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 3rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    .instructions-title {
+      font-size: 2rem;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .steps {
+      list-style: none;
+      counter-reset: step-counter;
+    }
+
+    .step {
+      counter-increment: step-counter;
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: #f9fafb;
+      border-radius: 12px;
+      border-left: 4px solid #22c55e;
+    }
+
+    .step::before {
+      content: counter(step-counter);
+      background: #22c55e;
+      color: white;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.9rem;
+      margin-right: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .step-content {
+      font-size: 1.1rem;
+      line-height: 1.7;
+    }
+
+    .highlight {
+      background: linear-gradient(120deg, #a7f3d0 0%, #6ee7b7 100%);
+      padding: 0.2em 0.4em;
+      border-radius: 4px;
+      font-weight: 600;
+      color: #065f46;
+    }
+
+    .start-button {
+      background-color: #1a1a1a;
+      color: white;
+      border: none;
+      padding: 1.25rem 4rem;
+      font-size: 1.3rem;
+      font-weight: 500;
+      border-radius: 2rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      text-decoration: none;
+      display: inline-block;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .start-button:hover {
+      background-color: #333333;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .start-button:active {
+      transform: translateY(0);
+    }
+
+    .start-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .start-button:hover::before {
+      left: 100%;
+    }
+
+    .button-container {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 3rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .header, .video-section, .instructions-section, .button-container {
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .instructions-title {
+        font-size: 1.5rem;
+      }
+      
+      .step {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      
+      .start-button {
+        width: 100%;
+        padding: 1rem 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Animated grid lights -->
+  <div class="grid-light grid-light-1"></div>
+  <div class="grid-light grid-light-2"></div>
+  <div class="grid-light grid-light-3"></div>
+  <div class="grid-light grid-light-4"></div>
+  <div class="grid-light grid-light-5"></div>
+
+  <div class="container">
+    <div class="header">
+      <h1>Assessment Instructions</h1>
+      <p class="subtitle">
+        Learn how to perform the finger tapping assessment. Please watch the video and read the instructions carefully before starting.
+      </p>
     </div>
-    
-    
-    <p style="
-        margin-top:15px; 
-        font-size:1em; 
-        opacity:0.8; 
-        font-style:italic;
-        color:#e2e8f0;
-    ">
-        💡 Watch this tutorial to see the proper hand tapping technique
-    </p>
-</div>
 
-<!-- NICER INSTRUCTION BOX -->
-<div 
-style="
-      max-width:800px; 
-      background:rgba(255,255,255,0.08); 
-      padding:35px; 
-      border-radius:20px; 
-      line-height:1.8; 
-      text-align:left;
-      box-shadow:0 10px 30px rgba(0,0,0,0.3); 
-      font-size:1.2em;
-      border:1px solid rgba(255,255,255,0.1);
-    "
->
-<div style="margin-bottom:30px; text-align:center;">
-    <h3 style="
-        color:#ffdd57; 
-        font-size:1.6em; 
-        margin-bottom:10px;
-        text-shadow:0 2px 8px rgba(0,0,0,0.3);
-    ">
-        ✋ Step-by-Step Instructions
-    </h3>
-</div>
-
-<ol style="padding-left:30px; margin:0;">
-<li style="margin-bottom:20px; display:flex; align-items:flex-start;">
-    <span style="color:#48bb78; font-weight:bold; margin-right:12px; font-size:1.1em;">1.</span>
-    <span>Sit comfortably with good lighting and make sure your hand is clearly visible in the camera view.</span>
-</li>
-<li style="margin-bottom:20px; display:flex; align-items:flex-start;">
-    <span style="color:#48bb78; font-weight:bold; margin-right:12px; font-size:1.1em;">2.</span>
-    <span>For each trial, you'll be told which hand to use.</span>
-</li>
-<li style="margin-bottom:20px; display:flex; align-items:flex-start;">
-    <span style="color:#48bb78; font-weight:bold; margin-right:12px; font-size:1.1em;">3.</span>
-    <span>When the trial begins, tap your <strong style="color:#ffdd57;">thumb and index finger</strong> together as <strong style="color:#ff6b6b;">QUICKLY</strong> as you can for <strong style="color:#90cdf4;">20 seconds</strong>.</span>
-</li>
-<li style="margin-bottom:20px; display:flex; align-items:flex-start;">
-    <span style="color:#48bb78; font-weight:bold; margin-right:12px; font-size:1.1em;">4.</span>
-    <span>Each hand will be tested <strong style="color:#ffdd57;">3 times</strong> (6 trials total).</span>
-</li>
-<li style="display:flex; align-items:flex-start;">
-    <span style="color:#48bb78; font-weight:bold; margin-right:12px; font-size:1.1em;">5.</span>
-    <span>Press <strong style="color:#667eea;">Next</strong> when you're ready to start.</span>
-</li>
-</ol>
-
-<!-- PRO TIP BOX -->
-<div style="
-    margin-top:30px; 
-    padding:20px; 
-    background:linear-gradient(135deg, rgba(255,221,87,0.15) 0%, rgba(255,165,0,0.15) 100%);
-    border-radius:12px; 
-    border-left:4px solid #ffdd57;
-">
-    <div style="display:flex; align-items:center; margin-bottom:10px;">
-        <span style="font-size:1.3em; margin-right:8px;">💡</span>
-        <strong style="color:#ffdd57; font-size:1.2em;">Pro Tip:</strong>
+    <div class="video-section">
+      <h2 class="video-title">Technique Demonstration</h2>
+      
+      <!-- Progress bar -->
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">0% Complete</div>
+      </div>
+      
+      <div class="video-container">
+        <div id="player"></div>
+      </div>
+      <p class="video-caption">
+        Watch this demonstration to understand the proper finger tapping technique
+      </p>
     </div>
-    <p style="margin:0; font-size:1.1em; opacity:0.9;">
-        Start with your fingers <strong>wide open</strong>, then tap as big and fast as possible. Quality taps are better than rushed small movements!
-    </p>
-</div>
-</div>
 
-<!-- BIGGER & GLOWING NEXT BUTTON -->
-<button 
-style="
-      margin-top:50px; 
-      background: linear-gradient(135deg,#667eea,#764ba2);
-      color:white; 
-      padding:20px 70px; 
-      font-size:1.6em; 
-      font-weight:600; 
-      border:none; 
-      border-radius:12px; 
-      cursor:pointer;
-      box-shadow:0 8px 20px rgba(102,126,234,0.4); 
-      transition:all 0.3s ease;
-      position:relative;
-      overflow:hidden;
-    "
-onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 25px rgba(102,126,234,0.6)';"
-onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 20px rgba(102,126,234,0.4)';"
-onclick="window.location.href='experiment.html'"
->
-    <span style="position:relative; z-index:2;">🚀 Start Test →</span>
-    <div style="
-        position:absolute;
-        top:0; left:-100%;
-        width:100%; height:100%;
-        background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition:left 0.5s ease;
-    " onmouseover="this.style.left='100%'"></div>
-</button>
-</div>
+    <div class="instructions-section">
+      <h2 class="instructions-title">Assessment Protocol</h2>
+      
+      <ol class="steps">
+        <li class="step">
+          <div class="step-content">
+            Position yourself comfortably with adequate lighting. Ensure your hand is <span class="highlight">clearly visible</span> in the camera view.
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-content">
+            You will complete <span class="highlight">6 trials total</span> - each hand will be tested 3 times. Follow the on-screen prompts for which hand to use.
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-content">
+            When each trial begins, tap your <span class="highlight">thumb and index finger</span> together as quickly and accurately as possible for <span class="highlight">20 seconds</span>.
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-content">
+            Start with your fingers <span class="highlight">wide open</span>, then make clear, deliberate tapping movements. Maintain consistent amplitude throughout each trial.
+          </div>
+        </li>
+        <li class="step">
+          <div class="step-content">
+            Follow the visual guides on screen to position your hand correctly. The system will provide real-time feedback during the assessment.
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="button-container">
+      <a href="experiment.html" class="start-button">
+        <span style="position: relative; z-index: 2;">Begin Assessment</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- YouTube API Script -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    let player;
+    let progressInterval;
+
+    // YouTube API callback
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
+        videoId: 'aq-vBvjhvt0',
+        playerVars: {
+          'playsinline': 1,
+          'rel': 0,
+          'modestbranding': 1
+        },
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+
+    function onPlayerReady(event) {
+      // Player is ready
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data == YT.PlayerState.PLAYING) {
+        startProgressTracking();
+      } else {
+        stopProgressTracking();
+      }
+    }
+
+    function startProgressTracking() {
+      progressInterval = setInterval(updateProgress, 500);
+    }
+
+    function stopProgressTracking() {
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
+    }
+
+    function updateProgress() {
+      if (player && player.getCurrentTime && player.getDuration) {
+        const currentTime = player.getCurrentTime();
+        const duration = player.getDuration();
+        
+        if (duration > 0) {
+          const percentage = (currentTime / duration) * 100;
+          const progressFill = document.getElementById('progressFill');
+          const progressText = document.getElementById('progressText');
+          
+          if (progressFill && progressText) {
+            progressFill.style.width = percentage + '%';
+            progressText.textContent = Math.round(percentage) + '% Complete';
+          }
+        }
+      }
+    }
+  </script>
+</body>
+</html>
