@@ -3,158 +3,388 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Demographic Information | Fast Fingers Study</title>
+  <title>Participant Information | Parkinsense Assessment</title>
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background-color: #0a0e27;
-      color: #ffffff;
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background-color: #ffffff;
+      background-image: 
+          linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+      background-size: 50px 50px;
+      background-position: 0 0, 0 0;
+      color: #1a1a1a;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 2rem;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 1) 20%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0) 80%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Animated grid lights */
+    .grid-light {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      background: radial-gradient(circle, #888888 0%, rgba(136, 136, 136, 0.6) 50%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.6;
+    }
+
+    .grid-light-1 {
+      top: 15%;
+      left: -10px;
+      animation: moveRightHorizontal 14s linear infinite, greenGlow 3.2s ease-in-out infinite;
+    }
+
+    .grid-light-2 {
+      top: 85%;
+      left: -10px;
+      animation: moveRightHorizontal 11s linear infinite, greenGlow 2.8s ease-in-out infinite;
+      animation-delay: 2s, 0.5s;
+    }
+
+    .grid-light-3 {
+      top: -10px;
+      left: 30%;
+      animation: moveDownVertical 13s linear infinite, greenGlow 3.5s ease-in-out infinite;
+      animation-delay: 1s, 1.2s;
+    }
+
+    .grid-light-4 {
+      bottom: -10px;
+      left: 70%;
+      animation: moveUpVertical 12s linear infinite, greenGlow 2.6s ease-in-out infinite;
+      animation-delay: 3s, 0.8s;
+    }
+
+    @keyframes moveRightHorizontal {
+      0% { left: -10px; }
+      100% { left: calc(100% + 10px); }
+    }
+
+    @keyframes moveDownVertical {
+      0% { top: -10px; }
+      100% { top: calc(100% + 10px); }
+    }
+
+    @keyframes moveUpVertical {
+      0% { bottom: -10px; }
+      100% { bottom: calc(100% + 10px); }
+    }
+
+    @keyframes greenGlow {
+      0%, 70%, 100% { 
+        background: radial-gradient(circle, #888888 0%, rgba(136, 136, 136, 0.6) 50%, transparent 70%);
+        box-shadow: 0 0 0 rgba(34, 197, 94, 0);
+        opacity: 0.6;
+        transform: scale(1);
+      }
+      15%, 55% { 
+        background: radial-gradient(circle, #22c55e 0%, rgba(34, 197, 94, 0.8) 50%, rgba(34, 197, 94, 0.2) 70%);
+        box-shadow: 0 0 15px rgba(34, 197, 94, 0.8), 0 0 30px rgba(34, 197, 94, 0.4);
+        opacity: 1;
+        transform: scale(1.3);
+      }
     }
 
     .container {
       max-width: 700px;
-      margin: 50px auto;
-      padding: 20px;
-      background: #1a1f3a;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      width: 100%;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 3rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(10px);
     }
 
-    h2 {
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 400;
+      color: #1a1a1a;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
       text-align: center;
-      margin-bottom: 30px;
-      color: #667eea;
+    }
+
+    .subtitle {
+      font-size: 1.125rem;
+      color: #4a4a4a;
+      text-align: center;
+      margin-bottom: 3rem;
+      max-width: 60ch;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .form-group {
       display: flex;
       flex-direction: column;
     }
 
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
     label {
-      margin-bottom: 15px;
-      font-weight: bold;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     input, select {
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #667eea;
-      background-color: #2a2d4a;
-      color: white;
-      font-size: 1em;
-      margin-top: 5px;
+      padding: 0.875rem 1rem;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      background-color: #ffffff;
+      color: #1a1a1a;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.5rem center;
+      background-repeat: no-repeat;
+      background-size: 1.5em 1.5em;
+      padding-right: 2.5rem;
+    }
+
+    input {
+      background-image: none !important;
+      padding-right: 1rem;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #1a1a1a;
+      box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+    }
+
+    input:hover, select:hover {
+      border-color: #d1d5db;
+    }
+
+    select option {
+      color: #1a1a1a;
+      background-color: #ffffff;
     }
 
     button {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-color: #1a1a1a;
       color: white;
       border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 16px;
+      padding: 1rem 3rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      border-radius: 2rem;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-      margin-top: 20px;
-      align-self: center;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      margin-top: 2rem;
+      justify-self: center;
+      grid-column: 1 / -1;
     }
 
     button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+      background-color: #333333;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     }
 
     button:active {
       transform: translateY(0);
     }
+
+    .required {
+      color: #ef4444;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 2rem;
+        margin: 1rem;
+      }
+      
+      form {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      button {
+        width: 100%;
+      }
+    }
+
+    /* Loading state */
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .loading button {
+      background-color: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .success-message {
+      background: #dcfce7;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      text-align: center;
+      display: none;
+    }
   </style>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
-    <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyCIijYBeCcyl8Mt414nueAgIId8PfWaW5M",
-        authDomain: "pdstudy-99397.firebaseapp.com",
-        projectId: "pdstudy-99397",
-        storageBucket: "pdstudy-99397.firebasestorage.app",
-        messagingSenderId: "235927780090",
-        appId: "1:235927780090:web:348a8c85c130371686a743",
-        measurementId: "G-Y116J49LYT"
-    };
+  <script>
+  const firebaseConfig = {
+      apiKey: "AIzaSyCIijYBeCcyl8Mt414nueAgIId8PfWaW5M",
+      authDomain: "pdstudy-99397.firebaseapp.com",
+      projectId: "pdstudy-99397",
+      storageBucket: "pdstudy-99397.firebasestorage.app",
+      messagingSenderId: "235927780090",
+      appId: "1:235927780090:web:348a8c85c130371686a743",
+      measurementId: "G-Y116J49LYT"
+  };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    </script>
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  </script>
 
 </head>
 <body>
-  <div class="container">
-    <h2>Participant Information</h2>
-    <form id="infoForm">
-      <label>
-        Prolific ID:
-        <input type="text" id="prolificID" required />
-      </label>
+  <!-- Animated grid lights -->
+  <div class="grid-light grid-light-1"></div>
+  <div class="grid-light grid-light-2"></div>
+  <div class="grid-light grid-light-3"></div>
+  <div class="grid-light grid-light-4"></div>
 
-      <label>
-        Gender:
+  <div class="container">
+    <h1>Participant Information</h1>
+    <p class="subtitle">Please provide some basic information about yourself to help us analyze the results.</p>
+    
+    <div class="success-message" id="successMessage">
+      Information saved successfully! Redirecting...
+    </div>
+    
+    <form id="infoForm">
+      <div class="form-group">
+        <label for="prolificID">
+          Prolific ID <span class="required">*</span>
+        </label>
+        <input type="text" id="prolificID" required placeholder="Enter your Prolific ID" />
+      </div>
+
+      <div class="form-group">
+        <label for="age">
+          Age <span class="required">*</span>
+        </label>
+        <input type="number" min="0" max="90" id="age" required placeholder="Enter your age" />
+      </div>
+
+      <div class="form-group">
+        <label for="gender">
+          Gender
+        </label>
         <select id="gender">
-          <option value=""></option>
+          <option value="">Select gender</option>
           <option value="male">Male</option>
           <option value="female">Female</option>
           <option value="other">Other</option>
         </select>
-      </label>
+      </div>
 
-      <label>
-        Handedness:
+      <div class="form-group">
+        <label for="handedness">
+          Handedness
+        </label>
         <select id="handedness">
-          <option value=""></option>
-          <option value="right">Right</option>
-          <option value="left">Left</option>
+          <option value="">Select handedness</option>
+          <option value="right">Right-handed</option>
+          <option value="left">Left-handed</option>
           <option value="ambidextrous">Ambidextrous</option>
         </select>
-      </label>
+      </div>
 
-      <label>
-        Age:
-        <input type="number" min="0" max="90" id="age" required />
-      </label>
+      <div class="form-group">
+        <label for="education">
+          Education (Years)
+        </label>
+        <input type="number" min="0" max="40" id="education" placeholder="Years of education" />
+      </div>
 
-      <label>
-        Education (Years):
-        <input type="number" min="0" max="40" id="education" />
-      </label>
-
-      <label>
-        Sleep (Hours Last Night):
+      <div class="form-group">
+        <label for="sleep">
+          Sleep Last Night
+        </label>
         <select id="sleep">
-          <option value=""></option>
-          <option value="less_than_4">Less than 4</option>
-          <option value="4_6">4–6</option>
-          <option value="6_8">6–8</option>
-          <option value="8_plus">8+</option>
+          <option value="">Select hours slept</option>
+          <option value="less_than_4">Less than 4 hours</option>
+          <option value="4_6">4–6 hours</option>
+          <option value="6_8">6–8 hours</option>
+          <option value="8_plus">8+ hours</option>
         </select>
-      </label>
+      </div>
 
-      <label>
-        Ethnicity:
+      <div class="form-group">
+        <label for="ethnicity">
+          Ethnicity
+        </label>
         <select id="ethnicity">
-          <option value=""></option>
+          <option value="">Select ethnicity</option>
           <option value="hispanic">Hispanic or Latino</option>
           <option value="non_hispanic">Not Hispanic or Latino</option>
         </select>
-      </label>
+      </div>
 
-      <label>
-        Race:
+      <div class="form-group">
+        <label for="race">
+          Race
+        </label>
         <select id="race">
-          <option value=""></option>
+          <option value="">Select race</option>
           <option value="white">White</option>
           <option value="black">Black or African American</option>
           <option value="asian">Asian</option>
@@ -162,9 +392,9 @@
           <option value="pacific">Pacific Islander</option>
           <option value="multiple">Multiple</option>
         </select>
-      </label>
+      </div>
 
-      <button type="button" onclick="startExperiment()">Begin Experiment</button>
+      <button type="button" onclick="startExperiment()">Continue to Assessment</button>
     </form>
   </div>
 
@@ -180,9 +410,15 @@
       const race = document.getElementById('race').value;
     
       if (!pid || !age) {
-        alert('Please fill in all required fields.');
+        alert('Please fill in all required fields (Prolific ID and Age).');
         return;
       }
+
+      // Add loading state
+      document.body.classList.add('loading');
+      const button = document.querySelector('button');
+      const originalText = button.textContent;
+      button.textContent = 'Saving...';
     
       // Save to Firestore: Subjects collection
       const subjectData = {
@@ -190,6 +426,8 @@
         age: age,
         sex: sex,
         handedness: handedness,
+        education: education,
+        sleep: sleep,
         ethnicity: ethnicity,
         race: race,
         returner: null,
@@ -199,12 +437,13 @@
         currTrial: 0,
         dpin: null,
         tgt_file: null,
-        target_visibility: "present"
+        target_visibility: "present",
+        timestamp: new Date().toISOString()
       };
     
       db.collection("Subjects").doc(pid).set(subjectData)
         .then(() => {
-          // Store in sessionStorage for index.html
+          // Store in sessionStorage for other pages
           sessionStorage.setItem('prolificID', pid);
           sessionStorage.setItem('age', age);
           sessionStorage.setItem('gender', sex);
@@ -213,16 +452,40 @@
           sessionStorage.setItem('sleep', sleep);
           sessionStorage.setItem('ethnicity', ethnicity);
           sessionStorage.setItem('race', race);
-    
-          // Go to main experiment
-          window.location.href = 'instructions.html';
+
+          // Show success message
+          document.getElementById('successMessage').style.display = 'block';
+          
+          // Go to instructions after a brief delay
+          setTimeout(() => {
+            window.location.href = 'instructions.html';
+          }, 1500);
         })
         .catch((error) => {
           console.error("Error saving to Firebase:", error);
-          alert("Could not save your info. Please try again.");
+          alert("Could not save your information. Please check your connection and try again.");
+          
+          // Remove loading state
+          document.body.classList.remove('loading');
+          button.textContent = originalText;
         });
     }
-    </script>
+
+    // Add some basic form validation feedback
+    document.addEventListener('DOMContentLoaded', function() {
+      const requiredFields = document.querySelectorAll('input[required]');
+      
+      requiredFields.forEach(field => {
+        field.addEventListener('blur', function() {
+          if (!this.value.trim()) {
+            this.style.borderColor = '#ef4444';
+          } else {
+            this.style.borderColor = '#e5e7eb';
+          }
+        });
+      });
+    });
+  </script>
     
 </body>
 </html>
