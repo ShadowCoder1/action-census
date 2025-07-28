@@ -30,6 +30,27 @@
             position: relative;
         }
 
+        h1 {
+    font-size: 12rem; /* Much larger - about 192px */
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #1a1a1a;
+}
+
+/* Responsive sizing for smaller screens */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 6rem;
+    }
+}
+
         body::before {
             content: '';
             position: fixed;
