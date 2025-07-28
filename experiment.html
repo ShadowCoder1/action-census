@@ -44,6 +44,40 @@
             z-index: 0;
         }
 
+        body {
+    font-size: 1.25rem; /* Increases base text size by 25% */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-size: 2rem; /* Makes headings larger */
+    margin-bottom: 1.5rem;
+}
+
+p, li, label, input, button, textarea {
+    font-size: 1.25rem; /* Makes all text elements larger */
+    line-height: 1.8; /* Increases line spacing for better readability */
+}
+
+button, input[type="submit"], .btn {
+    font-size: 1.4rem; /* Makes buttons even larger */
+    padding: 1rem 2rem; /* Increases button padding */
+}
+
+/* For very small screens, still keep text readable */
+@media (max-width: 480px) {
+    body {
+        font-size: 1.1rem;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-size: 1.6rem;
+    }
+    
+    p, li, label, input, button, textarea {
+        font-size: 1.1rem;
+    }
+}
+
         /* Floating geometric shapes */
         .geometric-shape {
             position: fixed;
