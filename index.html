@@ -28,20 +28,8 @@
             align-items: center;
             padding: 2rem;
             position: relative;
+            overflow: hidden;
         }
-
-/* Responsive sizing for smaller screens */
-@media (max-width: 768px) {
-    h1 {
-        font-size: 8rem;
-    }
-}
-
-@media (max-width: 480px) {
-    h1 {
-        font-size: 6rem;
-    }
-}
 
         body::before {
             content: '';
@@ -54,113 +42,217 @@
             pointer-events: none;
             z-index: 1;
         }
+
         h1 {
             font-size: 5rem;
             font-weight: 500;
             text-align: center;
             margin-bottom: 2rem;
             color: #1a1a1a;
+            opacity: 0;
+            animation: titleReveal 2s ease-out 0.5s forwards;
+            position: relative;
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        
-        /* Responsive sizing for smaller screens */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 5rem;
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #22c55e, transparent);
+            animation: underlineGrow 1.5s ease-out 2s forwards;
+            border-radius: 2px;
+        }
+
+        @keyframes titleReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+                filter: blur(10px);
             }
-        }
-        
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 4rem;
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
             }
         }
 
-        /* Animated grid lights */
+        @keyframes underlineGrow {
+            0% { width: 0; }
+            100% { width: 200px; }
+        }
+
+        /* Enhanced grid lights */
         .grid-light {
             position: fixed;
-            width: 8px;
-            height: 8px;
-            background: radial-gradient(circle, #888888 0%, rgba(136, 136, 136, 0.6) 50%, transparent 70%);
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #888888 0%, rgba(136, 136, 136, 0.4) 70%, transparent 100%);
             border-radius: 50%;
             pointer-events: none;
             z-index: 1;
-            opacity: 0.6;
+            opacity: 0;
         }
 
-        .grid-light-1 {
-            top: 20%;
-            left: -10px;
-            animation: moveRightHorizontal 12s linear infinite, greenGlow 3s ease-in-out infinite;
+        /* Horizontal moving lights */
+        .grid-light-horizontal-1 {
+            top: 15%;
+            left: -20px;
+            animation: 
+                fadeIn 0.5s ease-out 1s forwards,
+                moveRightHorizontal 8s ease-in-out 1.5s infinite,
+                pulseGlow 3s ease-in-out 2s infinite;
         }
 
-        .grid-light-2 {
-            top: 70%;
-            left: -10px;
-            animation: moveRightHorizontal 15s linear infinite, greenGlow 2.5s ease-in-out infinite;
-            animation-delay: 3s, 1s;
+        .grid-light-horizontal-2 {
+            top: 35%;
+            left: -20px;
+            animation: 
+                fadeIn 0.5s ease-out 1.8s forwards,
+                moveRightHorizontal 10s ease-in-out 2.3s infinite,
+                pulseGlow 2.5s ease-in-out 2.8s infinite;
         }
 
-        .grid-light-3 {
-            top: -10px;
-            left: 25%;
-            animation: moveDownVertical 10s linear infinite, greenGlow 3.5s ease-in-out infinite;
-            animation-delay: 2s, 0.5s;
+        .grid-light-horizontal-3 {
+            top: 65%;
+            left: -20px;
+            animation: 
+                fadeIn 0.5s ease-out 2.2s forwards,
+                moveRightHorizontal 12s ease-in-out 2.7s infinite,
+                pulseGlow 3.5s ease-in-out 3.2s infinite;
         }
 
-        .grid-light-4 {
-            top: -10px;
-            left: 75%;
-            animation: moveDownVertical 13s linear infinite, greenGlow 2.8s ease-in-out infinite;
-            animation-delay: 1s, 2s;
+        .grid-light-horizontal-4 {
+            top: 85%;
+            left: -20px;
+            animation: 
+                fadeIn 0.5s ease-out 1.4s forwards,
+                moveRightHorizontal 9s ease-in-out 1.9s infinite,
+                pulseGlow 2.8s ease-in-out 2.4s infinite;
         }
 
-        .grid-light-5 {
-            top: 40%;
-            right: -10px;
-            animation: moveLeftHorizontal 14s linear infinite, greenGlow 3.2s ease-in-out infinite;
-            animation-delay: 4s, 1.5s;
+        /* Vertical moving lights */
+        .grid-light-vertical-1 {
+            top: -20px;
+            left: 20%;
+            animation: 
+                fadeIn 0.5s ease-out 1.2s forwards,
+                moveDownVertical 11s ease-in-out 1.7s infinite,
+                pulseGlow 3.2s ease-in-out 2.2s infinite;
         }
 
-        .grid-light-6 {
-            bottom: -10px;
-            left: 50%;
-            animation: moveUpVertical 11s linear infinite, greenGlow 2.7s ease-in-out infinite;
-            animation-delay: 2.5s, 0.8s;
+        .grid-light-vertical-2 {
+            top: -20px;
+            left: 40%;
+            animation: 
+                fadeIn 0.5s ease-out 2s forwards,
+                moveDownVertical 13s ease-in-out 2.5s infinite,
+                pulseGlow 2.7s ease-in-out 3s infinite;
+        }
+
+        .grid-light-vertical-3 {
+            top: -20px;
+            left: 60%;
+            animation: 
+                fadeIn 0.5s ease-out 1.6s forwards,
+                moveDownVertical 9.5s ease-in-out 2.1s infinite,
+                pulseGlow 3.1s ease-in-out 2.6s infinite;
+        }
+
+        .grid-light-vertical-4 {
+            top: -20px;
+            left: 80%;
+            animation: 
+                fadeIn 0.5s ease-out 2.4s forwards,
+                moveDownVertical 14s ease-in-out 2.9s infinite,
+                pulseGlow 2.9s ease-in-out 3.4s infinite;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 0.7; }
         }
 
         @keyframes moveRightHorizontal {
-            0% { left: -10px; }
-            100% { left: calc(100% + 10px); }
-        }
-
-        @keyframes moveLeftHorizontal {
-            0% { right: -10px; }
-            100% { right: calc(100% + 10px); }
+            0%, 10% { left: -20px; transform: scale(1); }
+            50% { transform: scale(1.5); }
+            90%, 100% { left: calc(100% + 20px); transform: scale(1); }
         }
 
         @keyframes moveDownVertical {
-            0% { top: -10px; }
-            100% { top: calc(100% + 10px); }
+            0%, 10% { top: -20px; transform: scale(1); }
+            50% { transform: scale(1.5); }
+            90%, 100% { top: calc(100% + 20px); transform: scale(1); }
         }
 
-        @keyframes moveUpVertical {
-            0% { bottom: -10px; }
-            100% { bottom: calc(100% + 10px); }
-        }
-
-        @keyframes greenGlow {
+        @keyframes pulseGlow {
             0%, 70%, 100% { 
-                background: radial-gradient(circle, #888888 0%, rgba(136, 136, 136, 0.6) 50%, transparent 70%);
+                background: radial-gradient(circle, #888888 0%, rgba(136, 136, 136, 0.4) 70%, transparent 100%);
                 box-shadow: 0 0 0 rgba(34, 197, 94, 0);
-                opacity: 0.6;
-                transform: scale(1);
             }
             15%, 55% { 
-                background: radial-gradient(circle, #22c55e 0%, rgba(34, 197, 94, 0.8) 50%, rgba(34, 197, 94, 0.2) 70%);
-                box-shadow: 0 0 15px rgba(34, 197, 94, 0.8), 0 0 30px rgba(34, 197, 94, 0.4);
-                opacity: 1;
-                transform: scale(1.3);
+                background: radial-gradient(circle, #22c55e 0%, rgba(34, 197, 94, 0.6) 70%, rgba(34, 197, 94, 0.1) 100%);
+                box-shadow: 
+                    0 0 20px rgba(34, 197, 94, 0.8), 
+                    0 0 40px rgba(34, 197, 94, 0.4),
+                    0 0 60px rgba(34, 197, 94, 0.2);
             }
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            background: rgba(34, 197, 94, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle-1 {
+            top: 25%;
+            left: 10%;
+            animation: float 15s ease-in-out infinite, twinkle 3s ease-in-out infinite;
+        }
+
+        .particle-2 {
+            top: 75%;
+            left: 90%;
+            animation: float 18s ease-in-out infinite reverse, twinkle 2.5s ease-in-out infinite;
+            animation-delay: 2s, 1s;
+        }
+
+        .particle-3 {
+            top: 45%;
+            left: 15%;
+            animation: float 20s ease-in-out infinite, twinkle 4s ease-in-out infinite;
+            animation-delay: 4s, 0.5s;
+        }
+
+        .particle-4 {
+            top: 30%;
+            left: 85%;
+            animation: float 16s ease-in-out infinite reverse, twinkle 3.2s ease-in-out infinite;
+            animation-delay: 1s, 2s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); }
+            33% { transform: translateY(-20px) translateX(10px) rotate(120deg); }
+            66% { transform: translateY(10px) translateX(-15px) rotate(240deg); }
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
         }
 
         .container {
@@ -176,6 +268,19 @@
             color: #4a4a4a;
             margin-bottom: 1.5rem;
             max-width: 65ch;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 3s forwards;
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .highlight {
@@ -188,10 +293,12 @@
             color: #1a1a1a;
             margin: 3rem 0 2rem 0;
             font-weight: 400;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 3.5s forwards;
         }
 
         .continue-btn {
-            background-color: #1a1a1a;
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
             color: white;
             border: none;
             padding: 0.875rem 2rem;
@@ -199,25 +306,56 @@
             font-weight: 500;
             border-radius: 2rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             font-family: inherit;
             text-decoration: none;
             display: inline-block;
             margin-top: 1rem;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 4s forwards, buttonPulse 2s ease-in-out 5s infinite;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .continue-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
         }
 
         .continue-btn:hover {
-            background-color: #333333;
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, #333333 0%, #555555 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .continue-btn:hover::before {
+            left: 100%;
         }
 
         .continue-btn:active {
             transform: translateY(0);
         }
 
+        @keyframes buttonPulse {
+            0%, 70%, 100% {
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            }
+            35% {
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), 0 0 0 10px rgba(34, 197, 94, 0.1);
+            }
+        }
+
+        /* Responsive adjustments */
         @media (max-width: 768px) {
             h1 {
-                font-size: 2.5rem;
+                font-size: 3.5rem;
             }
             
             p {
@@ -228,22 +366,39 @@
                 font-size: 1.25rem;
             }
         }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            h1::after {
+                width: 150px;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Animated grid lights -->
-    <div class="grid-light grid-light-1"></div>
-    <div class="grid-light grid-light-2"></div>
-    <div class="grid-light grid-light-3"></div>
-    <div class="grid-light grid-light-4"></div>
-    <div class="grid-light grid-light-5"></div>
-    <div class="grid-light grid-light-6"></div>
+    <!-- Enhanced animated grid lights -->
+    <div class="grid-light grid-light-horizontal-1"></div>
+    <div class="grid-light grid-light-horizontal-2"></div>
+    <div class="grid-light grid-light-horizontal-3"></div>
+    <div class="grid-light grid-light-horizontal-4"></div>
     
+    <div class="grid-light grid-light-vertical-1"></div>
+    <div class="grid-light grid-light-vertical-2"></div>
+    <div class="grid-light grid-light-vertical-3"></div>
+    <div class="grid-light grid-light-vertical-4"></div>
+    
+    <!-- Floating particles -->
+    <div class="particle particle-1"></div>
+    <div class="particle particle-2"></div>
+    <div class="particle particle-3"></div>
+    <div class="particle particle-4"></div>
     
     <div class="container">
         <h1>FastFingers: How fast can you tap?</h1>
         <a href="consent.html" class="continue-btn">Start Assessment</a>
-
     </div>
 </body>
 </html>
