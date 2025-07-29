@@ -44,52 +44,18 @@
         }
 
         h1 {
-            font-size: 6rem;
+            font-size: 5rem;
             font-weight: 500;
             text-align: center;
             margin-bottom: 2rem;
             color: #1a1a1a;
             opacity: 0;
-            animation: titleReveal 0.8s ease-out 0.2s forwards;
+            animation: titleReveal 2s ease-out 0.5s forwards;
             position: relative;
-            word-spacing: 0.2em;
-            letter-spacing: normal;
-        }
-
-        /* Individual letter spans for glow animation */
-        .letter {
-            display: inline-block;
-            position: relative;
-            color: #1a1a1a;
-            overflow: hidden;
-        }
-
-        /* Glow effect that travels from top to bottom of each letter */
-        .letter::before {
-            content: attr(data-letter);
-            position: absolute;
-            top: 0;
-            left: 0;
-            color: #22c55e;
-            clip-path: polygon(0 0, 100% 0, 100% 0%, 0 0%);
-            animation: letterGlowTopToBottom 2s ease-in-out forwards;
-            animation-delay: var(--delay);
-            filter: drop-shadow(0 0 15px rgba(34, 197, 94, 0.9));
-            text-shadow: 0 0 20px rgba(34, 197, 94, 0.8);
-        }
-
-        @keyframes letterGlowTopToBottom {
-            0% {
-                clip-path: polygon(0 0, 100% 0, 100% 0%, 0 0%);
-            }
-            50% {
-                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-                color: #22c55e;
-            }
-            100% {
-                clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
-                color: #22c55e;
-            }
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         h1::after {
@@ -99,11 +65,10 @@
             left: 50%;
             transform: translateX(-50%);
             width: 0;
-            height: 4px;
+            height: 3px;
             background: linear-gradient(90deg, transparent, #22c55e, transparent);
-            animation: underlineGrow 0.8s ease-out 1.5s forwards;
+            animation: underlineGrow 1.5s ease-out 2s forwards;
             border-radius: 2px;
-            box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
         }
 
         @keyframes titleReveal {
@@ -121,7 +86,7 @@
 
         @keyframes underlineGrow {
             0% { width: 0; }
-            100% { width: 300px; }
+            100% { width: 200px; }
         }
 
         /* Enhanced grid lights */
@@ -141,36 +106,36 @@
             top: 15%;
             left: -20px;
             animation: 
-                fadeIn 0.3s ease-out 0.5s forwards,
-                moveRightHorizontal 8s ease-in-out 0.8s infinite,
-                pulseGlow 3s ease-in-out 1s infinite;
+                fadeIn 0.5s ease-out 1s forwards,
+                moveRightHorizontal 8s ease-in-out 1.5s infinite,
+                pulseGlow 3s ease-in-out 2s infinite;
         }
 
         .grid-light-horizontal-2 {
             top: 35%;
             left: -20px;
             animation: 
-                fadeIn 0.3s ease-out 0.7s forwards,
-                moveRightHorizontal 10s ease-in-out 1s infinite,
-                pulseGlow 2.5s ease-in-out 1.2s infinite;
+                fadeIn 0.5s ease-out 1.8s forwards,
+                moveRightHorizontal 10s ease-in-out 2.3s infinite,
+                pulseGlow 2.5s ease-in-out 2.8s infinite;
         }
 
         .grid-light-horizontal-3 {
             top: 65%;
             left: -20px;
             animation: 
-                fadeIn 0.3s ease-out 0.9s forwards,
-                moveRightHorizontal 12s ease-in-out 1.2s infinite,
-                pulseGlow 3.5s ease-in-out 1.4s infinite;
+                fadeIn 0.5s ease-out 2.2s forwards,
+                moveRightHorizontal 12s ease-in-out 2.7s infinite,
+                pulseGlow 3.5s ease-in-out 3.2s infinite;
         }
 
         .grid-light-horizontal-4 {
             top: 85%;
             left: -20px;
             animation: 
-                fadeIn 0.3s ease-out 0.6s forwards,
-                moveRightHorizontal 9s ease-in-out 0.9s infinite,
-                pulseGlow 2.8s ease-in-out 1.1s infinite;
+                fadeIn 0.5s ease-out 1.4s forwards,
+                moveRightHorizontal 9s ease-in-out 1.9s infinite,
+                pulseGlow 2.8s ease-in-out 2.4s infinite;
         }
 
         /* Vertical moving lights */
@@ -178,36 +143,36 @@
             top: -20px;
             left: 20%;
             animation: 
-                fadeIn 0.3s ease-out 0.5s forwards,
-                moveDownVertical 11s ease-in-out 0.8s infinite,
-                pulseGlow 3.2s ease-in-out 1s infinite;
+                fadeIn 0.5s ease-out 1.2s forwards,
+                moveDownVertical 11s ease-in-out 1.7s infinite,
+                pulseGlow 3.2s ease-in-out 2.2s infinite;
         }
 
         .grid-light-vertical-2 {
             top: -20px;
             left: 40%;
             animation: 
-                fadeIn 0.3s ease-out 0.8s forwards,
-                moveDownVertical 13s ease-in-out 1.1s infinite,
-                pulseGlow 2.7s ease-in-out 1.3s infinite;
+                fadeIn 0.5s ease-out 2s forwards,
+                moveDownVertical 13s ease-in-out 2.5s infinite,
+                pulseGlow 2.7s ease-in-out 3s infinite;
         }
 
         .grid-light-vertical-3 {
             top: -20px;
             left: 60%;
             animation: 
-                fadeIn 0.3s ease-out 0.6s forwards,
-                moveDownVertical 9.5s ease-in-out 0.9s infinite,
-                pulseGlow 3.1s ease-in-out 1.1s infinite;
+                fadeIn 0.5s ease-out 1.6s forwards,
+                moveDownVertical 9.5s ease-in-out 2.1s infinite,
+                pulseGlow 3.1s ease-in-out 2.6s infinite;
         }
 
         .grid-light-vertical-4 {
             top: -20px;
             left: 80%;
             animation: 
-                fadeIn 0.3s ease-out 0.9s forwards,
-                moveDownVertical 14s ease-in-out 1.2s infinite,
-                pulseGlow 2.9s ease-in-out 1.4s infinite;
+                fadeIn 0.5s ease-out 2.4s forwards,
+                moveDownVertical 14s ease-in-out 2.9s infinite,
+                pulseGlow 2.9s ease-in-out 3.4s infinite;
         }
 
         @keyframes fadeIn {
@@ -299,12 +264,12 @@
         }
 
         p {
-            font-size: 1.25rem;
+            font-size: 1.125rem;
             color: #4a4a4a;
             margin-bottom: 1.5rem;
             max-width: 65ch;
             opacity: 0;
-            animation: fadeInUp 0.6s ease-out 1.2s forwards;
+            animation: fadeInUp 1s ease-out 3s forwards;
         }
 
         @keyframes fadeInUp {
@@ -324,20 +289,20 @@
         }
 
         .challenge {
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             color: #1a1a1a;
             margin: 3rem 0 2rem 0;
             font-weight: 400;
             opacity: 0;
-            animation: fadeInUp 0.6s ease-out 1.4s forwards;
+            animation: fadeInUp 1s ease-out 3.5s forwards;
         }
 
         .continue-btn {
             background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
             color: white;
             border: none;
-            padding: 1rem 2.5rem;
-            font-size: 1.125rem;
+            padding: 0.875rem 2rem;
+            font-size: 1rem;
             font-weight: 500;
             border-radius: 2rem;
             cursor: pointer;
@@ -349,7 +314,7 @@
             position: relative;
             overflow: hidden;
             opacity: 0;
-            animation: fadeInUp 0.6s ease-out 1.6s forwards, buttonPulse 2s ease-in-out 2.5s infinite;
+            animation: fadeInUp 1s ease-out 4s forwards, buttonPulse 2s ease-in-out 5s infinite;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
@@ -390,25 +355,25 @@
         /* Responsive adjustments */
         @media (max-width: 768px) {
             h1 {
-                font-size: 4.5rem;
+                font-size: 3.5rem;
             }
             
             p {
-                font-size: 1.125rem;
+                font-size: 1rem;
             }
             
             .challenge {
-                font-size: 1.5rem;
+                font-size: 1.25rem;
             }
         }
 
         @media (max-width: 480px) {
             h1 {
-                font-size: 3rem;
+                font-size: 2.5rem;
             }
             
             h1::after {
-                width: 200px;
+                width: 150px;
             }
         }
     </style>
@@ -432,42 +397,8 @@
     <div class="particle particle-4"></div>
     
     <div class="container">
-        <h1 id="animated-title">FastFingers: How fast can you tap?</h1>
+        <h1>FastFingers: How fast can you tap?</h1>
         <a href="consent.html" class="continue-btn">Start Assessment</a>
     </div>
-
-    <script>
-        // Function to wrap each letter in a span for individual animation
-        function wrapLetters() {
-            const title = document.getElementById('animated-title');
-            const text = title.textContent;
-            title.innerHTML = '';
-            
-            let letterIndex = 0;
-            const baseDelay = 1; // Start glow animation 1 second after page load
-            const letterDelay = 0.15; // 0.15 second between each letter
-            
-            for (let i = 0; i < text.length; i++) {
-                const span = document.createElement('span');
-                span.className = 'letter';
-                span.textContent = text[i];
-                span.setAttribute('data-letter', text[i]);
-                
-                // Skip spaces for animation delay calculation
-                if (text[i] !== ' ' && text[i] !== ':') {
-                    span.style.setProperty('--delay', `${baseDelay + (letterIndex * letterDelay)}s`);
-                    letterIndex++;
-                } else {
-                    // No glow for spaces and colons
-                    span.style.setProperty('--delay', '999s');
-                }
-                
-                title.appendChild(span);
-            }
-        }
-        
-        // Initialize the animation when the page loads
-        window.addEventListener('DOMContentLoaded', wrapLetters);
-    </script>
 </body>
 </html>
