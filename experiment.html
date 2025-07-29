@@ -26,8 +26,8 @@
             height: 100vh;
             overflow: hidden;
             position: relative;
+            font-size: 1.25rem;
         }
-
         /* Subtle geometric background pattern */
         body::before {
             content: '';
@@ -45,32 +45,31 @@
         }
 
 h1, h2, h3, h4, h5, h6 {
-    font-size: 2rem; /* Makes headings larger */
+    font-size: 2.8rem; /* Makes headings larger */
     margin-bottom: 1.5rem;
 }
 
 p, li, label, input, button, textarea {
-    font-size: 1.25rem; /* Makes all text elements larger */
+    font-size: 1.6rem; /* Makes all text elements larger */
     line-height: 1.8; /* Increases line spacing for better readability */
 }
 
 button, input[type="submit"], .btn {
-    font-size: 1.4rem; /* Makes buttons even larger */
-    padding: 1rem 2rem; /* Increases button padding */
+    font-size: 1.75rem; /* Makes buttons even larger */
+    padding: 1.25rem 2.5rem; /* Increases button padding */
 }
 
-/* For very small screens, still keep text readable */
 @media (max-width: 480px) {
     body {
-        font-size: 1.1rem;
+        font-size: 1.4rem;
     }
     
     h1, h2, h3, h4, h5, h6 {
-        font-size: 1.6rem;
+        font-size: 2.2rem;
     }
     
     p, li, label, input, button, textarea {
-        font-size: 1.1rem;
+        font-size: 1.4rem;
     }
 }
 
@@ -141,7 +140,7 @@ button, input[type="submit"], .btn {
 
         /* Timer display - Clean and prominent */
         .timer-display {
-            font-size: 4rem;
+            font-size: 5.6rem;
             font-weight: 200;
             color: #1a1a1a;
             margin-bottom: 0.5rem;
@@ -158,7 +157,7 @@ button, input[type="submit"], .btn {
         }
 
         .taps-display {
-            font-size: 5rem;
+            font-size: 7rem;
             font-weight: 100;
             color: #1a1a1a;
             letter-spacing: -0.03em;
@@ -166,7 +165,7 @@ button, input[type="submit"], .btn {
         }
 
         .taps-subtitle {
-            font-size: 1rem;
+            font-size: 1.3rem;
             font-weight: 400;
             color: #666666;
             text-transform: uppercase;
@@ -181,16 +180,16 @@ button, input[type="submit"], .btn {
         }
 
         .trial-number {
-            font-size: 0.85rem;
+            font-size: 1.1rem;
             color: #999999;
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.1em;
             margin-bottom: 0.75rem;
         }
-
+        
         .hand-instruction {
-            font-size: 2rem;
+            font-size: 2.8rem;
             color: #1a1a1a;
             font-weight: 300;
             letter-spacing: -0.02em;
@@ -205,7 +204,7 @@ button, input[type="submit"], .btn {
         }
 
         .instructions h3 {
-            font-size: 0.9rem;
+            font-size: 1.15rem;
             font-weight: 600;
             margin-bottom: 1rem;
             color: #666666;
@@ -217,7 +216,7 @@ button, input[type="submit"], .btn {
             margin-bottom: 0.75rem;
             padding-left: 1.5rem;
             position: relative;
-            font-size: 0.95rem;
+            font-size: 1.2rem;
             font-weight: 400;
             color: #1a1a1a;
             line-height: 1.5;
@@ -279,14 +278,14 @@ button, input[type="submit"], .btn {
             pointer-events: none;
             z-index: 100;
         }
-
+        
         .position-status {
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             font-weight: 500;
             color: white;
             text-align: center;
             background: rgba(0, 0, 0, 0.8);
-            padding: 1rem 2rem;
+            padding: 1.25rem 2.5rem;
             border-radius: 50px;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -336,7 +335,7 @@ button, input[type="submit"], .btn {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 10rem;
+            font-size: 14rem;
             font-weight: 100;
             color: #ffffff;
             text-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
@@ -374,7 +373,7 @@ button, input[type="submit"], .btn {
         }
 
         .trial-overlay-title {
-            font-size: 3.5rem;
+            font-size: 4.9rem;
             font-weight: 200;
             margin-bottom: 2rem;
             color: #1a1a1a;
@@ -382,23 +381,22 @@ button, input[type="submit"], .btn {
         }
 
         .trial-overlay-instruction {
-            font-size: 1.5rem;
+            font-size: 2rem;
             color: #1a1a1a;
             margin: 2rem 0;
             font-weight: 400;
         }
-
         .trial-overlay-instruction strong {
             color: #3b82f6;
             font-weight: 600;
         }
 
         .trial-overlay-footer {
-            font-size: 1rem;
+            font-size: 1.3rem;
             color: #666666;
             font-weight: 400;
             margin-top: 3rem;
-            padding: 1rem 2rem;
+            padding: 1.25rem 2.5rem;
             background: rgba(0, 0, 0, 0.05);
             border-radius: 50px;
             display: inline-block;
@@ -422,7 +420,7 @@ button, input[type="submit"], .btn {
         }
 
         .feedback-message {
-            font-size: 1rem;
+            font-size: 1.3rem;
             font-weight: 500;
         }
 
@@ -454,15 +452,15 @@ button, input[type="submit"], .btn {
             }
             
             .timer-display {
-                font-size: 3rem;
+                font-size: 4.2rem;
             }
             
             .taps-display {
-                font-size: 4rem;
+                font-size: 5.6rem;
             }
             
             .hand-instruction {
-                font-size: 1.5rem;
+                font-size: 2.1rem;
             }
         }
 
@@ -500,7 +498,7 @@ button, input[type="submit"], .btn {
             }
             
             .trial-overlay-title {
-                font-size: 2.5rem;
+                font-size: 3.5rem;
             }
         }
 
