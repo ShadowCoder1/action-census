@@ -28,20 +28,8 @@
             align-items: center;
             padding: 2rem;
             position: relative;
+            font-size: 1.25rem;
         }
-
-/* Responsive sizing for smaller screens */
-@media (max-width: 768px) {
-    h1 {
-        font-size: 8rem;
-    }
-}
-
-@media (max-width: 480px) {
-    h1 {
-        font-size: 6rem;
-    }
-}
 
         body::before {
             content: '';
@@ -54,24 +42,56 @@
             pointer-events: none;
             z-index: 1;
         }
+
         h1 {
-            font-size: 5rem;
-            font-weight: 500;
+            font-size: 6rem;
+            font-weight: 400;
             text-align: center;
             margin-bottom: 2rem;
             color: #1a1a1a;
+            letter-spacing: -0.02em;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1.2s ease-out 0.3s forwards;
         }
-        
-        /* Responsive sizing for smaller screens */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 5rem;
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-        
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 4rem;
+
+        @keyframes slideInFromLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInFromRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes buttonFloat {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
             }
         }
 
@@ -164,68 +184,136 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             width: 100%;
             text-align: center;
             position: relative;
             z-index: 2;
         }
 
-        p {
-            font-size: 1.125rem;
-            color: #4a4a4a;
-            margin-bottom: 1.5rem;
-            max-width: 65ch;
-        }
+
 
         .highlight {
             color: #1a1a1a;
             font-weight: 500;
         }
 
-        .challenge {
-            font-size: 1.5rem;
-            color: #1a1a1a;
-            margin: 3rem 0 2rem 0;
-            font-weight: 400;
-        }
-
         .continue-btn {
             background-color: #1a1a1a;
             color: white;
             border: none;
-            padding: 0.875rem 2rem;
-            font-size: 1rem;
+            padding: 1.25rem 3rem;
+            font-size: 1.3rem;
             font-weight: 500;
             border-radius: 2rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             font-family: inherit;
             text-decoration: none;
             display: inline-block;
             margin-top: 1rem;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: buttonFloat 0.8s ease-out 0.8s forwards;
+        }
+
+        .continue-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .continue-btn:hover::before {
+            left: 100%;
         }
 
         .continue-btn:hover {
             background-color: #333333;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
 
         .continue-btn:active {
             transform: translateY(0);
         }
 
+        /* Finger tap visual element */
+        .tap-demo {
+            position: absolute;
+            top: 20%;
+            right: 10%;
+            width: 60px;
+            height: 60px;
+            opacity: 0.1;
+            z-index: 1;
+            animation: tapPulse 2s ease-in-out infinite 2s;
+        }
+
+        .tap-demo::before,
+        .tap-demo::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #22c55e;
+            border-radius: 50%;
+        }
+
+        .tap-demo::before {
+            top: 0;
+            left: 0;
+        }
+
+        .tap-demo::after {
+            bottom: 0;
+            right: 0;
+        }
+
+        @keyframes tapPulse {
+            0%, 100% { 
+                opacity: 0.1;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.3;
+                transform: scale(1.2);
+            }
+        }
+
         @media (max-width: 768px) {
             h1 {
-                font-size: 2.5rem;
+                font-size: 4.5rem;
             }
             
-            p {
-                font-size: 1rem;
+
+
+            .continue-btn {
+                font-size: 1.2rem;
+                padding: 1.1rem 2.5rem;
+            }
+
+            .tap-demo {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 3.5rem;
             }
             
-            .challenge {
-                font-size: 1.25rem;
+
+
+            .continue-btn {
+                font-size: 1.1rem;
+                padding: 1rem 2rem;
+                width: 100%;
             }
         }
     </style>
@@ -239,11 +327,12 @@
     <div class="grid-light grid-light-5"></div>
     <div class="grid-light grid-light-6"></div>
     
+    <!-- Subtle tap demonstration -->
+    <div class="tap-demo"></div>
     
     <div class="container">
         <h1>FastFingers: How fast can you tap?</h1>
         <a href="consent.html" class="continue-btn">Start Assessment</a>
-
     </div>
 </body>
 </html>
