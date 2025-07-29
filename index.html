@@ -88,10 +88,13 @@
             background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.9), rgba(34, 197, 94, 0.8), rgba(255, 255, 255, 0.9), transparent);
             border-radius: 50%;
             opacity: 0;
-            animation: letterShine 0.15s ease-in-out forwards;
             z-index: 1;
             filter: blur(1px);
             box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+        }
+
+        h1 .letter.animate::before {
+            animation: letterShine 0.15s ease-in-out forwards;
         }
 
         @keyframes letterShine {
@@ -447,8 +450,49 @@
     <div class="particle particle-4"></div>
     
     <div class="container">
-        <h1>FastFingers: How fast can you tap?</h1>
+        <h1 id="animated-title">FastFingers: How fast can you tap?</h1>
         <a href="consent.html" class="continue-btn">Start Assessment</a>
     </div>
+
+    <script>
+        // Function to wrap each letter in a span for individual animation
+        function animateTitle() {
+            const title = document.getElementById('animated-title');
+            const text = title.textContent;
+            title.innerHTML = '';
+            
+            let letterIndex = 0;
+            const letters = [];
+            
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                const span = document.createElement('span');
+                
+                if (char === ' ') {
+                    span.innerHTML = '&nbsp;';
+                    span.style.display = 'inline';
+                } else {
+                    span.textContent = char;
+                    span.className = 'letter';
+                    letters.push(span);
+                    letterIndex++;
+                }
+                
+                title.appendChild(span);
+            }
+            
+            // Start the sequential shine animation
+            setTimeout(() => {
+                letters.forEach((letter, index) => {
+                    setTimeout(() => {
+                        letter.classList.add('animate');
+                    }, index * 80); // 80ms delay between each letter
+                });
+            }, 1500); // Start after title reveal
+        }
+        
+        // Initialize the animation when page loads
+        document.addEventListener('DOMContentLoaded', animateTitle);
+    </script>
 </body>
 </html>
