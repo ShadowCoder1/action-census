@@ -962,7 +962,7 @@ button, input[type="submit"], .btn {
                 Math.pow((thumbTip.y - indexTip.y), 2)
             );
  
-            const fingersOpen = fingerDistance > 0.168; // Scaled proportionally (0.12 * 1.4)
+            const fingersOpen = fingerDistance > 0.12; // Keep original for tap detection
             
             window.handPositionCorrect = goodDistance && fingersOpen;
             
