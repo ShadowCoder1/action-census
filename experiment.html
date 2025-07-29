@@ -479,6 +479,12 @@ button, input[type="submit"], .btn {
                 border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             }
             
+            .layout-right-hand .right-panel,
+            .layout-left-hand .right-panel {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+            
             .metrics-section {
                 display: flex;
                 justify-content: space-between;
@@ -487,11 +493,11 @@ button, input[type="submit"], .btn {
             }
             
             .timer-display {
-                font-size: 2.5rem;
+                font-size: 4.2rem;
             }
             
             .taps-display {
-                font-size: 3rem;
+                font-size: 5.6rem;
             }
             
             .instructions {
@@ -511,6 +517,19 @@ button, input[type="submit"], .btn {
         .layout-left-hand .left-panel {
             border-right: none;
             border-left: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Panel positioning to match hand side - avoid Simon effect */
+        .layout-right-hand .main-container {
+            flex-direction: row; /* Panel on left, video on right */
+        }
+        
+        .layout-right-hand .right-panel {
+            padding-left: 60px; /* Shift video left to make space */
+        }
+        
+        .layout-left-hand .right-panel {
+            padding-right: 60px; /* Shift video right to make space */
         }
         
         /* Hand outline positioning based on hand */
