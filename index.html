@@ -44,15 +44,16 @@
         }
 
         h1 {
-            font-size: 7rem;
-            font-weight: 700;
+            font-size: 6rem;
+            font-weight: 500;
             text-align: center;
             margin-bottom: 2rem;
             color: #1a1a1a;
             opacity: 0;
             animation: titleReveal 0.8s ease-out 0.2s forwards;
             position: relative;
-            letter-spacing: -2px;
+            word-spacing: 0.2em;
+            letter-spacing: normal;
         }
 
         /* Individual letter spans for glow animation */
@@ -60,44 +61,34 @@
             display: inline-block;
             position: relative;
             color: #1a1a1a;
-            transition: color 0.3s ease;
+            overflow: hidden;
         }
 
-        /* Glow effect that travels through each letter */
+        /* Glow effect that travels from top to bottom of each letter */
         .letter::before {
             content: attr(data-letter);
             position: absolute;
             top: 0;
             left: 0;
-            color: transparent;
-            background: linear-gradient(45deg, 
-                transparent 30%, 
-                #22c55e 35%, 
-                #34d399 50%, 
-                #22c55e 65%, 
-                transparent 70%
-            );
-            background-size: 200% 100%;
-            background-position: -100% 0;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: letterGlow 0.8s ease-out forwards;
+            color: #22c55e;
+            clip-path: polygon(0 0, 100% 0, 100% 0%, 0 0%);
+            animation: letterGlowTopToBottom 2s ease-in-out forwards;
             animation-delay: var(--delay);
-            filter: drop-shadow(0 0 20px rgba(34, 197, 94, 0.8));
+            filter: drop-shadow(0 0 15px rgba(34, 197, 94, 0.9));
+            text-shadow: 0 0 20px rgba(34, 197, 94, 0.8);
         }
 
-        @keyframes letterGlow {
+        @keyframes letterGlowTopToBottom {
             0% {
-                background-position: -100% 0;
-                opacity: 0;
+                clip-path: polygon(0 0, 100% 0, 100% 0%, 0 0%);
             }
             50% {
-                opacity: 1;
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+                color: #22c55e;
             }
             100% {
-                background-position: 100% 0;
-                opacity: 0;
+                clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
+                color: #22c55e;
             }
         }
 
@@ -454,7 +445,7 @@
             
             let letterIndex = 0;
             const baseDelay = 1; // Start glow animation 1 second after page load
-            const letterDelay = 0.1; // 0.1 second between each letter
+            const letterDelay = 0.15; // 0.15 second between each letter
             
             for (let i = 0; i < text.length; i++) {
                 const span = document.createElement('span');
