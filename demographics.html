@@ -38,37 +38,6 @@
       z-index: 1;
     }
 
-
-h1, h2, h3, h4, h5, h6 {
-    font-size: 2.5rem; /* Makes headings larger */
-    margin-bottom: 1.5rem;
-}
-
-p, li, label, input, button, textarea {
-    font-size: 1.75rem; /* Makes all text elements larger */
-    line-height: 1.8; /* Increases line spacing for better readability */
-}
-
-button, input[type="submit"], .btn {
-    font-size: 1.75rem; /* Makes buttons even larger */
-    padding: 1rem 2rem; /* Increases button padding */
-}
-
-/* For very small screens, still keep text readable */
-@media (max-width: 480px) {
-    body {
-        font-size: 1.1rem;
-    }
-    
-    h1, h2, h3, h4, h5, h6 {
-        font-size: 1.6rem;
-    }
-    
-    p, li, label, input, button, textarea {
-        font-size: 1.1rem;
-    }
-}
-
     /* Animated grid lights */
     .grid-light {
       position: fixed;
@@ -153,7 +122,7 @@ button, input[type="submit"], .btn {
     }
 
     h1 {
-      font-size: 3rem;
+      font-size: 2.5rem;
       font-weight: 400;
       color: #1a1a1a;
       margin-bottom: 0.5rem;
@@ -161,15 +130,15 @@ button, input[type="submit"], .btn {
       text-align: center;
     }
 
-  .subtitle {
-    font-size: 1.5rem;
-    color: #4a4a4a;
-    text-align: center;
-    margin-bottom: 3rem;
-    max-width: 60ch;
-    margin-left: auto;
-    margin-right: auto;
-  }
+    .subtitle {
+      font-size: 1.125rem;
+      color: #4a4a4a;
+      text-align: center;
+      margin-bottom: 3rem;
+      max-width: 60ch;
+      margin-left: auto;
+      margin-right: auto;
+    }
 
     form {
       display: grid;
@@ -187,7 +156,7 @@ button, input[type="submit"], .btn {
     }
 
     label {
-      font-size: 1.25rem;
+      font-size: 0.9rem;
       font-weight: 500;
       color: #374151;
       margin-bottom: 0.5rem;
@@ -201,7 +170,7 @@ button, input[type="submit"], .btn {
       border: 1px solid #e5e7eb;
       background-color: #ffffff;
       color: #1a1a1a;
-      font-size: 1.25rem;
+      font-size: 1rem;
       font-family: inherit;
       transition: all 0.2s ease;
       appearance: none;
@@ -210,8 +179,6 @@ button, input[type="submit"], .btn {
       background-repeat: no-repeat;
       background-size: 1.5em 1.5em;
       padding-right: 2.5rem;
-      width: 100%;
-      box-sizing: border-box;
     }
 
     input {
@@ -233,20 +200,20 @@ button, input[type="submit"], .btn {
       color: #1a1a1a;
       background-color: #ffffff;
     }
-    
+
     button {
       background-color: #1a1a1a;
       color: white;
       border: none;
       padding: 1rem 3rem;
-      font-size: 1.5rem;
+      font-size: 1.1rem;
       font-weight: 500;
       border-radius: 2rem;
       cursor: pointer;
       transition: all 0.2s ease;
       font-family: inherit;
-      margin: 2rem auto 0;
-      display: block;
+      margin-top: 2rem;
+      justify-self: center;
       grid-column: 1 / -1;
     }
 
