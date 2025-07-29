@@ -479,11 +479,6 @@ button, input[type="submit"], .btn {
                 border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             }
             
-            .layout-right-hand .right-panel,
-            .layout-left-hand .right-panel {
-                padding-left: 0 !important;
-                padding-right: 0 !important;
-            }
             
             .metrics-section {
                 display: flex;
@@ -509,29 +504,24 @@ button, input[type="submit"], .btn {
             }
         }
 
-        /* Layout adjustments for left hand - swap entire layout */
-        .layout-left-hand .main-container {
-            flex-direction: row-reverse;
-        }
-        
-        .layout-left-hand .left-panel {
-            border-right: none;
-            border-left: 1px solid rgba(0, 0, 0, 0.05);
-        }
-        
-        /* Panel positioning to match hand side - avoid Simon effect */
+        /* Layout adjustments - panel matches hand side to avoid Simon effect */
         .layout-right-hand .main-container {
+            flex-direction: row-reverse; /* Panel on right, video on left */
+        }
+        
+        .layout-right-hand .left-panel {
+            border-left: 1px solid rgba(0, 0, 0, 0.05);
+            border-right: none;
+        }
+        
+        .layout-left-hand .main-container {
             flex-direction: row; /* Panel on left, video on right */
         }
         
-        .layout-right-hand .right-panel {
-            padding-left: 60px; /* Shift video left to make space */
+        .layout-left-hand .left-panel {
+            border-right: 1px solid rgba(0, 0, 0, 0.05);
+            border-left: none;
         }
-        
-        .layout-left-hand .right-panel {
-            padding-right: 60px; /* Shift video right to make space */
-        }
-        
         /* Hand outline positioning based on hand */
         .layout-left-hand #hand-outline {
             left: 30% !important;
