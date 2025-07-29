@@ -145,6 +145,8 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 2rem;
+      justify-items: stretch;
+      align-items: start;
     }
 
     .form-group {
@@ -213,9 +215,10 @@
       cursor: pointer;
       transition: all 0.2s ease;
       font-family: inherit;
-      margin-top: 2rem;
-      justify-self: center;
+      margin: 2rem auto 0 auto;
       grid-column: 1 / -1;
+      display: block;
+      width: fit-content;
     }
 
     button:hover {
