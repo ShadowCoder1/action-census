@@ -126,7 +126,7 @@
       position: relative;
       z-index: 2;
       display: grid;
-      grid-template-rows: auto auto 1fr auto;
+      grid-template-rows: auto 1fr auto;
       gap: 1rem;
     }
 
@@ -140,21 +140,22 @@
       backdrop-filter: blur(10px);
     }
 
+    .subtitle {
+      font-size: 1.5rem;
+      color: #4a4a4a;
+      margin-top: 0.5rem;
+      font-weight: 400;
+    }
+
     h1 {
-      font-size: 2rem;
+      font-size: 4rem;
       font-weight: 400;
       color: #1a1a1a;
       letter-spacing: -0.02em;
     }
 
     .tabs {
-      display: flex;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 15px;
-      padding: 0.5rem;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(0, 0, 0, 0.05);
-      backdrop-filter: blur(10px);
+      display: none;
     }
 
     .tab {
@@ -180,7 +181,7 @@
     .main-content {
       background: rgba(255, 255, 255, 0.95);
       border-radius: 15px;
-      padding: 1rem;
+      padding: 2rem;
       box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
       border: 1px solid rgba(0, 0, 0, 0.05);
       backdrop-filter: blur(10px);
@@ -205,7 +206,7 @@
       display: flex;
       flex-direction: column;
       height: 100%;
-      gap: 0.75rem;
+      gap: 1.5rem;
     }
 
     .progress-container {
@@ -214,11 +215,11 @@
 
     .progress-bar {
       width: 100%;
-      height: 6px;
+      height: 8px;
       background-color: #e5e7eb;
-      border-radius: 3px;
+      border-radius: 4px;
       overflow: hidden;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.5rem;
     }
 
     .progress-fill {
@@ -226,12 +227,12 @@
       background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
       width: 0%;
       transition: width 0.3s ease;
-      border-radius: 3px;
+      border-radius: 4px;
     }
 
     .progress-text {
       text-align: center;
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       color: #6b7280;
       font-weight: 500;
     }
@@ -259,17 +260,7 @@
     }
 
     .video-description {
-      text-align: center;
-      color: #4a4a4a;
-      font-size: 0.9rem;
-      background: #f9fafb;
-      border-radius: 8px;
-      padding: 1rem;
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 60px;
+      display: none;
     }
 
     /* Steps Tab */
@@ -312,8 +303,8 @@
     }
 
     .step-content {
-      font-size: 0.95rem;
-      line-height: 1.5;
+      font-size: 1.1rem;
+      line-height: 1.7;
     }
 
     .highlight {
@@ -338,10 +329,10 @@
       background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
       color: white;
       border: none;
-      padding: 1rem 4rem;
-      font-size: 1.2rem;
+      padding: 2rem 5rem;
+      font-size: 2rem;
       font-weight: 600;
-      border-radius: 2rem;
+      border-radius: 3rem;
       cursor: pointer;
       transition: all 0.3s ease;
       font-family: inherit;
@@ -390,12 +381,10 @@
   <div class="container">
     <div class="header">
       <h1>Instructions</h1>
+      <p class="subtitle">Watch this demonstration to learn the proper finger tapping technique</p>
     </div>
 
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('video')">Watch Video</button>
-      <button class="tab" onclick="switchTab('steps')">Full Steps</button>
-    </div>
+
 
     <div class="main-content">
       <!-- Video Tab -->
@@ -410,10 +399,6 @@
           
           <div class="video-container">
             <div id="player"></div>
-          </div>
-          
-          <div class="video-description">
-            <p>Watch this demonstration to learn the proper finger tapping technique</p>
           </div>
         </div>
       </div>
@@ -475,20 +460,8 @@
       const contents = document.querySelectorAll('.tab-content');
       contents.forEach(content => content.classList.remove('active'));
       
-      // Remove active class from all tabs
-      const tabs = document.querySelectorAll('.tab');
-      tabs.forEach(tab => tab.classList.remove('active'));
-      
       // Show selected tab content
       document.getElementById(tabName).classList.add('active');
-      
-      // Add active class to clicked tab
-      const clickedTab = Array.from(tabs).find(tab => 
-        tab.textContent.toLowerCase().includes(tabName.toLowerCase())
-      );
-      if (clickedTab) {
-        clickedTab.classList.add('active');
-      }
 
       // Update button based on active tab
       const button = document.getElementById('mainButton');
