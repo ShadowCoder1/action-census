@@ -714,13 +714,12 @@ button, input[type="submit"], .btn {
         const INDEX_TIP = 8;
         const MIDDLE_MCP = 9;
 
-        // RESEARCH-BACKED POPULATION NORMS
         const POPULATION_NORMS = {
             frequency: {
                 healthy: {
-                    // Based on BiDirect Study (2022) + FEPSY convergent evidence
-                    base_mean_taps_per_10sec: 52,
-                    base_standard_deviation: 5.5,
+                    // Based on Ruff & Parker (1993) - 358 adults, ages 16-70
+                    base_mean_taps_per_10sec: 50.6,
+                    base_standard_deviation: 6.3,
                     performance_validity_cutoffs: {
                         men: 36,    // Keep these - validated validity thresholds
                         women: 29   // Keep these - validated validity thresholds
@@ -728,27 +727,32 @@ button, input[type="submit"], .btn {
                 }
             }
         };
-        
-        // DEMOGRAPHIC-ADJUSTED NORM CALCULATION
+                
         function getDemographicAdjustedNorms() {
             // Get demographic data from sessionStorage
             const age = parseInt(sessionStorage.getItem('age')) || 30;
             const gender = sessionStorage.getItem('gender') || 'male';
             
-            let adjustedMean = POPULATION_NORMS.frequency.healthy.base_mean_taps_per_10sec;
-            let adjustedSD = POPULATION_NORMS.frequency.healthy.base_standard_deviation;
+            // Research-based norms from Ruff & Parker (1993), n=358
+            let adjustedMean = 50.6; // Combined population mean
+            let adjustedSD = 6.3;    // Combined population SD
             
-            // Age adjustments (research-backed from multiple studies)
-            if (age >= 60) {
-                adjustedMean -= 4; // Significant decline in older adults
-            } else if (age >= 45) {
-                adjustedMean -= 2; // Moderate decline in middle age
+            // Gender adjustments (based on Ruff & Parker, 1993)
+            if (gender === 'male') {
+                adjustedMean = 53.4; // Men's mean from research
+                adjustedSD = 6.0;    // Men's SD from research
+            } else if (gender === 'female') {
+                adjustedMean = 47.8; // Women's mean from research
+                adjustedSD = 5.3;    // Women's SD from research
+                
+                // Age adjustments (mainly affects women per research)
+                if (age >= 55) {
+                    adjustedMean -= 3.8; // Women 55-70: 45.7 vs 49.5 for 16-24
+                } else if (age >= 40) {
+                    adjustedMean -= 1.5; // Women 40-54: 47.0 vs 49.5 for 16-24
+                }
             }
-            
-            // Gender adjustments (research-backed from FEPSY and other studies)
-            if (gender === 'female') {
-                adjustedMean += 1; // Slight female advantage in some studies
-            }
+            // Men show minimal age effects in research, so no age adjustments for males
             
             return { mean: adjustedMean, sd: adjustedSD };
         }
@@ -757,7 +761,7 @@ button, input[type="submit"], .btn {
         // const normMean = 55;
         // const normSD = 8;
         
-        // NEW:
+        // Research-based demographic norms from Ruff & Parker (1993)
         const demographicNorms = getDemographicAdjustedNorms();
         const normMean = demographicNorms.mean;
         const normSD = demographicNorms.sd;
