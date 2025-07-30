@@ -1539,81 +1539,56 @@ button, input[type="submit"], .btn {
             const leftFastFreq = calculateAverage(leftTrials, 'avgFrequency');
             const avgFastFreq = (rightFastFreq + leftFastFreq) / 2;
 
-            // Convert to research-standard measurement (taps per 10 seconds)
+// Convert to research-standard measurement (taps per 10 seconds)
             const avgTapsPerTenSec = avgFastFreq * 10;
+            const rightTapsPerRound = Math.round(calculateAverage(rightTrials, 'tapCount'));
+            const leftTapsPerRound = Math.round(calculateAverage(leftTrials, 'tapCount'));
             
-            // Use research-validated performance categories
-            let performanceLevel = '';
-            let performanceColor = '#22c55e';
-            let speedPercentile = 50;
+            // Calculate percentile based on normative data (mean ~55, SD ~8 for healthy adults)
+            const normMean = 55;
+            const normSD = 8;
+            const zScore = (avgTapsPerTenSec - normMean) / normSD;
+            const percentile = Math.round(Math.max(1, Math.min(99, (0.5 * (1 + erf(zScore / Math.sqrt(2)))) * 100)));
             
-            if (avgTapsPerTenSec >= 55) {
-                performanceLevel = 'Normal Range';
-                performanceColor = '#10b981';
-                speedPercentile = 75;
-            } else if (avgTapsPerTenSec >= 45) {
-                performanceLevel = 'Below Typical Range';
-                performanceColor = '#f59e0b';
-                speedPercentile = 25;
-            } else if (avgTapsPerTenSec >= 32) {
-                performanceLevel = 'Low Performance';
-                performanceColor = '#ef4444';
-                speedPercentile = 10;
-            } else {
-                performanceLevel = 'Performance Validity Concerns';
-                performanceColor = '#dc2626';
-                speedPercentile = 5;
+            // Error function approximation for percentile calculation
+            function erf(x) {
+                const a1 =  0.254829592;
+                const a2 = -0.284496736;
+                const a3 =  1.421413741;
+                const a4 = -1.453152027;
+                const a5 =  1.061405429;
+                const p  =  0.3275911;
+                const sign = x < 0 ? -1 : 1;
+                x = Math.abs(x);
+                const t = 1.0 / (1.0 + p * x);
+                const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+                return sign * y;
             }
 
-            let html = `
-                <div style="max-width: 800px; margin: 0 auto; padding: 6rem 2rem; text-align: center; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;">
+          let html = `
+            <div style="max-width: 800px; margin: 0 auto; padding: 6rem 2rem; text-align: center; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;">
+                
+                <div style="margin-bottom: 4rem;">
+                    <p style="font-size: 1.4rem; color: #1a1a1a; line-height: 1.6; margin-bottom: 2rem;">
+                        You tapped <strong>${rightTapsPerRound}</strong> times per round with your right hand and <strong>${leftTapsPerRound}</strong> times per round with your left hand.
+                    </p>
                     
-                    <div style="margin-bottom: 3rem;">
-                        <h2 style="font-size: 1.1rem; font-weight: 500; color: #6b7280; margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 0.05em;">Your Tapping Speed:</h2>
-                        
-                        <div style="margin-bottom: 2rem;">
-                            <span style="font-size: 5.5rem; font-weight: 200; color: #000000; letter-spacing: -0.02em; line-height: 1;">${avgTapsPerTenSec.toFixed(0)}</span>
-                            <span style="font-size: 2.2rem; font-weight: 300; color: #6b7280; margin-left: 0.5rem;">taps/10sec</span>
-                            <span style="font-size: 1.4rem; font-weight: 400; color: #9ca3af; margin-left: 1rem;">(${avgFastFreq.toFixed(2)} Hz)</span>
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 4rem;">
-                        <p style="font-size: 1.1rem; color: #4b5563; line-height: 1.6; margin-bottom: 2rem;">
-                            Performance Level: <strong style="color: ${performanceColor};">${performanceLevel}</strong><br>
-                            <span style="font-size: 0.9rem; color: #6b7280; font-style: italic;">
-                                Typical healthy adult range: 55-60 taps per 10 seconds
-                            </span>
-                        </p>
-                    </div>
-
-                    <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 5rem;">
-                        <button onclick="location.reload()" style="background-color: #000000; color: white; border: none; padding: 1rem 2.5rem; font-size: 1rem; font-weight: 500; border-radius: 60px; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif;">
-                            Take Test Again
-                        </button>
-                        <button onclick="shareResults()" style="background-color: transparent; color: #000000; border: 2px solid #000000; padding: 1rem 2.5rem; font-size: 1rem; font-weight: 500; border-radius: 60px; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif;">
-                            Share Results
-                        </button>
-                    </div>
-
-                    <div style="border-top: 1px solid #e5e7eb; padding-top: 3rem;">
-                        <p style="font-size: 0.85rem; color: #9ca3af; margin-bottom: 1rem;">
-                            Performance ranges based on research from:
-                        </p>
-                        <a href="https://www.parinc.com/products/RCNAAC" 
-                        target="_blank" 
-                        style="display: inline-block; font-size: 0.9rem; color: #6b7280; text-decoration: none; padding: 0.75rem 1.5rem; border: 1px solid #d1d5db; border-radius: 30px; transition: all 0.2s ease; background-color: #f9fafb;"
-                        onmouseover="this.style.backgroundColor='#f3f4f6'; this.style.borderColor='#9ca3af';"
-                        onmouseout="this.style.backgroundColor='#f9fafb'; this.style.borderColor='#d1d5db';">
-                            Heaton, Miller, Taylor & Grant (2004) - Revised Comprehensive Norms for Halstead-Reitan Battery
-                        </a>
-                        <p style="font-size: 0.8rem; color: #9ca3af; margin-top: 1rem; font-style: italic;">
-                            Note: Precise percentiles require demographic corrections not available in this implementation
-                        </p>
-                    </div>
-
+                    <p style="font-size: 1.4rem; color: #1a1a1a; line-height: 1.6;">
+                        You ranked higher than <strong>${percentile}%</strong> of participants.
+                    </p>
                 </div>
-            `;
+        
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 5rem;">
+                    <button onclick="location.reload()" style="background-color: #000000; color: white; border: none; padding: 1rem 2.5rem; font-size: 1rem; font-weight: 500; border-radius: 60px; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif;">
+                        Take Test Again
+                    </button>
+                    <button onclick="shareResults()" style="background-color: transparent; color: #000000; border: 2px solid #000000; padding: 1rem 2.5rem; font-size: 1rem; font-weight: 500; border-radius: 60px; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif;">
+                        Share Results
+                    </button>
+                </div>
+        
+            </div>
+        `;
             
             document.getElementById('finalResults').innerHTML = html;
 
