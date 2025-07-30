@@ -129,17 +129,19 @@
       height: calc(100vh - 4rem);
       display: flex;
       flex-direction: column;
+      max-height: calc(100vh - 4rem);
     }
 
     .header {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       background: rgba(255, 255, 255, 0.95);
       border-radius: 20px;
-      padding: 2rem;
+      padding: 1.5rem;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
       border: 1px solid rgba(0, 0, 0, 0.05);
       backdrop-filter: blur(10px);
+      flex-shrink: 0;
     }
 
     h1 {
@@ -159,13 +161,14 @@
       flex: 1;
       background: rgba(255, 255, 255, 0.95);
       border-radius: 20px;
-      padding: 2rem;
+      padding: 1.5rem;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
       border: 1px solid rgba(0, 0, 0, 0.05);
       backdrop-filter: blur(10px);
       display: flex;
       flex-direction: column;
       min-height: 0;
+      overflow: hidden;
     }
 
     .tabs {
