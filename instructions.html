@@ -570,7 +570,7 @@
             <div class="progress-bar">
               <div class="progress-fill" id="progressFill"></div>
             </div>
-            <div class="progress-text" id="progressText">0% Complete</div>
+            <div class="progress-text" id="progressText">Please watch the video: 0% completed.</div>
           </div>
           
           <div class="video-container">
@@ -708,7 +708,7 @@
           
           if (progressFill && progressText) {
             progressFill.style.width = percentage + '%';
-            progressText.textContent = Math.round(percentage) + '% Complete';
+            progressText.textContent = 'Please watch the video: ' + Math.round(percentage) + '% completed.';
           }
         }
       }
