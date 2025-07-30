@@ -714,7 +714,7 @@ button, input[type="submit"], .btn {
         const INDEX_TIP = 8;
         const MIDDLE_MCP = 9;
 
-        // RESEARCH-BACKED REPLACEMENT:
+        // RESEARCH-BACKED POPULATION NORMS
         const POPULATION_NORMS = {
             frequency: {
                 healthy: {
@@ -752,7 +752,6 @@ button, input[type="submit"], .btn {
             
             return { mean: adjustedMean, sd: adjustedSD };
         }
-        
         // Later in the code, replace the norm calculation:
         // OLD:
         // const normMean = 55;
@@ -1569,13 +1568,13 @@ button, input[type="submit"], .btn {
             const avgTapsPerTenSec = avgFastFreq * 10;
             const rightTapsPerRound = Math.round(calculateAverage(rightTrials, 'tapCount'));
             const leftTapsPerRound = Math.round(calculateAverage(leftTrials, 'tapCount'));
-            
-            // Calculate percentile based on normative data (mean ~55, SD ~8 for healthy adults)
-            const normMean = 55;
-            const normSD = 8;
+            // Calculate percentile using research-backed demographic norms
+            const demographicNorms = getDemographicAdjustedNorms();
+            const normMean = demographicNorms.mean;
+            const normSD = demographicNorms.sd;
             const zScore = (avgTapsPerTenSec - normMean) / normSD;
             const percentile = Math.round(Math.max(1, Math.min(99, (0.5 * (1 + erf(zScore / Math.sqrt(2)))) * 100)));
-            
+                        
             // Error function approximation for percentile calculation
             function erf(x) {
                 const a1 =  0.254829592;
