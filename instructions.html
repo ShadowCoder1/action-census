@@ -287,10 +287,49 @@
       left: 50%;
       top: 1.4rem;
       height: calc(100% - 2.8rem);
-      width: 2px;
+      width: 4px;
       background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
       z-index: 0;
       transform: translateX(-50%);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    /* Animated glow effect */
+    .steps::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 1.4rem;
+      height: calc(100% - 2.8rem);
+      width: 4px;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.8) 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 100%
+      );
+      z-index: 1;
+      transform: translateX(-50%);
+      border-radius: 2px;
+      animation: glowDown 4s ease-in-out infinite;
+    }
+
+    @keyframes glowDown {
+      0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-100%);
+      }
+      20% {
+        opacity: 1;
+      }
+      80% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(100%);
+      }
     }
 
     .step {
