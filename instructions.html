@@ -284,12 +284,13 @@
     .steps::before {
       content: '';
       position: absolute;
-      left: 1.4rem;
+      left: 50%;
       top: 1.4rem;
       height: calc(100% - 2.8rem);
       width: 2px;
       background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
       z-index: 0;
+      transform: translateX(-50%);
     }
 
     .step {
