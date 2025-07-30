@@ -394,7 +394,7 @@
     </div>
 
     <div class="main-section">
-      <div class="tabs" id="tabContainer" style="display: none;">
+      <div class="tabs" id="tabContainer">
         <button class="tab active" onclick="switchTab('video')">Watch Video</button>
         <button class="tab" onclick="switchTab('steps')">Full Steps</button>
       </div>
@@ -417,7 +417,7 @@
         </div>
 
         <div class="button-container">
-          <button class="continue-button" onclick="switchTab('steps')">
+          <button class="continue-button" onclick="showStepsTab()">
             Continue
           </button>
         </div>
@@ -469,6 +469,11 @@
   <script>
     let player;
     let progressInterval;
+
+    function showStepsTab() {
+      // Switch to steps tab when continue is clicked
+      switchTab('steps');
+    }
 
     function switchTab(tabName) {
       // Hide all tab contents
