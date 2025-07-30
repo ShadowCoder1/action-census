@@ -24,9 +24,7 @@
       min-height: 100vh;
       padding: 2rem;
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      overflow: hidden;
     }
 
     body::before {
@@ -125,16 +123,20 @@
     .container {
       max-width: 1000px;
       width: 100%;
+      margin: 0 auto;
       position: relative;
       z-index: 2;
+      height: calc(100vh - 4rem);
+      display: flex;
+      flex-direction: column;
     }
 
     .header {
       text-align: center;
-      margin-bottom: 3rem;
+      margin-bottom: 2rem;
       background: rgba(255, 255, 255, 0.95);
       border-radius: 20px;
-      padding: 2.5rem;
+      padding: 2rem;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
       border: 1px solid rgba(0, 0, 0, 0.05);
       backdrop-filter: blur(10px);
@@ -144,33 +146,136 @@
       font-size: 2.5rem;
       font-weight: 400;
       color: #1a1a1a;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
       letter-spacing: -0.02em;
     }
 
     .subtitle {
-      font-size: 1.25rem;
+      font-size: 1.1rem;
       color: #4a4a4a;
-      max-width: 60ch;
-      margin: 0 auto;
     }
 
-    .instructions-section {
+    .main-section {
+      flex: 1;
       background: rgba(255, 255, 255, 0.95);
       border-radius: 20px;
-      padding: 3rem;
-      margin-bottom: 2rem;
+      padding: 2rem;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
       border: 1px solid rgba(0, 0, 0, 0.05);
       backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
     }
 
-    .instructions-title {
-      font-size: 2rem;
-      font-weight: 500;
-      color: #1a1a1a;
+    .tabs {
+      display: flex;
       margin-bottom: 2rem;
+      background: #f3f4f6;
+      border-radius: 12px;
+      padding: 4px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 1rem 1.5rem;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #6b7280;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .tab.active {
+      background: white;
+      color: #1a1a1a;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .tab-content {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+    }
+
+    .tab-content.active {
+      display: flex;
+    }
+
+    /* Video Tab Content */
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      margin-bottom: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .video-container #player {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 12px;
+    }
+
+    .progress-container {
+      margin-bottom: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background-color: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+      width: 0%;
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+
+    .progress-text {
       text-align: center;
+      font-size: 0.9rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .video-description {
+      text-align: center;
+      color: #4a4a4a;
+      font-size: 1.1rem;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Steps Tab Content */
+    .steps-content {
+      flex: 1;
+      overflow-y: auto;
     }
 
     .steps {
@@ -182,8 +287,8 @@
       counter-increment: step-counter;
       display: flex;
       align-items: flex-start;
-      margin-bottom: 2rem;
-      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      padding: 1.25rem;
       background: #f9fafb;
       border-radius: 12px;
       border-left: 4px solid #22c55e;
@@ -218,122 +323,59 @@
       color: #065f46;
     }
 
-    .start-button {
-      background-color: #1a1a1a;
+    .button-container {
+      margin-top: 2rem;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .continue-button {
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
       color: white;
       border: none;
-      padding: 1.25rem 4rem;
-      font-size: 1.3rem;
-      font-weight: 500;
+      padding: 1.5rem 6rem;
+      font-size: 1.5rem;
+      font-weight: 600;
       border-radius: 2rem;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
       font-family: inherit;
       text-decoration: none;
       display: inline-block;
-      position: relative;
-      overflow: hidden;
-      margin-right: 1rem;
+      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3);
     }
 
-    .start-button:hover {
-      background-color: #333333;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    .continue-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
     }
 
-    .start-button:active {
-      transform: translateY(0);
-    }
-
-    .start-button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s ease;
-    }
-
-    .start-button:hover::before {
-      left: 100%;
-    }
-
-    .back-button {
-      background-color: transparent;
-      color: #1a1a1a;
-      border: 2px solid #1a1a1a;
-      padding: 1.25rem 4rem;
-      font-size: 1.3rem;
-      font-weight: 500;
-      border-radius: 2rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-family: inherit;
-      text-decoration: none;
-      display: inline-block;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .back-button:hover {
-      background-color: #1a1a1a;
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    }
-
-    .back-button:active {
-      transform: translateY(0);
-    }
-
-    .button-container {
-      text-align: center;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 20px;
-      padding: 3rem;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(0, 0, 0, 0.05);
-      backdrop-filter: blur(10px);
-    }
-
-    .navigation-text {
-      text-align: center;
-      color: #6b7280;
-      font-size: 1rem;
-      margin-bottom: 2rem;
+    .continue-button:active {
+      transform: translateY(-1px);
     }
 
     @media (max-width: 768px) {
       body {
         padding: 1rem;
+        overflow: auto;
       }
       
-      .header, .instructions-section, .button-container {
-        padding: 2rem;
-        margin-bottom: 1.5rem;
+      .container {
+        height: auto;
+      }
+      
+      .header, .main-section {
+        padding: 1.5rem;
       }
       
       h1 {
         font-size: 2rem;
       }
       
-      .instructions-title {
-        font-size: 1.5rem;
-      }
-      
-      .step {
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-      }
-      
-      .start-button, .back-button {
+      .continue-button {
         width: 100%;
-        padding: 1rem 2rem;
-        margin-right: 0;
-        margin-bottom: 1rem;
+        padding: 1.25rem 2rem;
+        font-size: 1.3rem;
       }
     }
   </style>
@@ -348,55 +390,164 @@
 
   <div class="container">
     <div class="header">
-      <h1>Assessment Protocol</h1>
-      <p class="subtitle">
-        Follow these instructions carefully to complete your finger tapping assessment accurately.
-      </p>
+      <h1>Instructions</h1>
     </div>
 
-    <div class="instructions-section">
-      <h2 class="instructions-title">Step-by-Step Instructions</h2>
-      
-      <ol class="steps">
-        <li class="step">
-          <div class="step-content">
-            Position yourself comfortably with adequate lighting. Ensure your hand is <span class="highlight">clearly visible</span> in the camera view.
-          </div>
-        </li>
-        <li class="step">
-          <div class="step-content">
-            You will complete <span class="highlight">6 trials total</span> - each hand will be tested 3 times. Follow the on-screen prompts for which hand to use.
-          </div>
-        </li>
-        <li class="step">
-          <div class="step-content">
-            When each trial begins, tap your <span class="highlight">thumb and index finger</span> together as quickly and accurately as possible for <span class="highlight">20 seconds</span>.
-          </div>
-        </li>
-        <li class="step">
-          <div class="step-content">
-            Start with your fingers <span class="highlight">wide open</span>, then make clear, deliberate tapping movements. Maintain consistent amplitude throughout each trial.
-          </div>
-        </li>
-        <li class="step">
-          <div class="step-content">
-            Follow the visual guides on screen to position your hand correctly. The system will provide real-time feedback during the assessment.
-          </div>
-        </li>
-      </ol>
-    </div>
+    <div class="main-section">
+      <div class="tabs" id="tabContainer" style="display: none;">
+        <button class="tab active" onclick="switchTab('video')">Watch Video</button>
+        <button class="tab" onclick="switchTab('steps')">Full Steps</button>
+      </div>
 
-    <div class="button-container">
-      <p class="navigation-text">
-        Ready to begin? Make sure you've watched the demonstration video and understand the instructions.
-      </p>
-      <a href="video.html" class="back-button">
-        <span style="position: relative; z-index: 2;">Back to Video</span>
-      </a>
-      <a href="index.html" class="start-button">
-        <span style="position: relative; z-index: 2;">Begin Assessment</span>
-      </a>
+      <!-- Video Tab -->
+      <div id="video" class="tab-content active">
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-text" id="progressText">0% Complete</div>
+        </div>
+        
+        <div class="video-container">
+          <div id="player"></div>
+        </div>
+        
+        <div class="video-description">
+          <p>Watch this demonstration to learn the proper finger tapping technique for your assessment</p>
+        </div>
+
+        <div class="button-container">
+          <button class="continue-button" onclick="switchTab('steps')">
+            Continue
+          </button>
+        </div>
+      </div>
+
+      <!-- Steps Tab -->
+      <div id="steps" class="tab-content">
+        <div class="steps-content">
+          <ol class="steps">
+            <li class="step">
+              <div class="step-content">
+                Position yourself comfortably with <span class="highlight">good lighting</span>. Ensure your hand is clearly visible in the camera view.
+              </div>
+            </li>
+            <li class="step">
+              <div class="step-content">
+                You will complete <span class="highlight">6 trials total</span> - each hand will be tested 3 times. Follow the on-screen prompts for which hand to use.
+              </div>
+            </li>
+            <li class="step">
+              <div class="step-content">
+                When each trial begins, tap your <span class="highlight">thumb and index finger</span> together as quickly and accurately as possible for <span class="highlight">20 seconds</span>.
+              </div>
+            </li>
+            <li class="step">
+              <div class="step-content">
+                Start with your fingers <span class="highlight">wide open</span>, then make clear, deliberate tapping movements. Maintain consistent amplitude throughout each trial.
+              </div>
+            </li>
+            <li class="step">
+              <div class="step-content">
+                Follow the visual guides on screen to position your hand correctly. The system will provide real-time feedback during the assessment.
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div class="button-container">
+          <a href="index.html" class="continue-button">
+            Start Assessment
+          </a>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- YouTube API Script -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    let player;
+    let progressInterval;
+
+    function switchTab(tabName) {
+      // Hide all tab contents
+      const contents = document.querySelectorAll('.tab-content');
+      contents.forEach(content => content.classList.remove('active'));
+      
+      // Remove active class from all tabs
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      
+      // Show selected tab content
+      document.getElementById(tabName).classList.add('active');
+      
+      // Add active class to clicked tab
+      const clickedTab = Array.from(tabs).find(tab => 
+        tab.textContent.toLowerCase().includes(tabName.toLowerCase())
+      );
+      if (clickedTab) {
+        clickedTab.classList.add('active');
+      }
+    }
+
+    // YouTube API callback
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
+        videoId: 'aq-vBvjhvt0',
+        playerVars: {
+          'playsinline': 1,
+          'rel': 0,
+          'modestbranding': 1
+        },
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+
+    function onPlayerReady(event) {
+      // Player is ready
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data == YT.PlayerState.PLAYING) {
+        startProgressTracking();
+      } else {
+        stopProgressTracking();
+      }
+    }
+
+    function startProgressTracking() {
+      progressInterval = setInterval(updateProgress, 500);
+    }
+
+    function stopProgressTracking() {
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
+    }
+
+    function updateProgress() {
+      if (player && player.getCurrentTime && player.getDuration) {
+        const currentTime = player.getCurrentTime();
+        const duration = player.getDuration();
+        
+        if (duration > 0) {
+          const percentage = (currentTime / duration) * 100;
+          const progressFill = document.getElementById('progressFill');
+          const progressText = document.getElementById('progressText');
+          
+          if (progressFill && progressText) {
+            progressFill.style.width = percentage + '%';
+            progressText.textContent = Math.round(percentage) + '% Complete';
+          }
+        }
+      }
+    }
+  </script>
 </body>
 </html>
