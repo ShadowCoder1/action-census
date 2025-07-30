@@ -1754,34 +1754,43 @@ button, input[type="submit"], .btn {
         }
         
         function shareToTwitter(text) {
-            const encodedText = encodeURIComponent(text);
-            const url = encodeURIComponent(window.location.href);
-            window.open(`https://twitter.com/intent/tweet?text=${encodedText}%20${url}`, '_blank');
+            const targetUrl = 'https://shadowcoder1.github.io/pd-video-analyzer';
+            const fullText = text + '\n\n' + targetUrl;
+            const encodedText = encodeURIComponent(fullText);
+            window.open(`https://twitter.com/intent/tweet?text=${encodedText}`, '_blank');
             closeShareModal();
         }
         
         function shareToFacebook(text) {
+            const targetUrl = 'https://shadowcoder1.github.io/pd-video-analyzer';
             const encodedText = encodeURIComponent(text);
-            const url = encodeURIComponent(window.location.href);
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${encodedText}`, '_blank');
+            const encodedUrl = encodeURIComponent(targetUrl);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`, '_blank');
             closeShareModal();
         }
         
         function shareToBluesky(text) {
-            const encodedText = encodeURIComponent(text + ' ' + window.location.href);
+            const targetUrl = 'https://shadowcoder1.github.io/pd-video-analyzer';
+            const fullText = text + '\n\n' + targetUrl;
+            const encodedText = encodeURIComponent(fullText);
+            // Try the new Bluesky share format
             window.open(`https://bsky.app/intent/compose?text=${encodedText}`, '_blank');
             closeShareModal();
         }
         
         function shareToLinkedIn(text) {
+            const targetUrl = 'https://shadowcoder1.github.io/pd-video-analyzer';
             const encodedText = encodeURIComponent(text);
-            const url = encodeURIComponent(window.location.href);
-            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&summary=${encodedText}`, '_blank');
+            const encodedUrl = encodeURIComponent(targetUrl);
+            const encodedTitle = encodeURIComponent('Motor Speed Assessment Results');
+            // LinkedIn's sharing format includes the text in the summary
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&title=${encodedTitle}&summary=${encodedText}`, '_blank');
             closeShareModal();
         }
         
         function copyToClipboard(text) {
-            const fullText = text + '\n\n' + window.location.href;
+            const targetUrl = 'https://shadowcoder1.github.io/pd-video-analyzer';
+            const fullText = text + '\n\n' + targetUrl;
             navigator.clipboard.writeText(fullText).then(() => {
                 alert('Results copied to clipboard!');
             }).catch(() => {
@@ -1795,7 +1804,7 @@ button, input[type="submit"], .btn {
                 alert('Results copied to clipboard!');
             });
         }
-        
+                
         function closeShareModal() {
             if (window.currentShareModal) {
                 document.body.removeChild(window.currentShareModal);
