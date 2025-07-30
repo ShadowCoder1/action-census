@@ -18,13 +18,12 @@
           linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
           linear-gradient(90deg, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
       background-size: 50px 50px;
-      background-position: 0 0, 0 0;
       color: #1a1a1a;
       line-height: 1.6;
-      min-height: 100vh;
-      padding: 2rem;
-      position: relative;
+      height: 100vh;
+      padding: 1rem;
       overflow: hidden;
+      position: relative;
     }
 
     body::before {
@@ -122,71 +121,50 @@
 
     .container {
       max-width: 1000px;
-      width: 100%;
+      height: calc(100vh - 2rem);
       margin: 0 auto;
       position: relative;
       z-index: 2;
-      height: calc(100vh - 4rem);
-      display: flex;
-      flex-direction: column;
-      max-height: calc(100vh - 4rem);
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 1rem;
     }
 
     .header {
       text-align: center;
-      margin-bottom: 1.5rem;
       background: rgba(255, 255, 255, 0.95);
-      border-radius: 20px;
-      padding: 1.5rem;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      border-radius: 15px;
+      padding: 1rem;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
       border: 1px solid rgba(0, 0, 0, 0.05);
       backdrop-filter: blur(10px);
-      flex-shrink: 0;
     }
 
     h1 {
-      font-size: 2.5rem;
+      font-size: 2rem;
       font-weight: 400;
       color: #1a1a1a;
-      margin-bottom: 0.5rem;
       letter-spacing: -0.02em;
-    }
-
-    .subtitle {
-      font-size: 1.1rem;
-      color: #4a4a4a;
-    }
-
-    .main-section {
-      flex: 1;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 20px;
-      padding: 1.5rem;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(0, 0, 0, 0.05);
-      backdrop-filter: blur(10px);
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      overflow: hidden;
     }
 
     .tabs {
       display: flex;
-      margin-bottom: 2rem;
-      background: #f3f4f6;
-      border-radius: 12px;
-      padding: 4px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 0.5rem;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(10px);
     }
 
     .tab {
       flex: 1;
-      padding: 1rem 1.5rem;
+      padding: 0.75rem 1rem;
       background: transparent;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 500;
       color: #6b7280;
       transition: all 0.2s ease;
@@ -199,26 +177,74 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .tab-content {
-      flex: 1;
-      display: none;
+    .main-content {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 1rem;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+      display: flex;
       flex-direction: column;
+    }
+
+    .tab-content {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      height: 100%;
     }
 
     .tab-content.active {
       display: flex;
     }
 
-    /* Video Tab Content */
+    /* Video Tab */
+    .video-section {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      gap: 0.75rem;
+    }
+
+    .progress-container {
+      flex-shrink: 0;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background-color: #e5e7eb;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 0.25rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+      width: 0%;
+      transition: width 0.3s ease;
+      border-radius: 3px;
+    }
+
+    .progress-text {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
     .video-container {
       position: relative;
-      padding-bottom: 56.25%;
+      width: 100%;
       height: 0;
+      padding-bottom: 56.25%;
+      border-radius: 10px;
       overflow: hidden;
-      border-radius: 12px;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       border: 1px solid rgba(0, 0, 0, 0.1);
-      margin-bottom: 1.5rem;
       flex-shrink: 0;
     }
 
@@ -229,56 +255,28 @@
       width: 100%;
       height: 100%;
       border: none;
-      border-radius: 12px;
-    }
-
-    .progress-container {
-      margin-bottom: 1.5rem;
-      flex-shrink: 0;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      background-color: #e5e7eb;
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 0.5rem;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
-      width: 0%;
-      transition: width 0.3s ease;
-      border-radius: 4px;
-    }
-
-    .progress-text {
-      text-align: center;
-      font-size: 0.9rem;
-      color: #6b7280;
-      font-weight: 500;
+      border-radius: 10px;
     }
 
     .video-description {
       text-align: center;
       color: #4a4a4a;
-      font-size: 1.1rem;
+      font-size: 0.9rem;
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 1rem;
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f9fafb;
-      border-radius: 12px;
-      padding: 2rem;
-      margin-bottom: 2rem;
+      min-height: 60px;
     }
 
-    /* Steps Tab Content */
+    /* Steps Tab */
     .steps-content {
       flex: 1;
       overflow-y: auto;
+      padding-right: 0.5rem;
     }
 
     .steps {
@@ -290,54 +288,58 @@
       counter-increment: step-counter;
       display: flex;
       align-items: flex-start;
-      margin-bottom: 1.5rem;
-      padding: 1.25rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
       background: #f9fafb;
-      border-radius: 12px;
-      border-left: 4px solid #22c55e;
+      border-radius: 10px;
+      border-left: 3px solid #22c55e;
     }
 
     .step::before {
       content: counter(step-counter);
       background: #22c55e;
       color: white;
-      width: 2rem;
-      height: 2rem;
+      width: 1.5rem;
+      height: 1.5rem;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      font-size: 0.9rem;
-      margin-right: 1.5rem;
+      font-size: 0.8rem;
+      margin-right: 1rem;
       flex-shrink: 0;
     }
 
     .step-content {
-      font-size: 1.1rem;
-      line-height: 1.7;
+      font-size: 0.95rem;
+      line-height: 1.5;
     }
 
     .highlight {
       background: linear-gradient(120deg, #a7f3d0 0%, #6ee7b7 100%);
-      padding: 0.2em 0.4em;
-      border-radius: 4px;
+      padding: 0.15em 0.3em;
+      border-radius: 3px;
       font-weight: 600;
       color: #065f46;
     }
 
-    .button-container {
-      margin-top: 2rem;
+    .button-area {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 1rem;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(10px);
       text-align: center;
-      flex-shrink: 0;
     }
 
     .continue-button {
       background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
       color: white;
       border: none;
-      padding: 1.5rem 6rem;
-      font-size: 1.5rem;
+      padding: 1rem 4rem;
+      font-size: 1.2rem;
       font-weight: 600;
       border-radius: 2rem;
       cursor: pointer;
@@ -345,40 +347,34 @@
       font-family: inherit;
       text-decoration: none;
       display: inline-block;
-      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3);
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
     }
 
     .continue-button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
     }
 
     .continue-button:active {
-      transform: translateY(-1px);
+      transform: translateY(0);
     }
 
     @media (max-width: 768px) {
       body {
-        padding: 1rem;
-        overflow: auto;
+        padding: 0.5rem;
       }
       
       .container {
-        height: auto;
-      }
-      
-      .header, .main-section {
-        padding: 1.5rem;
+        height: calc(100vh - 1rem);
       }
       
       h1 {
-        font-size: 2rem;
+        font-size: 1.5rem;
       }
       
       .continue-button {
         width: 100%;
-        padding: 1.25rem 2rem;
-        font-size: 1.3rem;
+        padding: 1rem 2rem;
       }
     }
   </style>
@@ -396,33 +392,29 @@
       <h1>Instructions</h1>
     </div>
 
-    <div class="main-section">
-      <div class="tabs" id="tabContainer">
-        <button class="tab active" onclick="switchTab('video')">Watch Video</button>
-        <button class="tab" onclick="switchTab('steps')">Full Steps</button>
-      </div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('video')">Watch Video</button>
+      <button class="tab" onclick="switchTab('steps')">Full Steps</button>
+    </div>
 
+    <div class="main-content">
       <!-- Video Tab -->
       <div id="video" class="tab-content active">
-        <div class="progress-container">
-          <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
+        <div class="video-section">
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">0% Complete</div>
           </div>
-          <div class="progress-text" id="progressText">0% Complete</div>
-        </div>
-        
-        <div class="video-container">
-          <div id="player"></div>
-        </div>
-        
-        <div class="video-description">
-          <p>Watch this demonstration to learn the proper finger tapping technique for your assessment</p>
-        </div>
-
-        <div class="button-container">
-          <button class="continue-button" onclick="showStepsTab()">
-            Continue
-          </button>
+          
+          <div class="video-container">
+            <div id="player"></div>
+          </div>
+          
+          <div class="video-description">
+            <p>Watch this demonstration to learn the proper finger tapping technique</p>
+          </div>
         </div>
       </div>
 
@@ -457,13 +449,13 @@
             </li>
           </ol>
         </div>
-
-        <div class="button-container">
-          <a href="index.html" class="continue-button">
-            Start Assessment
-          </a>
-        </div>
       </div>
+    </div>
+
+    <div class="button-area">
+      <button class="continue-button" id="mainButton" onclick="showStepsTab()">
+        Continue
+      </button>
     </div>
   </div>
 
@@ -474,8 +466,8 @@
     let progressInterval;
 
     function showStepsTab() {
-      // Switch to steps tab when continue is clicked
       switchTab('steps');
+      document.getElementById('mainButton').innerHTML = '<a href="index.html" style="color: inherit; text-decoration: none;">Start Assessment</a>';
     }
 
     function switchTab(tabName) {
@@ -496,6 +488,16 @@
       );
       if (clickedTab) {
         clickedTab.classList.add('active');
+      }
+
+      // Update button based on active tab
+      const button = document.getElementById('mainButton');
+      if (tabName === 'video') {
+        button.innerHTML = 'Continue';
+        button.onclick = showStepsTab;
+      } else if (tabName === 'steps') {
+        button.innerHTML = '<a href="index.html" style="color: inherit; text-decoration: none;">Start Assessment</a>';
+        button.onclick = null;
       }
     }
 
