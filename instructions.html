@@ -24,7 +24,9 @@
       min-height: 100vh;
       padding: 2rem;
       position: relative;
-      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     body::before {
@@ -123,7 +125,6 @@
     .container {
       max-width: 1000px;
       width: 100%;
-      margin: 0 auto;
       position: relative;
       z-index: 2;
     }
@@ -133,98 +134,25 @@
       margin-bottom: 3rem;
       background: rgba(255, 255, 255, 0.95);
       border-radius: 20px;
-      padding: 3rem;
+      padding: 2.5rem;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
       border: 1px solid rgba(0, 0, 0, 0.05);
       backdrop-filter: blur(10px);
     }
 
     h1 {
-      font-size: 3.5rem;
+      font-size: 2.5rem;
       font-weight: 400;
       color: #1a1a1a;
       margin-bottom: 1rem;
       letter-spacing: -0.02em;
     }
+
     .subtitle {
-      font-size: 1.6rem;
+      font-size: 1.25rem;
       color: #4a4a4a;
       max-width: 60ch;
       margin: 0 auto;
-    }
-
-    .video-section {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 20px;
-      padding: 2.5rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(0, 0, 0, 0.05);
-      backdrop-filter: blur(10px);
-    }
-
-    .video-title {
-      font-size: 2.0rem;
-      font-weight: 500;
-      color: #1a1a1a;
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-
-    .video-container {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      overflow: hidden;
-      border-radius: 12px;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      margin-bottom: 1rem;
-    }
-    
-    .video-container #player {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-      border-radius: 12px;
-    }
-
-    .progress-container {
-      margin-bottom: 1.5rem;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      background-color: #e5e7eb;
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 0.5rem;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
-      width: 0%;
-      transition: width 0.3s ease;
-      border-radius: 4px;
-    }
-
-    .progress-text {
-      text-align: center;
-      font-size: 1.15rem;
-      color: #6b7280;
-      font-weight: 500;
-    }
-
-    .video-caption {
-      text-align: center;
-      color: #6b7280;
-      font-size: 1.2rem;
-      font-style: italic;
     }
 
     .instructions-section {
@@ -236,14 +164,15 @@
       border: 1px solid rgba(0, 0, 0, 0.05);
       backdrop-filter: blur(10px);
     }
-    
+
     .instructions-title {
-      font-size: 2.8rem;
+      font-size: 2rem;
       font-weight: 500;
       color: #1a1a1a;
       margin-bottom: 2rem;
       text-align: center;
     }
+
     .steps {
       list-style: none;
       counter-reset: step-counter;
@@ -259,25 +188,25 @@
       border-radius: 12px;
       border-left: 4px solid #22c55e;
     }
-    
+
     .step::before {
       content: counter(step-counter);
       background: #22c55e;
       color: white;
-      width: 2.5rem;
-      height: 2.5rem;
+      width: 2rem;
+      height: 2rem;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      font-size: 1.15rem;
+      font-size: 0.9rem;
       margin-right: 1.5rem;
       flex-shrink: 0;
     }
 
     .step-content {
-      font-size: 1.4rem;
+      font-size: 1.1rem;
       line-height: 1.7;
     }
 
@@ -289,12 +218,12 @@
       color: #065f46;
     }
 
-    .start-button {  
+    .start-button {
       background-color: #1a1a1a;
       color: white;
       border: none;
-      padding: 1.5rem 4rem;
-      font-size: 1.65rem;
+      padding: 1.25rem 4rem;
+      font-size: 1.3rem;
       font-weight: 500;
       border-radius: 2rem;
       cursor: pointer;
@@ -304,6 +233,7 @@
       display: inline-block;
       position: relative;
       overflow: hidden;
+      margin-right: 1rem;
     }
 
     .start-button:hover {
@@ -331,6 +261,34 @@
       left: 100%;
     }
 
+    .back-button {
+      background-color: transparent;
+      color: #1a1a1a;
+      border: 2px solid #1a1a1a;
+      padding: 1.25rem 4rem;
+      font-size: 1.3rem;
+      font-weight: 500;
+      border-radius: 2rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      text-decoration: none;
+      display: inline-block;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .back-button:hover {
+      background-color: #1a1a1a;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .back-button:active {
+      transform: translateY(0);
+    }
+
     .button-container {
       text-align: center;
       background: rgba(255, 255, 255, 0.95);
@@ -341,22 +299,29 @@
       backdrop-filter: blur(10px);
     }
 
+    .navigation-text {
+      text-align: center;
+      color: #6b7280;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+
     @media (max-width: 768px) {
-      .container {
+      body {
         padding: 1rem;
       }
       
-      .header, .video-section, .instructions-section, .button-container {
+      .header, .instructions-section, .button-container {
         padding: 2rem;
         margin-bottom: 1.5rem;
       }
       
       h1 {
-        font-size: 2.8rem;
+        font-size: 2rem;
       }
       
       .instructions-title {
-        font-size: 2.1rem;
+        font-size: 1.5rem;
       }
       
       .step {
@@ -364,9 +329,11 @@
         margin-bottom: 1.5rem;
       }
       
-      .start-button {
+      .start-button, .back-button {
         width: 100%;
-        padding: 1.25rem 2rem;
+        padding: 1rem 2rem;
+        margin-right: 0;
+        margin-bottom: 1rem;
       }
     }
   </style>
@@ -381,38 +348,19 @@
 
   <div class="container">
     <div class="header">
-      <h1>Assessment Instructions</h1>
+      <h1>Assessment Protocol</h1>
       <p class="subtitle">
-        Learn how to perform the finger tapping assessment. Please watch the video and read the instructions carefully before starting.
-      </p>
-    </div>
-
-    <div class="video-section">
-      <h2 class="video-title">Technique Demonstration</h2>
-      
-      <!-- Progress bar -->
-      <div class="progress-container">
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-        <div class="progress-text" id="progressText">0% Complete</div>
-      </div>
-      
-      <div class="video-container">
-        <div id="player"></div>
-      </div>
-      <p class="video-caption">
-        Watch this demonstration to understand the proper finger tapping technique
+        Follow these instructions carefully to complete your finger tapping assessment accurately.
       </p>
     </div>
 
     <div class="instructions-section">
-      <h2 class="instructions-title">Assessment Protocol</h2>
+      <h2 class="instructions-title">Step-by-Step Instructions</h2>
       
       <ol class="steps">
         <li class="step">
           <div class="step-content">
-            Position yourself comfortably with adequate lighting. Ensure your hand is <span class="highlight">clearly visible and your palm is facing the camera.</span>
+            Position yourself comfortably with adequate lighting. Ensure your hand is <span class="highlight">clearly visible</span> in the camera view.
           </div>
         </li>
         <li class="step">
@@ -422,7 +370,7 @@
         </li>
         <li class="step">
           <div class="step-content">
-            When each trial begins, tap your <span class="highlight">thumb and index finger</span> together as quickly and accurately as possible for <span class="highlight">15 seconds</span>.
+            When each trial begins, tap your <span class="highlight">thumb and index finger</span> together as quickly and accurately as possible for <span class="highlight">20 seconds</span>.
           </div>
         </li>
         <li class="step">
@@ -439,75 +387,16 @@
     </div>
 
     <div class="button-container">
-      <a href="experiment.html" class="start-button">
+      <p class="navigation-text">
+        Ready to begin? Make sure you've watched the demonstration video and understand the instructions.
+      </p>
+      <a href="video.html" class="back-button">
+        <span style="position: relative; z-index: 2;">Back to Video</span>
+      </a>
+      <a href="index.html" class="start-button">
         <span style="position: relative; z-index: 2;">Begin Assessment</span>
       </a>
     </div>
   </div>
-
-  <!-- YouTube API Script -->
-  <script src="https://www.youtube.com/iframe_api"></script>
-  <script>
-    let player;
-    let progressInterval;
-
-    // YouTube API callback
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('player', {
-        height: '100%',
-        width: '100%',
-        videoId: 'aq-vBvjhvt0',
-        playerVars: {
-          'playsinline': 1,
-          'rel': 0,
-          'modestbranding': 1
-        },
-        events: {
-          'onReady': onPlayerReady,
-          'onStateChange': onPlayerStateChange
-        }
-      });
-    }
-
-    function onPlayerReady(event) {
-      // Player is ready
-    }
-
-    function onPlayerStateChange(event) {
-      if (event.data == YT.PlayerState.PLAYING) {
-        startProgressTracking();
-      } else {
-        stopProgressTracking();
-      }
-    }
-
-    function startProgressTracking() {
-      progressInterval = setInterval(updateProgress, 500);
-    }
-
-    function stopProgressTracking() {
-      if (progressInterval) {
-        clearInterval(progressInterval);
-      }
-    }
-
-    function updateProgress() {
-      if (player && player.getCurrentTime && player.getDuration) {
-        const currentTime = player.getCurrentTime();
-        const duration = player.getDuration();
-        
-        if (duration > 0) {
-          const percentage = (currentTime / duration) * 100;
-          const progressFill = document.getElementById('progressFill');
-          const progressText = document.getElementById('progressText');
-          
-          if (progressFill && progressText) {
-            progressFill.style.width = percentage + '%';
-            progressText.textContent = Math.round(percentage) + '% Complete';
-          }
-        }
-      }
-    }
-  </script>
 </body>
 </html>
