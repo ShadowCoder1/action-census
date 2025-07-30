@@ -1659,6 +1659,7 @@ button, input[type="submit"], .btn {
             .catch(err => console.error("Error saving final summary:", err));
         }
         // Add share results function
+        // Social media share functions
         function shareResults() {
             const rightTrials = allTrialResults.filter(t => t.condition.hand === 'right');
             const leftTrials = allTrialResults.filter(t => t.condition.hand === 'left');
@@ -1666,26 +1667,136 @@ button, input[type="submit"], .btn {
                 const values = trials.map(t => t.result.metrics[metric]);
                 return values.reduce((a, b) => a + b, 0) / values.length;
             };
+            
+            const rightTapsPerRound = Math.round(calculateAverage(rightTrials, 'tapCount'));
+            const leftTapsPerRound = Math.round(calculateAverage(leftTrials, 'tapCount'));
             const rightFastFreq = calculateAverage(rightTrials, 'avgFrequency');
             const leftFastFreq = calculateAverage(leftTrials, 'avgFrequency');
             const avgFastFreq = (rightFastFreq + leftFastFreq) / 2;
-            const avgTapsPerTenSec = Math.round(avgFastFreq * 10);
+            const avgTapsPerTenSec = avgFastFreq * 10;
             
-            const shareText = `I just completed a motor speed assessment! My tapping speed: ${avgTapsPerTenSec} taps/10sec (${avgFastFreq.toFixed(2)} Hz)`;
+            // Calculate percentile (using current code's method for consistency)
+            const normMean = 55;
+            const normSD = 8;
+            const zScore = (avgTapsPerTenSec - normMean) / normSD;
+            const percentile = Math.round(Math.max(1, Math.min(99, (0.5 * (1 + erf(zScore / Math.sqrt(2)))) * 100)));
             
-            if (navigator.share) {
-                navigator.share({
-                    title: 'My Motor Speed Assessment Results',
-                    text: shareText,
-                    url: window.location.href
-                });
-            } else {
-                navigator.clipboard.writeText(shareText).then(() => {
-                    alert('Results copied to clipboard!');
-                }).catch(() => {
-                    alert('Unable to copy to clipboard');
-                });
+            // Show share options
+            showShareOptions(rightTapsPerRound, leftTapsPerRound, percentile, avgTapsPerTenSec);
+        }
+        
+        function showShareOptions(rightTaps, leftTaps, percentile, avgTaps) {
+            const shareText = `🧠 Just completed a motor speed assessment!\n\n⚡ Right hand: ${rightTaps} taps (15s)\n⚡ Left hand: ${leftTaps} taps (15s)\n📊 Ranked higher than ${percentile}% of participants\n\nTry it yourself! 👆`;
+            
+            const encodedText = encodeURIComponent(shareText);
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent('Motor Speed Assessment Results');
+            
+            // Create share modal
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                backdrop-filter: blur(10px);
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 20px; padding: 3rem; max-width: 500px; width: 90%; text-align: center; font-family: 'Inter', sans-serif;">
+                    <h3 style="font-size: 2rem; margin-bottom: 2rem; color: #1a1a1a;">Share Your Results</h3>
+                    
+                    <div style="display: grid; gap: 1rem; margin-bottom: 2rem;">
+                        <button onclick="shareToTwitter('${encodedText}', '${url}')" style="background: #1da1f2; color: white; border: none; padding: 1rem 2rem; border-radius: 12px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            🐦 Share on Twitter
+                        </button>
+                        
+                        <button onclick="shareToFacebook('${url}', '${title}')" style="background: #4267B2; color: white; border: none; padding: 1rem 2rem; border-radius: 12px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            📘 Share on Facebook
+                        </button>
+                        
+                        <button onclick="shareToBluesky('${encodedText}')" style="background: #00a8e8; color: white; border: none; padding: 1rem 2rem; border-radius: 12px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            🦋 Share on Bluesky
+                        </button>
+                        
+                        <button onclick="shareToLinkedIn('${url}', '${title}', '${encodedText}')" style="background: #0077b5; color: white; border: none; padding: 1rem 2rem; border-radius: 12px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            💼 Share on LinkedIn
+                        </button>
+                        
+                        <button onclick="copyToClipboard('${shareText.replace(/'/g, "\\'")}'); closeShareModal();" style="background: #6b7280; color: white; border: none; padding: 1rem 2rem; border-radius: 12px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            📋 Copy to Clipboard
+                        </button>
+                    </div>
+                    
+                    <button onclick="closeShareModal()" style="background: #f3f4f6; color: #374151; border: none; padding: 0.75rem 2rem; border-radius: 8px; font-size: 1rem; cursor: pointer;">
+                        Cancel
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            window.currentShareModal = modal;
+            
+            // Close on outside click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeShareModal();
+            });
+        }
+        
+        function shareToTwitter(text, url) {
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+            closeShareModal();
+        }
+        
+        function shareToFacebook(url, title) {
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${title}`, '_blank');
+            closeShareModal();
+        }
+        
+        function shareToBluesky(text) {
+            window.open(`https://bsky.app/intent/compose?text=${text}`, '_blank');
+            closeShareModal();
+        }
+        
+        function shareToLinkedIn(url, title, text) {
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}&summary=${text}`, '_blank');
+            closeShareModal();
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Results copied to clipboard!');
+            }).catch(() => {
+                alert('Unable to copy to clipboard');
+            });
+        }
+        
+        function closeShareModal() {
+            if (window.currentShareModal) {
+                document.body.removeChild(window.currentShareModal);
+                window.currentShareModal = null;
             }
+        }
+        
+        // Add erf function if not already present
+        function erf(x) {
+            const a1 =  0.254829592;
+            const a2 = -0.284496736;
+            const a3 =  1.421413741;
+            const a4 = -1.453152027;
+            const a5 =  1.061405429;
+            const p  =  0.3275911;
+            const sign = x < 0 ? -1 : 1;
+            x = Math.abs(x);
+            const t = 1.0 / (1.0 + p * x);
+            const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+            return sign * y;
         }
         let overlayJustDismissed = false;
 
