@@ -624,70 +624,75 @@ button, input[type="submit"], .btn {
         </div>
     </div>
     <!-- Questionnaire overlay -->
+<!-- Questionnaire overlay -->
     <div id="questionnaire-overlay" class="trial-overlay" style="display: none;">
-        <div style="max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto; background: white; border-radius: 20px; padding: 3rem; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-            <div style="text-align: center; margin-bottom: 3rem;">
-                <h2 style="font-size: 2.8rem; font-weight: 300; color: #1a1a1a; margin-bottom: 1rem; letter-spacing: -0.02em;">Quick Questions</h2>
-                <p style="font-size: 1.3rem; color: #666666; font-weight: 400;">Please answer these brief questions about your experience</p>
+        <div style="max-width: 1200px; width: 95%; max-height: 95vh; overflow-y: auto; background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h2 style="font-size: 2.4rem; font-weight: 300; color: #1a1a1a; margin-bottom: 0.5rem; letter-spacing: -0.02em;">Quick Questions</h2>
+                <p style="font-size: 1.1rem; color: #666666; font-weight: 400;">Please answer these brief questions about your experience</p>
             </div>
 
             <form id="questionnaire-form" style="text-align: left;">
                 <!-- Likert Scale Explanation -->
-                <div style="background: rgba(59, 130, 246, 0.05); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; border-left: 4px solid #3b82f6;">
-                    <p style="font-size: 1.1rem; color: #1a1a1a; margin: 0;"><strong>Rating Scale:</strong> Please rate each item from 1 (strongly disagree/very low) to 7 (strongly agree/very high)</p>
+                <div style="background: rgba(59, 130, 246, 0.05); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; border-left: 3px solid #3b82f6;">
+                    <p style="font-size: 1rem; color: #1a1a1a; margin: 0;"><strong>Rating Scale:</strong> 1 = Very Low/Poor, 7 = Very High/Excellent</p>
                 </div>
 
-                <!-- Experience Questions -->
-                <div class="question-group" style="margin-bottom: 2rem;">
-                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Video game experience level:</label>
-                    <div class="likert-scale" id="videogame-scale"></div>
+                <!-- Experience Questions Grid -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="question-group">
+                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Video game experience:</label>
+                        <div class="likert-scale" id="videogame-scale"></div>
+                    </div>
+
+                    <div class="question-group">
+                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Musical experience:</label>
+                        <div class="likert-scale" id="musical-scale"></div>
+                    </div>
+
+                    <div class="question-group">
+                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Sports experience:</label>
+                        <div class="likert-scale" id="sports-scale"></div>
+                    </div>
+
+                    <div class="question-group">
+                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Caffeine intake today:</label>
+                        <div class="likert-scale" id="caffeine-scale"></div>
+                    </div>
                 </div>
 
-                <div class="question-group" style="margin-bottom: 2rem;">
-                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Musical experience level:</label>
-                    <div class="likert-scale" id="musical-scale"></div>
+                <!-- Mood and Performance Grid -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="question-group">
+                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Current mood:</label>
+                        <div class="likert-scale" id="mood-scale"></div>
+                    </div>
+
+                    <div class="question-group">
+                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Task motivation:</label>
+                        <div class="likert-scale" id="motivated-scale"></div>
+                    </div>
+
+                    <div class="question-group">
+                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Task distraction:</label>
+                        <div class="likert-scale" id="distracted-scale"></div>
+                    </div>
+
+                    <div class="question-group">
+                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Expected performance vs. others:</label>
+                        <div class="likert-scale" id="performance-scale"></div>
+                    </div>
                 </div>
 
-                <div class="question-group" style="margin-bottom: 2rem;">
-                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Sports experience level:</label>
-                    <div class="likert-scale" id="sports-scale"></div>
-                </div>
-
-                <div class="question-group" style="margin-bottom: 2rem;">
-                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Caffeine intake today:</label>
-                    <div class="likert-scale" id="caffeine-scale"></div>
-                </div>
-
-                <!-- Mood Questions -->
-                <div class="question-group" style="margin-bottom: 2rem;">
-                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Current mood:</label>
-                    <div class="likert-scale" id="mood-scale"></div>
-                </div>
-
-                <div class="question-group" style="margin-bottom: 2rem;">
-                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">How motivated did you feel during the task:</label>
-                    <div class="likert-scale" id="motivated-scale"></div>
-                </div>
-
-                <div class="question-group" style="margin-bottom: 2rem;">
-                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">How distracted did you feel during the task:</label>
-                    <div class="likert-scale" id="distracted-scale"></div>
-                </div>
-
-                <div class="question-group" style="margin-bottom: 2rem;">
-                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">How well do you think you performed compared to the general population:</label>
-                    <div class="likert-scale" id="performance-scale"></div>
-                </div>
-
-                <!-- Yes/No Questions -->
-                <div class="question-group" style="margin-bottom: 2rem;">
-                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Do you have any known neurological conditions?</label>
-                    <div style="display: flex; gap: 1rem;">
-                        <label style="display: flex; align-items: center; font-size: 1.2rem; cursor: pointer;">
+                <!-- Neurological Question -->
+                <div class="question-group" style="margin-bottom: 1.5rem; background: rgba(0,0,0,0.02); padding: 1rem; border-radius: 8px;">
+                    <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Do you have any known neurological conditions?</label>
+                    <div style="display: flex; gap: 2rem;">
+                        <label style="display: flex; align-items: center; font-size: 1.1rem; cursor: pointer;">
                             <input type="radio" name="neurological" value="no" required style="margin-right: 0.5rem; transform: scale(1.2);">
                             No
                         </label>
-                        <label style="display: flex; align-items: center; font-size: 1.2rem; cursor: pointer;">
+                        <label style="display: flex; align-items: center; font-size: 1.1rem; cursor: pointer;">
                             <input type="radio" name="neurological" value="yes" style="margin-right: 0.5rem; transform: scale(1.2);">
                             Yes
                         </label>
@@ -695,36 +700,38 @@ button, input[type="submit"], .btn {
                 </div>
 
                 <!-- Optional Questions -->
-                <div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 2rem; margin-top: 2rem;">
-                    <h3 style="font-size: 1.6rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1.5rem;">Optional Questions</h3>
+                <div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 1.5rem;">
+                    <h3 style="font-size: 1.3rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem;">Optional Questions</h3>
                     
-                    <div class="question-group" style="margin-bottom: 2rem;">
-                        <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Socioeconomic status (optional):</label>
-                        <select name="ses" style="width: 100%; padding: 0.75rem; font-size: 1.2rem; border: 2px solid #e5e7eb; border-radius: 8px; background: white;">
-                            <option value="">Prefer not to answer</option>
-                            <option value="low">Lower income</option>
-                            <option value="lower-middle">Lower middle class</option>
-                            <option value="middle">Middle class</option>
-                            <option value="upper-middle">Upper middle class</option>
-                            <option value="high">Higher income</option>
-                        </select>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
+                        <div class="question-group">
+                            <label style="font-size: 1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Socioeconomic status:</label>
+                            <select name="ses" style="width: 100%; padding: 0.5rem; font-size: 1rem; border: 2px solid #e5e7eb; border-radius: 6px; background: white;">
+                                <option value="">Prefer not to answer</option>
+                                <option value="low">Lower income</option>
+                                <option value="lower-middle">Lower middle class</option>
+                                <option value="middle">Middle class</option>
+                                <option value="upper-middle">Upper middle class</option>
+                                <option value="high">Higher income</option>
+                            </select>
+                        </div>
+
+                        <div class="question-group">
+                            <label style="font-size: 1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Zip/Postal code:</label>
+                            <input type="text" name="zipcode" placeholder="Your zip code" style="width: 100%; padding: 0.5rem; font-size: 1rem; border: 2px solid #e5e7eb; border-radius: 6px;">
+                        </div>
+
+                        <div style="display: flex; align-items: end;">
+                            <button type="submit" style="background-color: #000000; color: white; border: none; padding: 0.75rem 2rem; font-size: 1.1rem; font-weight: 500; border-radius: 40px; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; width: 100%;">
+                                Continue to Results
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="question-group" style="margin-bottom: 2rem;">
-                        <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Zip/Postal code (optional):</label>
-                        <input type="text" name="zipcode" placeholder="Enter your zip/postal code" style="width: 100%; padding: 0.75rem; font-size: 1.2rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    <div class="question-group">
+                        <label style="font-size: 1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Additional feedback or comments:</label>
+                        <textarea name="feedback" rows="2" placeholder="Any additional thoughts about the test..." style="width: 100%; padding: 0.5rem; font-size: 1rem; border: 2px solid #e5e7eb; border-radius: 6px; resize: vertical; font-family: 'Inter', sans-serif;"></textarea>
                     </div>
-
-                    <div class="question-group" style="margin-bottom: 2rem;">
-                        <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Additional feedback or comments (optional):</label>
-                        <textarea name="feedback" rows="4" placeholder="Any additional thoughts about the test..." style="width: 100%; padding: 0.75rem; font-size: 1.2rem; border: 2px solid #e5e7eb; border-radius: 8px; resize: vertical; font-family: 'Inter', sans-serif;"></textarea>
-                    </div>
-                </div>
-
-                <div style="text-align: center; margin-top: 3rem;">
-                    <button type="submit" style="background-color: #000000; color: white; border: none; padding: 1.25rem 3rem; font-size: 1.4rem; font-weight: 500; border-radius: 60px; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif;">
-                        Continue to Results
-                    </button>
                 </div>
             </form>
         </div>
