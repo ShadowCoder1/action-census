@@ -540,6 +540,45 @@ button, input[type="submit"], .btn {
         .layout-right-hand .hand-guide-overlay {
             left: 72% !important;
         }
+
+        .likert-scale {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .likert-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .likert-option input[type="radio"] {
+            margin-bottom: 0.25rem;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        .likert-option label {
+            font-size: 0.9rem;
+            color: #666666;
+            text-align: center;
+            cursor: pointer;
+            line-height: 1.2;
+        }
+
+        @media (max-width: 768px) {
+            .likert-scale {
+                justify-content: space-between;
+            }
+            
+            .likert-option label {
+                font-size: 0.8rem;
+            }
+        }
     </style>
 
     <!-- Firebase SDK -->
@@ -582,6 +621,112 @@ button, input[type="submit"], .btn {
                 Start with fingers <strong>wide open</strong>
             </div>
             <p class="trial-overlay-footer">Press SPACEBAR to begin</p>
+        </div>
+    </div>
+    <!-- Questionnaire overlay -->
+    <div id="questionnaire-overlay" class="trial-overlay" style="display: none;">
+        <div style="max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto; background: white; border-radius: 20px; padding: 3rem; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+            <div style="text-align: center; margin-bottom: 3rem;">
+                <h2 style="font-size: 2.8rem; font-weight: 300; color: #1a1a1a; margin-bottom: 1rem; letter-spacing: -0.02em;">Quick Questions</h2>
+                <p style="font-size: 1.3rem; color: #666666; font-weight: 400;">Please answer these brief questions about your experience</p>
+            </div>
+
+            <form id="questionnaire-form" style="text-align: left;">
+                <!-- Likert Scale Explanation -->
+                <div style="background: rgba(59, 130, 246, 0.05); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; border-left: 4px solid #3b82f6;">
+                    <p style="font-size: 1.1rem; color: #1a1a1a; margin: 0;"><strong>Rating Scale:</strong> Please rate each item from 1 (strongly disagree/very low) to 7 (strongly agree/very high)</p>
+                </div>
+
+                <!-- Experience Questions -->
+                <div class="question-group" style="margin-bottom: 2rem;">
+                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Video game experience level:</label>
+                    <div class="likert-scale" id="videogame-scale"></div>
+                </div>
+
+                <div class="question-group" style="margin-bottom: 2rem;">
+                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Musical experience level:</label>
+                    <div class="likert-scale" id="musical-scale"></div>
+                </div>
+
+                <div class="question-group" style="margin-bottom: 2rem;">
+                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Sports experience level:</label>
+                    <div class="likert-scale" id="sports-scale"></div>
+                </div>
+
+                <div class="question-group" style="margin-bottom: 2rem;">
+                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Caffeine intake today:</label>
+                    <div class="likert-scale" id="caffeine-scale"></div>
+                </div>
+
+                <!-- Mood Questions -->
+                <div class="question-group" style="margin-bottom: 2rem;">
+                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Current mood:</label>
+                    <div class="likert-scale" id="mood-scale"></div>
+                </div>
+
+                <div class="question-group" style="margin-bottom: 2rem;">
+                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">How motivated did you feel during the task:</label>
+                    <div class="likert-scale" id="motivated-scale"></div>
+                </div>
+
+                <div class="question-group" style="margin-bottom: 2rem;">
+                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">How distracted did you feel during the task:</label>
+                    <div class="likert-scale" id="distracted-scale"></div>
+                </div>
+
+                <div class="question-group" style="margin-bottom: 2rem;">
+                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">How well do you think you performed compared to the general population:</label>
+                    <div class="likert-scale" id="performance-scale"></div>
+                </div>
+
+                <!-- Yes/No Questions -->
+                <div class="question-group" style="margin-bottom: 2rem;">
+                    <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Do you have any known neurological conditions?</label>
+                    <div style="display: flex; gap: 1rem;">
+                        <label style="display: flex; align-items: center; font-size: 1.2rem; cursor: pointer;">
+                            <input type="radio" name="neurological" value="no" required style="margin-right: 0.5rem; transform: scale(1.2);">
+                            No
+                        </label>
+                        <label style="display: flex; align-items: center; font-size: 1.2rem; cursor: pointer;">
+                            <input type="radio" name="neurological" value="yes" style="margin-right: 0.5rem; transform: scale(1.2);">
+                            Yes
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Optional Questions -->
+                <div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 2rem; margin-top: 2rem;">
+                    <h3 style="font-size: 1.6rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1.5rem;">Optional Questions</h3>
+                    
+                    <div class="question-group" style="margin-bottom: 2rem;">
+                        <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Socioeconomic status (optional):</label>
+                        <select name="ses" style="width: 100%; padding: 0.75rem; font-size: 1.2rem; border: 2px solid #e5e7eb; border-radius: 8px; background: white;">
+                            <option value="">Prefer not to answer</option>
+                            <option value="low">Lower income</option>
+                            <option value="lower-middle">Lower middle class</option>
+                            <option value="middle">Middle class</option>
+                            <option value="upper-middle">Upper middle class</option>
+                            <option value="high">Higher income</option>
+                        </select>
+                    </div>
+
+                    <div class="question-group" style="margin-bottom: 2rem;">
+                        <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Zip/Postal code (optional):</label>
+                        <input type="text" name="zipcode" placeholder="Enter your zip/postal code" style="width: 100%; padding: 0.75rem; font-size: 1.2rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    </div>
+
+                    <div class="question-group" style="margin-bottom: 2rem;">
+                        <label style="font-size: 1.4rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Additional feedback or comments (optional):</label>
+                        <textarea name="feedback" rows="4" placeholder="Any additional thoughts about the test..." style="width: 100%; padding: 0.75rem; font-size: 1.2rem; border: 2px solid #e5e7eb; border-radius: 8px; resize: vertical; font-family: 'Inter', sans-serif;"></textarea>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 3rem;">
+                    <button type="submit" style="background-color: #000000; color: white; border: none; padding: 1.25rem 3rem; font-size: 1.4rem; font-weight: 500; border-radius: 60px; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif;">
+                        Continue to Results
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -698,6 +843,77 @@ button, input[type="submit"], .btn {
         let trialIndex = 0;
         let totalTrials = trialConditions.length;
         let allTrialResults = []
+        function createLikertScale(name, leftLabel, rightLabel) {
+            let html = '<div style="display: flex; align-items: center; gap: 1rem;">';
+            html += `<span style="font-size: 1rem; color: #666666; min-width: 80px; text-align: right;">${leftLabel}</span>`;
+            
+            for (let i = 1; i <= 7; i++) {
+                html += `
+                    <label class="likert-option">
+                        <input type="radio" name="${name}" value="${i}" required>
+                        <span style="font-size: 0.9rem; color: #666666;">${i}</span>
+                    </label>
+                `;
+            }
+            
+            html += `<span style="font-size: 1rem; color: #666666; min-width: 80px; text-align: left;">${rightLabel}</span>`;
+            html += '</div>';
+            return html;
+        }
+
+        function generateProlificCode() {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < 8; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return result;
+        }
+
+        function showQuestionnaire() {
+            document.getElementById('page-webcam').style.display = 'none';
+            
+            // Populate Likert scales
+            document.getElementById('videogame-scale').innerHTML = createLikertScale('videogame', 'Very Low', 'Very High');
+            document.getElementById('musical-scale').innerHTML = createLikertScale('musical', 'Very Low', 'Very High');
+            document.getElementById('sports-scale').innerHTML = createLikertScale('sports', 'Very Low', 'Very High');
+            document.getElementById('caffeine-scale').innerHTML = createLikertScale('caffeine', 'None', 'Very High');
+            document.getElementById('mood-scale').innerHTML = createLikertScale('mood', 'Very Poor', 'Excellent');
+            document.getElementById('motivated-scale').innerHTML = createLikertScale('motivated', 'Not at all', 'Extremely');
+            document.getElementById('distracted-scale').innerHTML = createLikertScale('distracted', 'Not at all', 'Extremely');
+            document.getElementById('performance-scale').innerHTML = createLikertScale('performance', 'Much Worse', 'Much Better');
+            
+            document.getElementById('questionnaire-overlay').style.display = 'flex';
+            
+            // Handle form submission
+            document.getElementById('questionnaire-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const responses = {};
+                
+                for (let [key, value] of formData.entries()) {
+                    responses[key] = value;
+                }
+                
+                // Save questionnaire responses to database
+                const participantID = sessionStorage.getItem('prolificID') || 'anonymous';
+                db.collection("Results")
+                .doc(participantID)
+                .collection("Questionnaire")
+                .doc("Responses")
+                .set({
+                    ...responses,
+                    completedAt: new Date().toISOString()
+                })
+                .then(() => console.log("Questionnaire responses saved"))
+                .catch(err => console.error("Error saving questionnaire:", err));
+                
+                // Now show the results
+                document.getElementById('questionnaire-overlay').style.display = 'none';
+                showFinalResults();
+            });
+        }
 
         const SMOOTHING_WINDOW = 3;
         const MIN_PEAK_PROMINENCE = 0.3;
@@ -1552,8 +1768,11 @@ button, input[type="submit"], .btn {
             positionStatus.className = 'position-status';
         }
 
-        function analyzeAllTrials() {
-            document.getElementById('page-webcam').style.display = 'none';
+ function analyzeAllTrials() {
+            showQuestionnaire();
+        }
+
+        function showFinalResults() {
             document.getElementById('finalResults').style.display = 'block';
             
             let rightTrials = allTrialResults.filter(t => t.condition.hand === 'right');
@@ -1568,18 +1787,19 @@ button, input[type="submit"], .btn {
             const leftFastFreq = calculateAverage(leftTrials, 'avgFrequency');
             const avgFastFreq = (rightFastFreq + leftFastFreq) / 2;
 
-// Convert to research-standard measurement (taps per 10 seconds)
             const avgTapsPerTenSec = avgFastFreq * 10;
             const rightTapsPerRound = Math.round(calculateAverage(rightTrials, 'tapCount'));
             const leftTapsPerRound = Math.round(calculateAverage(leftTrials, 'tapCount'));
-            // Calculate percentile using research-backed demographic norms
+            
             const demographicNorms = getDemographicAdjustedNorms();
             const normMean = demographicNorms.mean;
             const normSD = demographicNorms.sd;
             const zScore = (avgTapsPerTenSec - normMean) / normSD;
             const percentile = Math.round(Math.max(1, Math.min(99, (0.5 * (1 + erf(zScore / Math.sqrt(2)))) * 100)));
-                        
-            // Error function approximation for percentile calculation
+            
+            // Generate Prolific completion code
+            const prolificCode = generateProlificCode();
+            
             function erf(x) {
                 const a1 =  0.254829592;
                 const a2 = -0.284496736;
@@ -1596,7 +1816,7 @@ button, input[type="submit"], .btn {
             
             let html = `
                 <div style="max-width: 1000px; margin: 0 auto; padding: 2rem 3rem; text-align: center; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; justify-content: center;">
-                    <div style="margin-bottom: 5rem;">
+                    <div style="margin-bottom: 4rem;">
                         <p style="font-size: 3.4rem; color: #1a1a1a; line-height: 1.3; margin-bottom: 4rem; font-weight: 300; letter-spacing: -0.02em;">
                             You tapped <strong style="font-weight: 700;">${rightTapsPerRound}</strong> times per round (15s) with your <strong style="font-weight: 700;">right hand</strong> and<br>
                             <strong style="font-weight: 700;">${leftTapsPerRound}</strong> times per round with your <strong style="font-weight: 700;">left hand</strong>.
@@ -1605,6 +1825,12 @@ button, input[type="submit"], .btn {
                         <p style="font-size: 3.4rem; color: #1a1a1a; line-height: 1.3; font-weight: 300; letter-spacing: -0.02em;">
                             You ranked higher than <strong style="font-weight: 700;">${percentile}%</strong> of participants.
                         </p>
+                    </div>
+                    
+                    <div style="background: rgba(34, 197, 94, 0.1); border: 2px solid #22c55e; border-radius: 16px; padding: 2rem; margin-bottom: 3rem;">
+                        <p style="font-size: 1.6rem; color: #1a1a1a; margin-bottom: 1rem; font-weight: 500;">Prolific Completion Code:</p>
+                        <p style="font-size: 2.8rem; color: #22c55e; font-weight: 700; letter-spacing: 0.1em; font-family: 'Courier New', monospace;">${prolificCode}</p>
+                        <p style="font-size: 1.2rem; color: #666666; margin-top: 1rem;">Please copy this code and paste it into Prolific to complete your participation.</p>
                     </div>
                     
                     <div style="display: flex; gap: 2rem; justify-content: center;">
@@ -1648,10 +1874,11 @@ button, input[type="submit"], .btn {
             .set({
                 completedAt: new Date().toISOString(),
                 totalTrials: allTrialResults.length,
+                prolificCompletionCode: prolificCode,
                 finalAverages: {
                     tappingFrequency: avgFastFreq,
                     tapsPerTenSeconds: avgTapsPerTenSec,
-                    performanceLevel: performanceLevel
+                    percentile: percentile
                 },
                 allTrialMetrics: allTrialResults.map((t, idx) => ({
                     trialNum: idx + 1,
@@ -1662,7 +1889,6 @@ button, input[type="submit"], .btn {
             .then(() => console.log("Final summary saved for", participantID))
             .catch(err => console.error("Error saving final summary:", err));
         }
-        // Add share results function
         // Social media share functions
         function shareResults() {
             const rightTrials = allTrialResults.filter(t => t.condition.hand === 'right');
