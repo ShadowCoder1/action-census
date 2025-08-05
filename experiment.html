@@ -710,34 +710,62 @@ button, input[type="submit"], .btn {
                     </div>
                 </div>
 
-                <!-- Optional Questions -->
-                <div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 1.5rem;">
-                    <h3 style="font-size: 1.3rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem;">Optional Questions</h3>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
-                        <div class="question-group">
-                            <label style="font-size: 1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Socioeconomic status:</label>
-                            <select name="ses" style="width: 100%; padding: 0.5rem; font-size: 1rem; border: 2px solid #e5e7eb; border-radius: 6px; background: white;">
-                                <option value="">Prefer not to answer</option>
-                                <option value="low">Lower income</option>
-                                <option value="lower-middle">Lower middle class</option>
-                                <option value="middle">Middle class</option>
-                                <option value="upper-middle">Upper middle class</option>
-                                <option value="high">Higher income</option>
-                            </select>
-                        </div>
+<!-- Demographics Questions -->
+<div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 1.5rem;">
+    <div style="background: rgba(59, 130, 246, 0.05); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; border-left: 3px solid #3b82f6;">
+        <p style="font-size: 0.95rem; color: #1a1a1a; margin: 0;"><strong>Why we ask:</strong> Understanding participants' income levels and geographic location helps us examine how economic factors may influence physical ability. Your response helps ensure our findings reflect the experiences of people from diverse financial and geographical backgrounds.</p>
+    </div>
+    
+    <div class="question-group" style="margin-bottom: 1.5rem;">
+        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">What is your total annual household income before taxes? (Please select the range that best represents your income.)</label>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
+                <input type="radio" name="income" value="less-than-20k" required style="margin-right: 0.75rem; transform: scale(1.2);">
+                "Less than $20,000"
+            </label>
+            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
+                <input type="radio" name="income" value="20k-39k" style="margin-right: 0.75rem; transform: scale(1.2);">
+                "$20,000 - $39,999"
+            </label>
+            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
+                <input type="radio" name="income" value="40k-59k" style="margin-right: 0.75rem; transform: scale(1.2);">
+                "$40,000 - $59,999"
+            </label>
+            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
+                <input type="radio" name="income" value="60k-79k" style="margin-right: 0.75rem; transform: scale(1.2);">
+                "$60,000 - $79,999"
+            </label>
+            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
+                <input type="radio" name="income" value="80k-99k" style="margin-right: 0.75rem; transform: scale(1.2);">
+                "$80,000 - $99,999"
+            </label>
+            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
+                <input type="radio" name="income" value="100k-149k" style="margin-right: 0.75rem; transform: scale(1.2);">
+                "$100,000 - $149,999"
+            </label>
+            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
+                <input type="radio" name="income" value="150k-plus" style="margin-right: 0.75rem; transform: scale(1.2);">
+                "$150,000 or more"
+            </label>
+            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
+                <input type="radio" name="income" value="prefer-not-to-answer" style="margin-right: 0.75rem; transform: scale(1.2);">
+                "Prefer not to answer"
+            </label>
+        </div>
+    </div>
 
-                        <div class="question-group">
-                            <label style="font-size: 1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Zip/Postal code:</label>
-                            <input type="text" name="zipcode" placeholder="Your zip code" style="width: 100%; padding: 0.5rem; font-size: 1rem; border: 2px solid #e5e7eb; border-radius: 6px;">
-                        </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
+        <div class="question-group">
+            <label style="font-size: 1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Zip/Postal code:</label>
+            <input type="text" name="zipcode" placeholder="Your zip code" required style="width: 100%; padding: 0.5rem; font-size: 1rem; border: 2px solid #e5e7eb; border-radius: 6px;">
+        </div>
 
-                        <div style="display: flex; align-items: end;">
-                            <button type="submit" style="background-color: #000000; color: white; border: none; padding: 0.75rem 2rem; font-size: 1.1rem; font-weight: 500; border-radius: 40px; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; width: 100%;">
-                                Continue to Results
-                            </button>
-                        </div>
-                    </div>
+        <div style="display: flex; align-items: end;">
+            <button type="submit" style="background-color: #000000; color: white; border: none; padding: 0.75rem 2rem; font-size: 1.1rem; font-weight: 500; border-radius: 40px; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; width: 100%;">
+                Continue to Results
+            </button>
+        </div>
+    </div>
 
                     <div class="question-group">
                         <label style="font-size: 1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Additional feedback or comments:</label>
