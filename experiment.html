@@ -881,8 +881,16 @@ button, input[type="submit"], .btn {
         const startWithLeft = Math.random() < 0.5;
         const trialConditions = startWithLeft ? [
             { hand: 'left' },
+            { hand: 'right' },
+            { hand: 'left' },
+            { hand: 'right' },
+            { hand: 'left' },
             { hand: 'right' }
         ] : [
+            { hand: 'right' },
+            { hand: 'left' },
+            { hand: 'right' },
+            { hand: 'left' },
             { hand: 'right' },
             { hand: 'left' }
         ];
