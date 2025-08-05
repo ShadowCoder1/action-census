@@ -1850,9 +1850,8 @@ button, input[type="submit"], .btn {
             const normSD = demographicNorms.sd;
             const zScore = (avgTapsPerTenSec - normMean) / normSD;
             const percentile = Math.round(Math.max(1, Math.min(99, (0.5 * (1 + erf(zScore / Math.sqrt(2)))) * 100)));
-            
             // Generate Prolific completion code
-            const prolificCode = generateProlificCode();
+            const prolificCode = "CXXRL3ML";
             
             function erf(x) {
                 const a1 =  0.254829592;
