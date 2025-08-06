@@ -940,33 +940,106 @@ button, input[type="submit"], .btn {
             document.getElementById('questionnaire-overlay').style.display = 'flex';
             
             // Handle form submission
-            document.getElementById('questionnaire-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const formData = new FormData(this);
-                const responses = {};
-                
-                for (let [key, value] of formData.entries()) {
-                    responses[key] = value;
-                }
-                
-                // Save questionnaire responses to database
-                const participantID = sessionStorage.getItem('prolificID') || 'anonymous';
-                db.collection("Results")
-                .doc(participantID)
-                .collection("Questionnaire")
-                .doc("Responses")
-                .set({
-                    ...responses,
-                    completedAt: new Date().toISOString()
-                })
-                .then(() => console.log("Questionnaire responses saved"))
-                .catch(err => console.error("Error saving questionnaire:", err));
-                
-                // Now show the results
-                document.getElementById('questionnaire-overlay').style.display = 'none';
-                showFinalResults();
-            });
+// Handle form submission
+document.getElementById('questionnaire-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const responses = {};
+    
+    // Collect all form data
+    for (let [key, value] of formData.entries()) {
+        responses[key] = value;
+    }
+    
+    // Log what we're about to save
+    console.log("📋 Questionnaire responses to save:", responses);
+    
+    // Validate that we have the expected fields
+    const expectedFields = [
+        'videogame', 'musical', 'sports', 'caffeine', 
+        'mood', 'motivated', 'distracted', 'performance',
+        'neurological', 'income', 'zipcode'
+    ];
+    
+    const missingFields = expectedFields.filter(field => !responses[field]);
+    if (missingFields.length > 0) {
+        console.warn("⚠️ Missing required fields:", missingFields);
+        alert(`Please complete all required fields: ${missingFields.join(', ')}`);
+        return;
+    }
+    
+    // Structure the data properly
+    const questionnaireData = {
+        // Experience ratings (1-7 scale)
+        experienceRatings: {
+            videogameExperience: parseInt(responses.videogame),
+            musicalExperience: parseInt(responses.musical),
+            sportsExperience: parseInt(responses.sports),
+            caffeineIntakeToday: parseInt(responses.caffeine)
+        },
+        
+        // Mood and performance ratings (1-7 scale)
+        moodPerformanceRatings: {
+            currentMood: parseInt(responses.mood),
+            taskMotivation: parseInt(responses.motivated),
+            taskDistraction: parseInt(responses.distracted),
+            expectedPerformanceVsOthers: parseInt(responses.performance)
+        },
+        
+        // Demographics and health
+        demographics: {
+            hasNeurologicalConditions: responses.neurological === 'yes',
+            householdIncome: responses.income,
+            zipCode: responses.zipcode
+        },
+        
+        // Optional feedback
+        feedback: responses.feedback || '',
+        
+        // Metadata
+        completedAt: new Date().toISOString(),
+        participantID: sessionStorage.getItem('prolificID') || 'anonymous'
+    };
+    
+    console.log("💾 Structured questionnaire data:", questionnaireData);
+    
+    // Save to MULTIPLE Firebase locations for redundancy
+    const participantID = sessionStorage.getItem('prolificID') || 'anonymous';
+    
+    // Location 1: Under Results collection (existing)
+    const savePromise1 = db.collection("Results")
+        .doc(participantID)
+        .collection("Questionnaire")
+        .doc("Responses")
+        .set(questionnaireData);
+    
+    // Location 2: Under main participant document for easy access
+    const savePromise2 = db.collection("Participants")
+        .doc(participantID)
+        .collection("Questionnaire")
+        .doc("Demographics")
+        .set(questionnaireData);
+        
+    // Location 3: Flat structure for easy querying
+    const savePromise3 = db.collection("QuestionnaireResponses")
+        .doc(participantID)
+        .set(questionnaireData);
+    
+    // Wait for all saves to complete
+    Promise.all([savePromise1, savePromise2, savePromise3])
+        .then(() => {
+            console.log("✅ Questionnaire data saved successfully to all locations");
+            
+            // Now show the results
+            document.getElementById('questionnaire-overlay').style.display = 'none';
+            showFinalResults();
+        })
+        .catch(err => {
+            console.error("❌ Error saving questionnaire data:", err);
+            alert("There was an error saving your responses. Please try again.");
+        });
+});
         }
 
         const SMOOTHING_WINDOW = 3;
