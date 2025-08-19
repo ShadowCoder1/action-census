@@ -849,10 +849,8 @@ button, input[type="submit"], .btn {
         let mainTimerInterval;
         
         // Hand detection tracking during recording
-        let totalRecordingTime = 0;
-        let timeWithoutHand = 0;
-        let lastHandDetectionTime = 0;
-        const MAX_ALLOWED_HAND_LOSS = 4000; // 4 seconds max without hand
+        let lastHandSeenTime = 0;
+        const MAX_ALLOWED_HAND_LOSS = 3000; // 3 seconds max without hand consecutively
         // Signal processing variables
         let distanceSignal = [];
         let timeSignal = [];
@@ -1274,16 +1272,16 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             
             canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
-            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-                handDetected = true;
-                const landmarks = results.multiHandLandmarks[0];
-                frameCount++;
-                
-                // Track hand detection during recording
-                if (recording) {
-                    lastHandDetectionTime = Date.now() - startTime;
-                }
-                
+                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                    handDetected = true;
+                    const landmarks = results.multiHandLandmarks[0];
+                    frameCount++;
+                    
+                    // Track hand detection during recording
+                    if (recording) {
+                        lastHandSeenTime = Date.now();
+                    }
+                    
                 // Hand position checking logic
                 if (!recording && (frameCount < 10 || frameCount % 10 === 0)) {
                     updateHandPositionFeedback(landmarks);
@@ -1312,16 +1310,10 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 // Simplified visualization for clean interface
                 drawHandVisualization(landmarks, canvasElement);
                 
-                } else {
+                }
+                else {
                     handDetected = false;
                     currentDetectedHand = null;
-                    
-                    // Track time without hand during recording
-                    if (recording) {
-                        const currentTime = Date.now() - startTime;
-                        timeWithoutHand += (currentTime - lastHandDetectionTime);
-                    }
-                    
                     updateHandPositionFeedback(null);
                 }
 
@@ -1653,9 +1645,11 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             document.getElementById('hand-guide-overlay').style.display = 'none';
             document.getElementById('hand-outline').style.display = 'none';
             
-            recording = true; 
-            timeWithoutHand = 0;
-            lastHandDetectionTime = 0;
+            recording = true;
+            
+            // Reset hand detection tracking
+            lastHandSeenTime = Date.now();
+            
             startTime = Date.now();
             distanceSignal = [];
             timeSignal = [];
@@ -1666,20 +1660,18 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             
             // Single timer update function to keep both timers in sync
             // Single timer update function to keep both timers in sync
-            mainTimerInterval = setInterval(() => {
-                const currentTime = Date.now() - startTime;
-                const remaining = Math.max(0, (recordingDuration - currentTime) / 1000);
-                
-                // Check hand detection consistency
-                if (!handDetected) {
-                    timeWithoutHand += 100; // Add 100ms since that's our interval
-                }
-                
-                // If hand has been missing too long, restart trial
-                if (timeWithoutHand > MAX_ALLOWED_HAND_LOSS) {
-                    restartTrialDueToHandLoss();
-                    return;
-                }
+                mainTimerInterval = setInterval(() => {
+                    const currentTime = Date.now() - startTime;
+                    const remaining = Math.max(0, (recordingDuration - currentTime) / 1000);
+                    
+                    // Check if hand has been missing for too long consecutively
+                    if (!handDetected && lastHandSeenTime > 0) {
+                        const timeSinceLastSeen = Date.now() - lastHandSeenTime;
+                        if (timeSinceLastSeen > MAX_ALLOWED_HAND_LOSS) {
+                            restartTrialDueToHandLoss();
+                            return;
+                        }
+                    }
                 
                 // Update display
                 const minutes = Math.floor(remaining / 60);
@@ -1773,8 +1765,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             recording = false;
             clearInterval(mainTimerInterval);
             
-            // Reset tracking variables
-            timeWithoutHand = 0;
+            // Reset tracking variab
             lastHandDetectionTime = 0;
             
             // Reset UI
