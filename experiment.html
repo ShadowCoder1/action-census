@@ -849,8 +849,11 @@ button, input[type="submit"], .btn {
         let mainTimerInterval;
         
         // Hand detection tracking during recording
+        // Hand detection tracking during recording
         let lastHandSeenTime = 0;
+        let lastTapTime = 0;
         const MAX_ALLOWED_HAND_LOSS = 3000; // 3 seconds max without hand consecutively
+        const MAX_ALLOWED_NO_TAPS = 5000; // 5 seconds max without tapping
         // Signal processing variables
         let distanceSignal = [];
         let timeSignal = [];
@@ -1575,6 +1578,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 if (!reopened) continue;
 
                 tapEvents.push(ev);
+                lastTapTime = Date.now() - startTime; // Track when last tap occurred
             }
         }
 
@@ -1649,6 +1653,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             
             // Reset hand detection tracking
             lastHandSeenTime = Date.now();
+            lastTapTime = 0; //
             
             startTime = Date.now();
             distanceSignal = [];
@@ -1660,31 +1665,40 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             
             // Single timer update function to keep both timers in sync
             // Single timer update function to keep both timers in sync
-                mainTimerInterval = setInterval(() => {
-                    const currentTime = Date.now() - startTime;
-                    const remaining = Math.max(0, (recordingDuration - currentTime) / 1000);
-                    
-                    // Check if hand has been missing for too long consecutively
-                    if (!handDetected && lastHandSeenTime > 0) {
-                        const timeSinceLastSeen = Date.now() - lastHandSeenTime;
-                        if (timeSinceLastSeen > MAX_ALLOWED_HAND_LOSS) {
-                            restartTrialDueToHandLoss();
-                            return;
-                        }
-                    }
-                
-                // Update display
-                const minutes = Math.floor(remaining / 60);
-                const seconds = Math.floor(remaining % 60);
-                const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                document.getElementById('timer-display').textContent = timerText;
-                document.getElementById('taps-display').textContent = `${tapEvents.length}`;
-                
-                // Stop immediately when timer hits 0
-                if (seconds === 0 && minutes === 0) {
-                    stopRecording();
+      mainTimerInterval = setInterval(() => {
+            const currentTime = Date.now() - startTime;
+            const remaining = Math.max(0, (recordingDuration - currentTime) / 1000);
+            
+            // Check if hand has been missing for too long consecutively
+            if (!handDetected && lastHandSeenTime > 0) {
+                const timeSinceLastSeen = Date.now() - lastHandSeenTime;
+                if (timeSinceLastSeen > MAX_ALLOWED_HAND_LOSS) {
+                    restartTrialDueToHandLoss();
+                    return;
                 }
-            }, 100);
+            }
+            
+            // Check if user hasn't been tapping for too long
+            if (currentTime > 2000) { // Only check after first 2 seconds to give them time to start
+                const timeSinceLastTap = currentTime - lastTapTime;
+                if (timeSinceLastTap > MAX_ALLOWED_NO_TAPS) {
+                    restartTrialDueToInactivity();
+                    return;
+                }
+            }
+            
+            // Update display
+            const minutes = Math.floor(remaining / 60);
+            const seconds = Math.floor(remaining % 60);
+            const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('timer-display').textContent = timerText;
+            document.getElementById('taps-display').textContent = `${tapEvents.length}`;
+            
+            // Stop immediately when timer hits 0
+            if (seconds === 0 && minutes === 0) {
+                stopRecording();
+            }
+        }, 100);
             // Backup timeout to ensure recording stops at exactly 20 seconds
             setTimeout(() => {
                 if (recording) {
@@ -1798,6 +1812,45 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             positionStatus.className = 'position-status';
         }
 
+        function restartTrialDueToInactivity() {
+            if (!recording) return;
+            
+            recording = false;
+            clearInterval(mainTimerInterval);
+            
+            // Reset tracking variables
+            lastHandSeenTime = 0;
+            lastTapTime = 0;
+            
+            // Reset UI
+            document.getElementById('hand-guide-overlay').style.display = 'block';
+            document.getElementById('hand-outline').style.display = 'block';
+            document.getElementById('tapWidthFeedback').style.display = 'none';
+            document.getElementById('countdown').style.display = 'none';
+            
+            // Show restart message
+            const overlay = document.getElementById('trial-instructions-overlay');
+            const instructionText = document.getElementById('trial-instructions-text');
+            
+            instructionText.innerHTML = `
+                <div style="color: #f59e0b; font-size: 2.8rem; margin-bottom: 1rem;">Trial Paused</div>
+                <div style="color: #1a1a1a; font-size: 1.8rem; font-weight: 400;">Please continue tapping throughout the test</div>
+            `;
+            
+            document.querySelector('.trial-overlay-instruction').innerHTML = 
+                'Keep tapping your <strong>thumb and index finger</strong> consistently';
+            
+            overlay.style.display = 'flex';
+            
+            // Reset displays
+            document.getElementById('timer-display').textContent = '00:15';
+            document.getElementById('taps-display').textContent = '0';
+            
+            // Reset position status
+            const positionStatus = document.getElementById('position-status');
+            positionStatus.textContent = 'Position hand in view';
+            positionStatus.className = 'position-status';
+        }
         // Calculate clinical assessment (keeping original)
         function calculateClinicalAssessment() {
             const tapCount = tapEvents.length;
