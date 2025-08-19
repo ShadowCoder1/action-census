@@ -847,7 +847,12 @@ button, input[type="submit"], .btn {
         let countdownInterval;
         let frameCount = 0;
         let mainTimerInterval;
-
+        
+        // Hand detection tracking during recording
+        let totalRecordingTime = 0;
+        let timeWithoutHand = 0;
+        let lastHandDetectionTime = 0;
+        const MAX_ALLOWED_HAND_LOSS = 4000; // 4 seconds max without hand
         // Signal processing variables
         let distanceSignal = [];
         let timeSignal = [];
@@ -1274,11 +1279,15 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 const landmarks = results.multiHandLandmarks[0];
                 frameCount++;
                 
+                // Track hand detection during recording
+                if (recording) {
+                    lastHandDetectionTime = Date.now() - startTime;
+                }
+                
                 // Hand position checking logic
                 if (!recording && (frameCount < 10 || frameCount % 10 === 0)) {
                     updateHandPositionFeedback(landmarks);
                 }
-
                 if (results.multiHandedness && results.multiHandedness.length > 0) {
                     let rawLabel = results.multiHandedness[0].label;
                     currentDetectedHand = (rawLabel === "Right") ? "Left" : "Right";
@@ -1303,11 +1312,18 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 // Simplified visualization for clean interface
                 drawHandVisualization(landmarks, canvasElement);
                 
-            } else {
-                handDetected = false;
-                currentDetectedHand = null;
-                updateHandPositionFeedback(null);
-            }
+                } else {
+                    handDetected = false;
+                    currentDetectedHand = null;
+                    
+                    // Track time without hand during recording
+                    if (recording) {
+                        const currentTime = Date.now() - startTime;
+                        timeWithoutHand += (currentTime - lastHandDetectionTime);
+                    }
+                    
+                    updateHandPositionFeedback(null);
+                }
 
             canvasCtx.restore();
         }
@@ -1638,6 +1654,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             document.getElementById('hand-outline').style.display = 'none';
             
             recording = true; 
+            timeWithoutHand = 0;
+            lastHandDetectionTime = 0;
             startTime = Date.now();
             distanceSignal = [];
             timeSignal = [];
@@ -1647,9 +1665,21 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             frameCount = 0;
             
             // Single timer update function to keep both timers in sync
+            // Single timer update function to keep both timers in sync
             mainTimerInterval = setInterval(() => {
                 const currentTime = Date.now() - startTime;
                 const remaining = Math.max(0, (recordingDuration - currentTime) / 1000);
+                
+                // Check hand detection consistency
+                if (!handDetected) {
+                    timeWithoutHand += 100; // Add 100ms since that's our interval
+                }
+                
+                // If hand has been missing too long, restart trial
+                if (timeWithoutHand > MAX_ALLOWED_HAND_LOSS) {
+                    restartTrialDueToHandLoss();
+                    return;
+                }
                 
                 // Update display
                 const minutes = Math.floor(remaining / 60);
@@ -1663,7 +1693,6 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     stopRecording();
                 }
             }, 100);
-
             // Backup timeout to ensure recording stops at exactly 20 seconds
             setTimeout(() => {
                 if (recording) {
@@ -1697,7 +1726,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const result = calculateClinicalAssessment();
             const trialDocName = `trial_${trialIndex + 1}`;
 
-            const rawFrames = frameData.slice(0, 500).map(f => ({
+            const rawFrames = frameData.map(f => ({
                 t: f.timestamp,
                 normDist: f.normalizedDistance,
                 angle: f.thumbIndexAngle,
@@ -1736,6 +1765,46 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             } else {
                 analyzeAllTrials();
             }
+        }
+
+        function restartTrialDueToHandLoss() {
+            if (!recording) return;
+            
+            recording = false;
+            clearInterval(mainTimerInterval);
+            
+            // Reset tracking variables
+            timeWithoutHand = 0;
+            lastHandDetectionTime = 0;
+            
+            // Reset UI
+            document.getElementById('hand-guide-overlay').style.display = 'block';
+            document.getElementById('hand-outline').style.display = 'block';
+            document.getElementById('tapWidthFeedback').style.display = 'none';
+            document.getElementById('countdown').style.display = 'none';
+            
+            // Show restart message
+            const overlay = document.getElementById('trial-instructions-overlay');
+            const instructionText = document.getElementById('trial-instructions-text');
+            
+            instructionText.innerHTML = `
+                <div style="color: #ef4444; font-size: 2.8rem; margin-bottom: 1rem;">Trial Paused</div>
+                <div style="color: #1a1a1a; font-size: 1.8rem; font-weight: 400;">Your hand was not consistently visible to the camera</div>
+            `;
+            
+            document.querySelector('.trial-overlay-instruction').innerHTML = 
+                'Please keep your hand <strong>clearly visible</strong> throughout the test';
+            
+            overlay.style.display = 'flex';
+            
+            // Reset displays
+            document.getElementById('timer-display').textContent = '00:15';
+            document.getElementById('taps-display').textContent = '0';
+            
+            // Reset position status
+            const positionStatus = document.getElementById('position-status');
+            positionStatus.textContent = 'Position hand in view';
+            positionStatus.className = 'position-status';
         }
 
         // Calculate clinical assessment (keeping original)
