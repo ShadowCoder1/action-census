@@ -851,7 +851,7 @@ button, input[type="submit"], .btn {
         // Hand detection tracking during recording
         // Hand detection tracking during recording
         let lastHandSeenTime = 0;
-        let lastTapTime = 0;
+   
         const MAX_ALLOWED_HAND_LOSS = 3000; // 3 seconds max without hand consecutively
         const MAX_ALLOWED_NO_TAPS = 5000; // 5 seconds max without tapping
         // Signal processing variables
@@ -1578,7 +1578,6 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 if (!reopened) continue;
 
                 tapEvents.push(ev);
-                lastTapTime = Date.now() - startTime; // Track when last tap occurred
             }
         }
 
@@ -1664,42 +1663,56 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             frameCount = 0;
             
             // Single timer update function to keep both timers in sync
-            // Single timer update function to keep both timers in sync
-      mainTimerInterval = setInterval(() => {
-            const currentTime = Date.now() - startTime;
-            const remaining = Math.max(0, (recordingDuration - currentTime) / 1000);
-            
-            // Check if hand has been missing for too long consecutively
-            if (!handDetected && lastHandSeenTime > 0) {
-                const timeSinceLastSeen = Date.now() - lastHandSeenTime;
-                if (timeSinceLastSeen > MAX_ALLOWED_HAND_LOSS) {
-                    restartTrialDueToHandLoss();
+                        // Single timer update function to keep both timers in sync
+            mainTimerInterval = setInterval(() => {
+                const currentTime = Date.now() - startTime;
+                const remaining = Math.max(0, (recordingDuration - currentTime) / 1000);
+                
+                // Check if hand has been missing for too long consecutively
+                if (!handDetected && lastHandSeenTime > 0) {
+                    const timeSinceLastSeen = Date.now() - lastHandSeenTime;
+                    if (timeSinceLastSeen > MAX_ALLOWED_HAND_LOSS) {
+                        restartTrialDueToHandLoss();
+                        return;
+                    }
+                }
+                
+                // Update display
+                const minutes = Math.floor(remaining / 60);
+                const seconds = Math.floor(remaining % 60);
+                const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('timer-display').textContent = timerText;
+                document.getElementById('taps-display').textContent = `${tapEvents.length}`;
+                
+                // Stop immediately when timer hits 0
+                if (seconds === 0 && minutes === 0) {
+                    stopRecording();
+                }
+            }, 100);
+
+            // Separate inactivity checker
+            let inactivityChecker = setInterval(() => {
+                if (!recording) {
+                    clearInterval(inactivityChecker);
                     return;
                 }
-            }
-            
-            // Check if user hasn't been tapping for too long
-            if (currentTime > 2000) { // Only check after first 2 seconds to give them time to start
-                const timeSinceLastTap = currentTime - lastTapTime;
-                if (timeSinceLastTap > MAX_ALLOWED_NO_TAPS) {
-                    restartTrialDueToInactivity();
-                    return;
+                
+                const currentTime = Date.now() - startTime;
+                
+                // Only check after first 2 seconds and if we have taps to compare against
+                if (currentTime > 2000 && tapEvents.length > 0) {
+                    const lastTapTimestamp = tapEvents[tapEvents.length - 1].time;
+                    const timeSinceLastTap = currentTime - lastTapTimestamp;
+                    
+                    if (timeSinceLastTap > MAX_ALLOWED_NO_TAPS) {
+                        clearInterval(inactivityChecker);
+                        restartTrialDueToInactivity();
+                        return;
+                    }
                 }
-            }
+            }, 500); // Check every 500ms
             
-            // Update display
-            const minutes = Math.floor(remaining / 60);
-            const seconds = Math.floor(remaining % 60);
-            const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            document.getElementById('timer-display').textContent = timerText;
-            document.getElementById('taps-display').textContent = `${tapEvents.length}`;
-            
-            // Stop immediately when timer hits 0
-            if (seconds === 0 && minutes === 0) {
-                stopRecording();
-            }
-        }, 100);
-            // Backup timeout to ensure recording stops at exactly 20 seconds
+            // Backup timeout to ensure recording stops at exactly 15 seconds
             setTimeout(() => {
                 if (recording) {
                     stopRecording();
