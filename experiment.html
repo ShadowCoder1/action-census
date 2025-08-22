@@ -1694,8 +1694,9 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 document.getElementById('timer-display').textContent = timerText;
                 document.getElementById('taps-display').textContent = `${tapEvents.length}`;
                 
-                // Stop immediately when timer hits 0
+// Stop immediately when timer hits 0
                 if (seconds === 0 && minutes === 0) {
+                    console.log("⏰ Timer ended - calling stopRecording with", tapEvents.length, "taps");
                     stopRecording();
                 }
             }, 100);
@@ -1721,8 +1722,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 if (tapEvents.length > 0) {
                     const lastTapTimestamp = tapEvents[tapEvents.length - 1].time;
                     const timeSinceLastTap = currentTime - lastTapTimestamp;
-                    
                     if (timeSinceLastTap > MAX_ALLOWED_NO_TAPS) {
+                        console.log("💤 Inactivity detected - calling restart");
                         clearInterval(inactivityChecker);
                         restartTrialDueToInactivity();
                         return;
