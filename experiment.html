@@ -1700,6 +1700,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             }, 100);
 
             // Separate inactivity checker
+             // Separate inactivity checker
             let inactivityChecker = setInterval(() => {
                 if (!recording) {
                     clearInterval(inactivityChecker);
@@ -1708,8 +1709,15 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 
                 const currentTime = Date.now() - startTime;
                 
-                // Only check after first 2 seconds and if we have taps to compare against
-                if (currentTime > 2000 && tapEvents.length > 0) {
+                // Check for no taps after 5 seconds
+                if (currentTime > MAX_ALLOWED_NO_TAPS && tapEvents.length === 0) {
+                    clearInterval(inactivityChecker);
+                    restartTrialDueToInactivity();
+                    return;
+                }
+                
+                // Check for gap between taps if we have at least one tap
+                if (tapEvents.length > 0) {
                     const lastTapTimestamp = tapEvents[tapEvents.length - 1].time;
                     const timeSinceLastTap = currentTime - lastTapTimestamp;
                     
@@ -1720,6 +1728,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     }
                 }
             }, 500); // Check every 500ms
+            
             
             // Backup timeout to ensure recording stops at exactly 15 seconds
             setTimeout(() => {
