@@ -1280,11 +1280,11 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     const landmarks = results.multiHandLandmarks[0];
                     frameCount++;
                     
-                    // Track hand detection during recording
+// Track hand detection during recording
                     if (recording) {
                         lastHandSeenTime = Date.now();
                     }
-                    
+                                        
                 // Hand position checking logic
                 if (!recording && (frameCount < 10 || frameCount % 10 === 0)) {
                     updateHandPositionFeedback(landmarks);
@@ -1650,9 +1650,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             
             recording = true;
             
-            // Reset hand detection tracking
-            lastHandSeenTime = Date.now();
-            lastTapTime = 0; //
+            lastHandSeenTime = 0;
+            lastTapTime = 0;
             
             startTime = Date.now();
             distanceSignal = [];
@@ -1669,11 +1668,21 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 const remaining = Math.max(0, (recordingDuration - currentTime) / 1000);
                 
                 // Check if hand has been missing for too long consecutively
-                if (!handDetected && lastHandSeenTime > 0) {
-                    const timeSinceLastSeen = Date.now() - lastHandSeenTime;
-                    if (timeSinceLastSeen > MAX_ALLOWED_HAND_LOSS) {
-                        restartTrialDueToHandLoss();
-                        return;
+                if (!handDetected) {
+                    if (lastHandSeenTime === 0) {
+                        // Hand was never detected since recording started - give 3 seconds grace period
+                        const timeSinceRecordingStart = Date.now() - startTime;
+                        if (timeSinceRecordingStart > MAX_ALLOWED_HAND_LOSS) {
+                            restartTrialDueToHandLoss();
+                            return;
+                        }
+                    } else {
+                        // Hand was detected before but now missing
+                        const timeSinceLastSeen = Date.now() - lastHandSeenTime;
+                        if (timeSinceLastSeen > MAX_ALLOWED_HAND_LOSS) {
+                            restartTrialDueToHandLoss();
+                            return;
+                        }
                     }
                 }
                 
