@@ -1056,6 +1056,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         const HAND_TOO_FAR_THRESHOLD = 0.28; // Scaled up proportionally (0.2 * 1.4)
         const HAND_TOO_CLOSE_THRESHOLD = 0.84; // Scaled up proportionally (0.6 * 1.4)
         const VELOCITY_THRESHOLD_PERCENTILE = 70;
+        const MIN_REQUIRED_TAPS = 25; // Minimum taps required to avoid restart
 
         // Hand landmarks indices
         const WRIST = 0;
@@ -1759,6 +1760,12 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             positionStatus.textContent = 'Analyzing results...';
             positionStatus.className = 'position-status warning';
 
+            // Check if minimum taps were achieved
+            if (tapEvents.length < MIN_REQUIRED_TAPS) {
+                showInsufficientTapsRestart();
+                return;
+            }
+            
             // Process results immediately without delay
             const result = calculateClinicalAssessment();
             const trialDocName = `trial_${trialIndex + 1}`;
@@ -1999,6 +2006,43 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             };
         }
 
+
+        function showInsufficientTapsRestart() {
+            recording = false;
+            clearInterval(mainTimerInterval);
+            
+            // Reset UI
+            document.getElementById('hand-guide-overlay').style.display = 'block';
+            document.getElementById('hand-outline').style.display = 'block';
+            document.getElementById('tapWidthFeedback').style.display = 'none';
+            document.getElementById('countdown').style.display = 'none';
+            
+            // Show restart message
+            const overlay = document.getElementById('trial-instructions-overlay');
+            const instructionText = document.getElementById('trial-instructions-text');
+            
+            instructionText.innerHTML = `
+                <div style="color: #f59e0b; font-size: 2.8rem; margin-bottom: 1rem;">Too Few Taps</div>
+                <div style="color: #1a1a1a; font-size: 1.8rem; font-weight: 400;">Only ${tapEvents.length} taps detected (minimum: ${MIN_REQUIRED_TAPS})</div>
+            `;
+            
+            document.querySelector('.trial-overlay-instruction').innerHTML = 
+                'Please tap your <strong>thumb and index finger</strong> continuously and rapidly';
+            
+            overlay.style.display = 'flex';
+            
+            // Reset displays
+            document.getElementById('timer-display').textContent = '00:15';
+            document.getElementById('taps-display').textContent = '0';
+            
+            // Reset position status
+            const positionStatus = document.getElementById('position-status');
+            positionStatus.textContent = 'Position hand in view';
+            positionStatus.className = 'position-status';
+        }
+
+
+        
         function updateConditionUI() {
             const trialNum = trialIndex + 1;
             const condition = trialConditions[trialIndex % trialConditions.length];
