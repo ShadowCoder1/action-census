@@ -629,7 +629,7 @@ button, input[type="submit"], .btn {
                 <!-- Dynamically filled -->
             </div>
             <div class="trial-overlay-instruction">
-                Start with fingers <strong>wide open</strong>
+                Please tap as <strong>FAST</strong> as you can!
             </div>
             <p class="trial-overlay-footer">Press SPACEBAR to begin</p>
         </div>
@@ -796,9 +796,9 @@ button, input[type="submit"], .btn {
                     <div class="hand-instruction" id="hand-instruction">Right Hand</div>
                 </div>
                 
-                <!-- Instructions Section -->
                 <div class="instructions">
                     <h3>Guidelines</h3>
+                    <div class="instruction-item">Tap as fast as you can</div>
                     <div class="instruction-item">Fingers wide open</div>
                     <div class="instruction-item">Palm facing camera</div>
                     <div class="instruction-item">Large, clear taps</div>
@@ -1365,7 +1365,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 handOutline.classList.remove('hand-outline-ready');
                 handOutline.classList.add('hand-outline-not-ready');
             } else if (goodDistance && fingersOpen) {
-                positionStatus.textContent = '✓ Ready - Press SPACE';
+                positionStatus.textContent = '✓ Press SPACE when ready, then tap as FAST as you can';
                 positionStatus.className = 'position-status ready';
                 handOutline.classList.remove('hand-outline-not-ready');
                 handOutline.classList.add('hand-outline-ready');
