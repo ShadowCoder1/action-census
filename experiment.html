@@ -855,6 +855,7 @@ button, input[type="submit"], .btn {
         const MAX_ALLOWED_HAND_LOSS = 3000; // 3 seconds max without hand consecutively
         const MAX_ALLOWED_NO_TAPS = 5000; // 5 seconds max without tapping
         // Signal processing variables
+        const MIN_REQUIRED_TAPS = 25; // Minimum taps required for valid trial
         let distanceSignal = [];
         let timeSignal = [];
         let smoothedSignal = [];
@@ -1777,6 +1778,14 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 console.log("✅ Sufficient taps:", tapEvents.length, ">= minimum:", MIN_REQUIRED_TAPS);
             }
             // Process results immediately without delay
+
+            // Check if enough taps were performed
+            if (tapEvents.length < MIN_REQUIRED_TAPS) {
+                restartTrialDueToFewTaps();
+                return;
+            }
+            
+            // Process results immediately without delay
             const result = calculateClinicalAssessment();
             const trialDocName = `trial_${trialIndex + 1}`;
 
@@ -1819,6 +1828,44 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             } else {
                 analyzeAllTrials();
             }
+        }
+        function restartTrialDueToFewTaps() {
+            if (!recording) return;
+            
+            recording = false;
+            clearInterval(mainTimerInterval);
+            
+            // Reset tracking variables
+            lastHandSeenTime = 0;
+            
+            // Reset UI
+            document.getElementById('hand-guide-overlay').style.display = 'block';
+            document.getElementById('hand-outline').style.display = 'block';
+            document.getElementById('tapWidthFeedback').style.display = 'none';
+            document.getElementById('countdown').style.display = 'none';
+            
+            // Show restart message
+            const overlay = document.getElementById('trial-instructions-overlay');
+            const instructionText = document.getElementById('trial-instructions-text');
+            
+            instructionText.innerHTML = `
+                <div style="color: #f59e0b; font-size: 2.8rem; margin-bottom: 1rem;">Trial Paused</div>
+                <div style="color: #1a1a1a; font-size: 1.8rem; font-weight: 400;">Please tap faster during the test</div>
+            `;
+            
+            document.querySelector('.trial-overlay-instruction').innerHTML = 
+                'Tap as <strong>FAST</strong> as you can throughout the entire test';
+            
+            overlay.style.display = 'flex';
+            
+            // Reset displays
+            document.getElementById('timer-display').textContent = '00:15';
+            document.getElementById('taps-display').textContent = '0';
+            
+            // Reset position status
+            const positionStatus = document.getElementById('position-status');
+            positionStatus.textContent = 'Position hand in view';
+            positionStatus.className = 'position-status';
         }
 
         function restartTrialDueToHandLoss() {
