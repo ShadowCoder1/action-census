@@ -1741,8 +1741,13 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         }
 
         function stopRecording() {
-            if (!recording) return; // Prevent multiple calls
+                if (!recording) return; // Prevent multiple calls
+    
+                console.log("🛑 stopRecording() called with", tapEvents.length, "taps");
+                
+                recording = false; // Set this immediately to prevent race conditions
             
+                        
             recording = false;
             
             clearInterval(mainTimerInterval);
@@ -1763,14 +1768,14 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
 
             // Check if minimum taps were achieved
             // Only check minimum taps if the trial completed naturally (15 seconds elapsed)
-            const currentTime = Date.now() - startTime;
-            const trialCompletedNaturally = currentTime >= (recordingDuration - 500); // Within 500ms of end
-            
-            if (trialCompletedNaturally && tapEvents.length < MIN_REQUIRED_TAPS) {
+// Always check minimum taps when trial ends, regardless of how it ended
+            if (tapEvents.length < MIN_REQUIRED_TAPS) {
+                console.log("❌ Too few taps:", tapEvents.length, "< minimum:", MIN_REQUIRED_TAPS);
                 showInsufficientTapsRestart();
                 return;
+            } else {
+                console.log("✅ Sufficient taps:", tapEvents.length, ">= minimum:", MIN_REQUIRED_TAPS);
             }
-                        
             // Process results immediately without delay
             const result = calculateClinicalAssessment();
             const trialDocName = `trial_${trialIndex + 1}`;
