@@ -1762,11 +1762,15 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             positionStatus.className = 'position-status warning';
 
             // Check if minimum taps were achieved
-            if (tapEvents.length < MIN_REQUIRED_TAPS) {
+            // Only check minimum taps if the trial completed naturally (15 seconds elapsed)
+            const currentTime = Date.now() - startTime;
+            const trialCompletedNaturally = currentTime >= (recordingDuration - 500); // Within 500ms of end
+            
+            if (trialCompletedNaturally && tapEvents.length < MIN_REQUIRED_TAPS) {
                 showInsufficientTapsRestart();
                 return;
             }
-            
+                        
             // Process results immediately without delay
             const result = calculateClinicalAssessment();
             const trialDocName = `trial_${trialIndex + 1}`;
