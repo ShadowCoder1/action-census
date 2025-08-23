@@ -1652,45 +1652,102 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             }, 1000);
         }
 
-    function startActualRecording() {
-    document.getElementById('hand-guide-overlay').style.display = 'none';
-    document.getElementById('hand-outline').style.display = 'none';
+        // Start actual recording
+        function startActualRecording() {
+            document.getElementById('hand-guide-overlay').style.display = 'none';
+            document.getElementById('hand-outline').style.display = 'none';
+            
+            recording = true;
+            
+            lastHandSeenTime = 0;
+            lastTapTime = 0;
+            
+            startTime = Date.now();
+            distanceSignal = [];
+            timeSignal = [];
+            smoothedSignal = [];
+            velocitySignal = [];
+            tapEvents = [];
+            frameCount = 0;
+            
+            // Single timer update function to keep both timers in sync
+                        // Single timer update function to keep both timers in sync
+            mainTimerInterval = setInterval(() => {
+                const currentTime = Date.now() - startTime;
+                const remaining = Math.max(0, (recordingDuration - currentTime) / 1000);
+                
+                // Check if hand has been missing for too long consecutively
+                if (!handDetected) {
+                    if (lastHandSeenTime === 0) {
+                        // Hand was never detected since recording started - give 3 seconds grace period
+                        const timeSinceRecordingStart = Date.now() - startTime;
+                        if (timeSinceRecordingStart > MAX_ALLOWED_HAND_LOSS) {
+                            restartTrialDueToHandLoss();
+                            return;
+                        }
+                    } else {
+                        // Hand was detected before but now missing
+                        const timeSinceLastSeen = Date.now() - lastHandSeenTime;
+                        if (timeSinceLastSeen > MAX_ALLOWED_HAND_LOSS) {
+                            restartTrialDueToHandLoss();
+                            return;
+                        }
+                    }
+                }
+                
+                // Update display
+                const minutes = Math.floor(remaining / 60);
+                const seconds = Math.floor(remaining % 60);
+                const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('timer-display').textContent = timerText;
+                document.getElementById('taps-display').textContent = `${tapEvents.length}`;
+                
+// Stop immediately when timer hits 0
+   // Stop when actual elapsed time reaches or exceeds duration
+                if (currentTime >= recordingDuration) {
+                    console.log("⏰ Timer ended - calling stopRecording with", tapEvents.length, "taps");
+                    stopRecording();
+                }
+            }, 100);
 
-    recording = true;
-    lastHandSeenTime = 0;
-    lastTapTime = 0;
-    startTime = Date.now();
-
-    distanceSignal = [];
-    timeSignal = [];
-    smoothedSignal = [];
-    velocitySignal = [];
-    tapEvents = [];
-    frameCount = 0;
-
-    // --- FIX: set timer to full 15s immediately ---
-    document.getElementById('timer-display').textContent = '00:15';
-
-    mainTimerInterval = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        let remaining = Math.ceil((recordingDuration - elapsed) / 1000);
-
-        // Prevent showing negative or freezing at 0
-        if (remaining < 0) remaining = 0;
-
-        const minutes = Math.floor(remaining / 60);
-        const seconds = remaining % 60;
-        const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        document.getElementById('timer-display').textContent = timerText;
-        document.getElementById('taps-display').textContent = `${tapEvents.length}`;
-
-        if (elapsed >= recordingDuration) {
-            console.log("⏰ Timer ended - calling stopRecording");
-            stopRecording();
+            // Separate inactivity checker
+             // Separate inactivity checker
+            let inactivityChecker = setInterval(() => {
+                if (!recording) {
+                    clearInterval(inactivityChecker);
+                    return;
+                }
+                
+                const currentTime = Date.now() - startTime;
+                
+                // Check for no taps after 5 seconds
+                if (currentTime > MAX_ALLOWED_NO_TAPS && tapEvents.length === 0) {
+                    clearInterval(inactivityChecker);
+                    restartTrialDueToInactivity();
+                    return;
+                }
+                
+                // Check for gap between taps if we have at least one tap
+                if (tapEvents.length > 0) {
+                    const lastTapTimestamp = tapEvents[tapEvents.length - 1].time;
+                    const timeSinceLastTap = currentTime - lastTapTimestamp;
+                    if (timeSinceLastTap > MAX_ALLOWED_NO_TAPS) {
+                        console.log("💤 Inactivity detected - calling restart");
+                        clearInterval(inactivityChecker);
+                        restartTrialDueToInactivity();
+                        return;
+                    }
+                }
+            }, 500); // Check every 500ms
+            
+            
+            // Backup timeout to ensure recording stops at exactly 15 seconds
+            setTimeout(() => {
+                if (recording) {
+                    stopRecording();
+                }
+            }, recordingDuration);
         }
-    }, 250); // check 4x per second for smoother accuracy
-}
-
 
 // Replace your existing stopRecording function with this fixed version
 function stopRecording() {
