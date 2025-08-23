@@ -1703,7 +1703,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 document.getElementById('taps-display').textContent = `${tapEvents.length}`;
                 
 // Stop immediately when timer hits 0
-                if (seconds === 0 && minutes === 0) {
+   // Stop when actual elapsed time reaches or exceeds duration
+                if (currentTime >= recordingDuration) {
                     console.log("⏰ Timer ended - calling stopRecording with", tapEvents.length, "taps");
                     stopRecording();
                 }
