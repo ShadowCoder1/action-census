@@ -629,7 +629,7 @@ button, input[type="submit"], .btn {
                 <!-- Dynamically filled -->
             </div>
             <div class="trial-overlay-instruction">
-                Please tap as <strong>FAST</strong> as you can!
+                Please tap as <strong style="color: #ef4444;">FAST</strong> as you can!
             </div>
             <p class="trial-overlay-footer">Press SPACEBAR to begin</p>
         </div>
@@ -798,7 +798,7 @@ button, input[type="submit"], .btn {
                 
                 <div class="instructions">
                     <h3>Guidelines</h3>
-                    <div class="instruction-item">Tap as fast as you can</div>
+                    <div class="instruction-item" style="font-weight: 600; color: #ef4444;">Tap as FAST as you can!</div>
                     <div class="instruction-item">Fingers wide open</div>
                     <div class="instruction-item">Palm facing camera</div>
                     <div class="instruction-item">Large, clear taps</div>
@@ -1365,7 +1365,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 handOutline.classList.remove('hand-outline-ready');
                 handOutline.classList.add('hand-outline-not-ready');
             } else if (goodDistance && fingersOpen) {
-                positionStatus.textContent = '✓ Press SPACE when ready, then tap as FAST as you can';
+                positionStatus.textContent = '✓ Press SPACE when ready, then tap as FAST as you can!';
                 positionStatus.className = 'position-status ready';
                 handOutline.classList.remove('hand-outline-not-ready');
                 handOutline.classList.add('hand-outline-ready');
@@ -1841,10 +1841,10 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const instructionText = document.getElementById('trial-instructions-text');
             
             instructionText.innerHTML = `
-                <div style="color: #ef4444; font-size: 2.8rem; margin-bottom: 1rem;">Trial Paused</div>
-                <div style="color: #1a1a1a; font-size: 1.8rem; font-weight: 400;">Your hand was not consistently visible to the camera</div>
+                <div style="color: #f59e0b; font-size: 2.8rem; margin-bottom: 1rem;">Too Few Taps</div>
+                <div style="color: #1a1a1a; font-size: 1.8rem; font-weight: 400;">Please tap more frequently during the test</div>
             `;
-            
+                        
             document.querySelector('.trial-overlay-instruction').innerHTML = 
                 'Please keep your hand <strong>clearly visible</strong> throughout the test';
             
