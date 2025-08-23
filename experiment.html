@@ -2459,12 +2459,39 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             }
         });
 
-        window.onload = function() {
+        // Show page immediately, then try to initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, showing page...');
             document.getElementById('page-webcam').style.display = 'block';
-            initializeHands();
-            initializeCamera();
-            updateConditionUI();
-        };
+            
+            // Try to initialize with error handling
+            try {
+                initializeHands();
+                initializeCamera();
+                updateConditionUI();
+                console.log('Initialization successful');
+            } catch (error) {
+                console.error('Initialization error:', error);
+                // Show error message to user
+                document.body.innerHTML = `
+                    <div style="padding: 2rem; text-align: center; font-family: Arial, sans-serif;">
+                        <h2>Initialization Error</h2>
+                        <p>There was an error loading the camera or hand detection libraries.</p>
+                        <p>Please check your browser console for details.</p>
+                        <button onclick="location.reload()">Reload Page</button>
+                    </div>
+                `;
+            }
+        });
+        
+        // Backup: show page after 3 seconds regardless
+        setTimeout(() => {
+            const pageElement = document.getElementById('page-webcam');
+            if (pageElement && pageElement.style.display === 'none') {
+                console.log('Showing page via timeout backup...');
+                pageElement.style.display = 'block';
+            }
+        }, 3000);
     </script>
 </body>
 </html>
