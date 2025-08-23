@@ -1305,18 +1305,18 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 
                 const requiredHand = trialConditions[trialIndex % trialConditions.length].hand.toLowerCase();
 
-                if (!currentDetectedHand || currentDetectedHand.toLowerCase() !== requiredHand) {
-                    // Wrong hand detected
-                    return;
-                }
-                
+                  // Always record data during recording, regardless of hand detection issues
                 if (recording) {
                     const currentTime = Date.now() - startTime;
                     if (currentTime < recordingDuration) {
                         processFingerTapAdvanced(landmarks, results.image.width, results.image.height);
                     }
                 }
-
+                
+                // Only show hand warnings when not recording
+                if (!recording && (!currentDetectedHand || currentDetectedHand.toLowerCase() !== requiredHand)) {
+                    return;
+                }
                 // Simplified visualization for clean interface
                 drawHandVisualization(landmarks, canvasElement);
                 
@@ -1517,7 +1517,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 }
             }
 
-            if (!frameData) frameData = [];
+            // Ensure frameData is always an array
+            frameData = frameData || [];
             frameData.push({
                 timestamp: currentTime,
                 normalizedDistance: normalizedDistance,
@@ -1795,6 +1796,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 thumb: f.thumbTip,
                 index: f.indexTip,
                 wrist: f.wrist,
+                middleMcp: f.middleMcp,
                 allLandmarks: f.rawLandmarks
             }));
 
