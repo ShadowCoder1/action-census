@@ -795,14 +795,12 @@ button, input[type="submit"], .btn {
                     <div class="trial-number" id="trial-number">Trial 1 of 6</div>
                     <div class="hand-instruction" id="hand-instruction">Right Hand</div>
                 </div>
-                
                 <div class="instructions">
                     <h3>Guidelines</h3>
                     <div class="instruction-item">Tap as fast as you can</div>
                     <div class="instruction-item">Fingers wide open</div>
                     <div class="instruction-item">Palm facing camera</div>
                     <div class="instruction-item">Large, clear taps</div>
-                    <div class="instruction-item">Consistent rhythm</div>
                 </div>
             </div>
 
@@ -1366,7 +1364,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 handOutline.classList.remove('hand-outline-ready');
                 handOutline.classList.add('hand-outline-not-ready');
             } else if (goodDistance && fingersOpen) {
-                positionStatus.textContent = '✓ Press SPACE when ready, then tap as FAST as you can';
+                positionStatus.textContent = '✓ Press SPACE when ready, then tap FAST!';
                 positionStatus.className = 'position-status ready';
                 handOutline.classList.remove('hand-outline-not-ready');
                 handOutline.classList.add('hand-outline-ready');
