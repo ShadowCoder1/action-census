@@ -350,8 +350,9 @@ button, input[type="submit"], .btn {
             100% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
         }
 
+        /* Trial overlay - Clean modal */
         .trial-overlay {
-            display: none;        /* Keep only this display property */
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
@@ -360,7 +361,7 @@ button, input[type="submit"], .btn {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             z-index: 9999;
-            /* Removed the duplicate display: flex */
+            display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -794,12 +795,14 @@ button, input[type="submit"], .btn {
                     <div class="trial-number" id="trial-number">Trial 1 of 6</div>
                     <div class="hand-instruction" id="hand-instruction">Right Hand</div>
                 </div>
+                
                 <div class="instructions">
                     <h3>Guidelines</h3>
                     <div class="instruction-item">Tap as fast as you can</div>
                     <div class="instruction-item">Fingers wide open</div>
                     <div class="instruction-item">Palm facing camera</div>
                     <div class="instruction-item">Large, clear taps</div>
+                    <div class="instruction-item">Consistent rhythm</div>
                 </div>
             </div>
 
@@ -1363,7 +1366,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 handOutline.classList.remove('hand-outline-ready');
                 handOutline.classList.add('hand-outline-not-ready');
             } else if (goodDistance && fingersOpen) {
-                positionStatus.textContent = '✓ Press SPACE when ready, then tap FAST!';
+                positionStatus.textContent = '✓ Press SPACE when ready, then tap as FAST as you can';
                 positionStatus.className = 'position-status ready';
                 handOutline.classList.remove('hand-outline-not-ready');
                 handOutline.classList.add('hand-outline-ready');
@@ -2458,70 +2461,12 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             }
         });
 
-        // Show page immediately, then try to initialize
-     // Show content immediately with fallback
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM Content Loaded');
-    
-    // First, make sure we can see SOMETHING
-    const webcamPage = document.getElementById('page-webcam');
-    if (webcamPage) {
-        webcamPage.style.display = 'block';
-        console.log('Webcam page shown');
-    } else {
-        console.error('Cannot find page-webcam element');
-        document.body.innerHTML = '<div style="padding:50px;text-align:center;">Error: Main page element not found</div>';
-        return;
-    }
-    
-    // Try initialization with comprehensive error handling
-    setTimeout(() => {
-        try {
-            console.log('Starting initialization...');
-            
-            // Check if required globals exist
-            if (typeof Hands === 'undefined') {
-                throw new Error('MediaPipe Hands not loaded');
-            }
-            
-            if (typeof firebase === 'undefined') {
-                throw new Error('Firebase not loaded');  
-            }
-            
+        window.onload = function() {
+            document.getElementById('page-webcam').style.display = 'block';
             initializeHands();
-            console.log('Hands initialized');
-            
             initializeCamera();
-            console.log('Camera initialized');
-            
             updateConditionUI();
-            console.log('UI updated');
-            
-        } catch (error) {
-            console.error('Initialization failed:', error);
-            
-            // Show error message instead of blank page
-            document.getElementById('page-webcam').innerHTML = `
-                <div style="display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;padding:2rem;font-family:Arial,sans-serif;">
-                    <div>
-                        <h2 style="color:#ef4444;margin-bottom:1rem;">Loading Error</h2>
-                        <p style="margin-bottom:1rem;">Failed to initialize: ${error.message}</p>
-                        <button onclick="location.reload()" style="padding:0.5rem 1rem;font-size:1rem;cursor:pointer;">Reload Page</button>
-                    </div>
-                </div>
-            `;
-        }
-    }, 100);
-});
-        
-        // Backup: show page after 3 seconds regardless
-        setTimeout(() => {
-            const pageElement = document.getElementById('page-webcam');
-            if (pageElement && pageElement.style.display === 'none') {
-                console.log('Showing page via timeout backup...');
-                pageElement.style.display = 'block';
-            }
-        }, 3000);
+        };
     </script>
 </body>
 </html>
