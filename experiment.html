@@ -2460,29 +2460,60 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         });
 
         // Show page immediately, then try to initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, showing page...');
-            document.getElementById('page-webcam').style.display = 'block';
+     // Show content immediately with fallback
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded');
+    
+    // First, make sure we can see SOMETHING
+    const webcamPage = document.getElementById('page-webcam');
+    if (webcamPage) {
+        webcamPage.style.display = 'block';
+        console.log('Webcam page shown');
+    } else {
+        console.error('Cannot find page-webcam element');
+        document.body.innerHTML = '<div style="padding:50px;text-align:center;">Error: Main page element not found</div>';
+        return;
+    }
+    
+    // Try initialization with comprehensive error handling
+    setTimeout(() => {
+        try {
+            console.log('Starting initialization...');
             
-            // Try to initialize with error handling
-            try {
-                initializeHands();
-                initializeCamera();
-                updateConditionUI();
-                console.log('Initialization successful');
-            } catch (error) {
-                console.error('Initialization error:', error);
-                // Show error message to user
-                document.body.innerHTML = `
-                    <div style="padding: 2rem; text-align: center; font-family: Arial, sans-serif;">
-                        <h2>Initialization Error</h2>
-                        <p>There was an error loading the camera or hand detection libraries.</p>
-                        <p>Please check your browser console for details.</p>
-                        <button onclick="location.reload()">Reload Page</button>
-                    </div>
-                `;
+            // Check if required globals exist
+            if (typeof Hands === 'undefined') {
+                throw new Error('MediaPipe Hands not loaded');
             }
-        });
+            
+            if (typeof firebase === 'undefined') {
+                throw new Error('Firebase not loaded');  
+            }
+            
+            initializeHands();
+            console.log('Hands initialized');
+            
+            initializeCamera();
+            console.log('Camera initialized');
+            
+            updateConditionUI();
+            console.log('UI updated');
+            
+        } catch (error) {
+            console.error('Initialization failed:', error);
+            
+            // Show error message instead of blank page
+            document.getElementById('page-webcam').innerHTML = `
+                <div style="display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;padding:2rem;font-family:Arial,sans-serif;">
+                    <div>
+                        <h2 style="color:#ef4444;margin-bottom:1rem;">Loading Error</h2>
+                        <p style="margin-bottom:1rem;">Failed to initialize: ${error.message}</p>
+                        <button onclick="location.reload()" style="padding:0.5rem 1rem;font-size:1rem;cursor:pointer;">Reload Page</button>
+                    </div>
+                </div>
+            `;
+        }
+    }, 100);
+});
         
         // Backup: show page after 3 seconds regardless
         setTimeout(() => {
