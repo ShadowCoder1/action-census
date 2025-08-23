@@ -1748,7 +1748,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             }, recordingDuration);
         }
 
-     // Replace your existing stopRecording function with this updated version
+// Replace your existing stopRecording function with this fixed version
 function stopRecording() {
     if (!recording) return; // Prevent multiple calls
 
@@ -1785,19 +1785,19 @@ function stopRecording() {
     const result = calculateClinicalAssessment();
     const trialDocName = `trial_${trialIndex + 1}`;
 
-    const rawFrames = frameData.map(f => ({
+    // REDUCED: Save only essential data to avoid 1MB limit
+    const essentialFrameData = frameData.map(f => ({
         t: f.timestamp,
         normDist: f.normalizedDistance,
         angle: f.thumbIndexAngle,
         handSize: f.handSize,
+        // Only key landmarks to stay under 1MB limit
         thumb: f.thumbTip,
         index: f.indexTip,
-        wrist: f.wrist,
-        middleMcp: f.middleMcp,
-        allLandmarks: f.rawLandmarks
+        wrist: f.wrist
     }));
 
-    // EXISTING: Save to Participants collection (keep this)
+    // Save essential data to Participants collection (reduced size)
     db.collection("Participants")
     .doc(participantID)
     .collection("Trials")
@@ -1806,13 +1806,14 @@ function stopRecording() {
         trialNumber: trialIndex + 1,
         condition: trialConditions[trialIndex % trialConditions.length],
         timestamp: new Date().toISOString(),
-        rawFrames: rawFrames
+        rawFrames: essentialFrameData, // Reduced data
+        totalFramesRecorded: frameData.length
     })
-    .then(() => console.log(`Raw hand data saved for ${participantID} / ${trialDocName}`))
-    .catch(err => console.error("Error saving raw hand data:", err));
+    .then(() => console.log(`✅ Essential trial data saved for ${participantID} / ${trialDocName}`))
+    .catch(err => console.error("❌ Error saving essential trial data:", err));
 
-    // NEW: Also save to Landmark collection for easier querying
-    saveLandmarkData(participantID, trialIndex + 1, trialConditions[trialIndex % trialConditions.length], frameData);
+    // Save detailed landmarks separately (non-blocking)
+    saveLandmarkDataAsync(participantID, trialIndex + 1, trialConditions[trialIndex % trialConditions.length], frameData);
 
     allTrialResults.push({
         condition: trialConditions[trialIndex % trialConditions.length],
@@ -1831,92 +1832,219 @@ function stopRecording() {
     }
 }
 
-// NEW FUNCTION: Save landmark data to the Landmark collection
-async function saveLandmarkData(participantID, trialNumber, condition, frameData) {
-    console.log(`💾 Saving ${frameData.length} frames to Landmark collection for ${participantID} trial ${trialNumber}`);
+// FIXED: Async landmark saving with smaller batches and error handling
+async function saveLandmarkDataAsync(participantID, trialNumber, condition, frameData) {
+    console.log(`💾 Starting async save of ${frameData.length} frames to Landmark collection`);
     
-    try {
-        // Create a batch to save all frames for this trial efficiently
-        const batch = db.batch();
-        const trialTimestamp = new Date().toISOString();
-        
-        frameData.forEach((frame, frameIndex) => {
-            // Create a unique document ID for each frame
-            const frameDocId = `${participantID}_trial${trialNumber}_frame${frameIndex}`;
-            const frameRef = db.collection("Landmark").doc(frameDocId);
+    // Don't block the UI - run this in background
+    setTimeout(async () => {
+        try {
+            const BATCH_SIZE = 50; // Much smaller batches to avoid overwhelming Firebase
+            const totalFrames = frameData.length;
+            let savedFrames = 0;
             
-            // Structure the data to match your export expectations
-            const landmarkDocument = {
-                // Participant and trial info
-                participantID: participantID,
-                trialID: `trial_${trialNumber}`,
-                trialNumber: trialNumber,
-                frameIndex: frameIndex,
-                condition_hand: condition.hand,
-                trialTimestamp: trialTimestamp,
+            for (let batchStart = 0; batchStart < totalFrames; batchStart += BATCH_SIZE) {
+                const batchEnd = Math.min(batchStart + BATCH_SIZE, totalFrames);
+                const batch = db.batch();
                 
-                // Frame-level measurements
-                timestamp: frame.timestamp,
-                normalizedDistance: frame.normalizedDistance,
-                thumbIndexAngle: frame.thumbIndexAngle,
-                handSize: frame.handSize,
+                for (let frameIndex = batchStart; frameIndex < batchEnd; frameIndex++) {
+                    const frame = frameData[frameIndex];
+                    const frameDocId = `${participantID}_trial${trialNumber}_frame${frameIndex}`;
+                    const frameRef = db.collection("Landmark").doc(frameDocId);
+                    
+                    // Streamlined landmark document
+                    const landmarkDocument = {
+                        participantID: participantID,
+                        trialID: `trial_${trialNumber}`,
+                        trialNumber: trialNumber,
+                        frameIndex: frameIndex,
+                        condition_hand: condition.hand,
+                        timestamp: frame.timestamp,
+                        normalizedDistance: frame.normalizedDistance,
+                        thumbIndexAngle: frame.thumbIndexAngle,
+                        handSize: frame.handSize,
+                        
+                        // Key landmarks only (to reduce size)
+                        wrist_x: frame.wrist?.x,
+                        wrist_y: frame.wrist?.y,
+                        wrist_z: frame.wrist?.z,
+                        thumbTip_x: frame.thumbTip?.x,
+                        thumbTip_y: frame.thumbTip?.y,
+                        thumbTip_z: frame.thumbTip?.z,
+                        indexTip_x: frame.indexTip?.x,
+                        indexTip_y: frame.indexTip?.y,
+                        indexTip_z: frame.indexTip?.z,
+                        middleMcp_x: frame.middleMcp?.x,
+                        middleMcp_y: frame.middleMcp?.y,
+                        middleMcp_z: frame.middleMcp?.z
+                    };
+                    
+                    // Add all 21 landmarks as individual fields (for analysis)
+                    if (frame.rawLandmarks && Array.isArray(frame.rawLandmarks)) {
+                        frame.rawLandmarks.forEach((landmark, landmarkIndex) => {
+                            landmarkDocument[`landmark_${landmarkIndex}_x`] = landmark.x;
+                            landmarkDocument[`landmark_${landmarkIndex}_y`] = landmark.y;
+                            landmarkDocument[`landmark_${landmarkIndex}_z`] = landmark.z;
+                        });
+                    }
+                    
+                    batch.set(frameRef, landmarkDocument);
+                }
                 
-                // Key landmark positions (for quick analysis)
-                wrist_x: frame.wrist?.x || null,
-                wrist_y: frame.wrist?.y || null,
-                wrist_z: frame.wrist?.z || null,
-                thumbTip_x: frame.thumbTip?.x || null,
-                thumbTip_y: frame.thumbTip?.y || null,
-                thumbTip_z: frame.thumbTip?.z || null,
-                indexTip_x: frame.indexTip?.x || null,
-                indexTip_y: frame.indexTip?.y || null,
-                indexTip_z: frame.indexTip?.z || null,
-                middleMcp_x: frame.middleMcp?.x || null,
-                middleMcp_y: frame.middleMcp?.y || null,
-                middleMcp_z: frame.middleMcp?.z || null,
+                // Save batch with retry logic
+                let retries = 3;
+                while (retries > 0) {
+                    try {
+                        await batch.commit();
+                        savedFrames += (batchEnd - batchStart);
+                        console.log(`✅ Saved frames ${batchStart}-${batchEnd-1} (${savedFrames}/${totalFrames})`);
+                        break;
+                    } catch (error) {
+                        retries--;
+                        console.warn(`⚠️ Batch save failed, ${retries} retries left:`, error.message);
+                        if (retries === 0) {
+                            console.error(`❌ Failed to save batch ${batchStart}-${batchEnd-1} after all retries`);
+                        } else {
+                            // Wait before retry
+                            await new Promise(resolve => setTimeout(resolve, 1000 * (4 - retries)));
+                        }
+                    }
+                }
                 
-                // All 21 MediaPipe hand landmarks (if available)
-                allLandmarks: frame.rawLandmarks || []
-            };
-            
-            // Add individual landmark coordinates as separate fields (easier for analysis)
-            if (frame.rawLandmarks && Array.isArray(frame.rawLandmarks)) {
-                frame.rawLandmarks.forEach((landmark, landmarkIndex) => {
-                    landmarkDocument[`landmark_${landmarkIndex}_x`] = landmark.x;
-                    landmarkDocument[`landmark_${landmarkIndex}_y`] = landmark.y;
-                    landmarkDocument[`landmark_${landmarkIndex}_z`] = landmark.z;
-                });
+                // Small delay between batches to avoid overwhelming Firebase
+                if (batchEnd < totalFrames) {
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
             }
             
-            batch.set(frameRef, landmarkDocument);
-        });
-        
-        // Commit the batch
-        await batch.commit();
-        console.log(`✅ Successfully saved ${frameData.length} landmark frames to Landmark collection`);
-        
-    } catch (error) {
-        console.error(`❌ Error saving landmark data for ${participantID} trial ${trialNumber}:`, error);
-        
-        // Fallback: try to save a summary document if batch fails
-        try {
-            const summaryRef = db.collection("Landmark").doc(`${participantID}_trial${trialNumber}_summary`);
-            await summaryRef.set({
-                participantID: participantID,
-                trialNumber: trialNumber,
-                condition_hand: condition.hand,
-                totalFrames: frameData.length,
-                timestamp: new Date().toISOString(),
-                error: "Batch save failed, frames not individually saved",
-                sampleFrame: frameData[0] || null // Save at least one frame as example
-            });
-            console.log(`⚠️ Saved summary document as fallback for ${participantID} trial ${trialNumber}`);
-        } catch (summaryError) {
-            console.error(`❌ Even summary save failed:`, summaryError);
+            console.log(`✅ Landmark saving complete: ${savedFrames}/${totalFrames} frames saved`);
+            
+        } catch (error) {
+            console.error(`❌ Error in landmark saving process:`, error);
         }
-    }
+    }, 100); // Small delay to not block UI
 }
 
+// FIXED: Make questionnaire submission more robust
+// Update your existing questionnaire form submission handler with this:
+document.getElementById('questionnaire-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const responses = {};
+    
+    // Collect all form data
+    for (let [key, value] of formData.entries()) {
+        responses[key] = value;
+    }
+    
+    console.log("📋 Questionnaire responses to save:", responses);
+    
+    // Validate required fields
+    const expectedFields = [
+        'videogame', 'musical', 'sports', 'caffeine', 
+        'mood', 'motivated', 'distracted', 'performance',
+        'neurological', 'income', 'zipcode'
+    ];
+    
+    const missingFields = expectedFields.filter(field => !responses[field]);
+    if (missingFields.length > 0) {
+        console.warn("⚠️ Missing required fields:", missingFields);
+        alert(`Please complete all required fields: ${missingFields.join(', ')}`);
+        return;
+    }
+    
+    const questionnaireData = {
+        experienceRatings: {
+            videogameExperience: parseInt(responses.videogame),
+            musicalExperience: parseInt(responses.musical),
+            sportsExperience: parseInt(responses.sports),
+            caffeineIntakeToday: parseInt(responses.caffeine)
+        },
+        moodPerformanceRatings: {
+            currentMood: parseInt(responses.mood),
+            taskMotivation: parseInt(responses.motivated),
+            taskDistraction: parseInt(responses.distracted),
+            expectedPerformanceVsOthers: parseInt(responses.performance)
+        },
+        demographics: {
+            hasNeurologicalConditions: responses.neurological === 'yes',
+            householdIncome: responses.income,
+            zipCode: responses.zipcode
+        },
+        feedback: responses.feedback || '',
+        completedAt: new Date().toISOString(),
+        participantID: sessionStorage.getItem('prolificID') || 'anonymous'
+    };
+    
+    console.log("💾 Structured questionnaire data:", questionnaireData);
+    
+    const participantID = sessionStorage.getItem('prolificID') || 'anonymous';
+    
+    // FIXED: Use more robust saving with better error handling
+    const savePromises = [];
+    
+    // Save to multiple locations with individual error handling
+    savePromises.push(
+        db.collection("Results")
+        .doc(participantID)
+        .collection("Questionnaire")
+        .doc("Responses")
+        .set(questionnaireData)
+        .catch(err => {
+            console.warn("Failed to save to Results collection:", err);
+            return { error: err, location: "Results" };
+        })
+    );
+    
+    savePromises.push(
+        db.collection("Participants")
+        .doc(participantID)
+        .collection("Questionnaire")
+        .doc("Demographics")
+        .set(questionnaireData)
+        .catch(err => {
+            console.warn("Failed to save to Participants collection:", err);
+            return { error: err, location: "Participants" };
+        })
+    );
+    
+    savePromises.push(
+        db.collection("QuestionnaireResponses")
+        .doc(participantID)
+        .set(questionnaireData)
+        .catch(err => {
+            console.warn("Failed to save to QuestionnaireResponses:", err);
+            return { error: err, location: "QuestionnaireResponses" };
+        })
+    );
+    
+    // Wait for saves but don't let errors block the UI
+    Promise.allSettled(savePromises)
+        .then((results) => {
+            let successCount = 0;
+            results.forEach((result, index) => {
+                if (result.status === 'fulfilled' && !result.value?.error) {
+                    successCount++;
+                } else {
+                    console.warn(`Save ${index} failed:`, result.reason || result.value?.error);
+                }
+            });
+            
+            console.log(`✅ Questionnaire saved to ${successCount}/3 locations`);
+            
+            // Always proceed to results, even if some saves failed
+            document.getElementById('questionnaire-overlay').style.display = 'none';
+            showFinalResults();
+        })
+        .catch(err => {
+            console.error("❌ Unexpected error in questionnaire saving:", err);
+            // Still proceed to results - don't let saving errors block the user
+            alert("Some data may not have been saved, but your results are ready.");
+            document.getElementById('questionnaire-overlay').style.display = 'none';
+            showFinalResults();
+        });
+});
         function restartTrialDueToHandLoss() {
             if (!recording) return;
             
