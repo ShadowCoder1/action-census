@@ -1748,87 +1748,174 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             }, recordingDuration);
         }
 
-        function stopRecording() {
-                if (!recording) return; // Prevent multiple calls
+     // Replace your existing stopRecording function with this updated version
+function stopRecording() {
+    if (!recording) return; // Prevent multiple calls
+
+    console.log("🛑 stopRecording() called with", tapEvents.length, "taps");
     
-                console.log("🛑 stopRecording() called with", tapEvents.length, "taps");
+    recording = false; // Set this immediately to prevent race conditions
+
+    clearInterval(mainTimerInterval);
+    document.getElementById('tapWidthFeedback').style.display = 'none';
+
+    window.tapFeedbackTimer = 0;
+    window.handPositionCorrect = false;
+
+    document.getElementById('countdown').style.display = 'none';
+    
+    // Show position status again
+    document.getElementById('hand-guide-overlay').style.display = 'block';
+    document.getElementById('hand-outline').style.display = 'block';
+    
+    const positionStatus = document.getElementById('position-status');
+    positionStatus.textContent = 'Analyzing results...';
+    positionStatus.className = 'position-status warning';
+
+    // Check if minimum taps were achieved
+    if (tapEvents.length < MIN_REQUIRED_TAPS) {
+        console.log("❌ Too few taps:", tapEvents.length, "< minimum:", MIN_REQUIRED_TAPS);
+        showInsufficientTapsRestart();
+        return;
+    } else {
+        console.log("✅ Sufficient taps:", tapEvents.length, ">= minimum:", MIN_REQUIRED_TAPS);
+    }
+
+    // Process results immediately without delay
+    const result = calculateClinicalAssessment();
+    const trialDocName = `trial_${trialIndex + 1}`;
+
+    const rawFrames = frameData.map(f => ({
+        t: f.timestamp,
+        normDist: f.normalizedDistance,
+        angle: f.thumbIndexAngle,
+        handSize: f.handSize,
+        thumb: f.thumbTip,
+        index: f.indexTip,
+        wrist: f.wrist,
+        middleMcp: f.middleMcp,
+        allLandmarks: f.rawLandmarks
+    }));
+
+    // EXISTING: Save to Participants collection (keep this)
+    db.collection("Participants")
+    .doc(participantID)
+    .collection("Trials")
+    .doc(trialDocName)
+    .set({
+        trialNumber: trialIndex + 1,
+        condition: trialConditions[trialIndex % trialConditions.length],
+        timestamp: new Date().toISOString(),
+        rawFrames: rawFrames
+    })
+    .then(() => console.log(`Raw hand data saved for ${participantID} / ${trialDocName}`))
+    .catch(err => console.error("Error saving raw hand data:", err));
+
+    // NEW: Also save to Landmark collection for easier querying
+    saveLandmarkData(participantID, trialIndex + 1, trialConditions[trialIndex % trialConditions.length], frameData);
+
+    allTrialResults.push({
+        condition: trialConditions[trialIndex % trialConditions.length],
+        repetition: Math.floor(trialIndex / trialConditions.length) + 1,
+        result: result
+    });
+
+    trialIndex++;
+
+    if (trialIndex < totalTrials) {
+        positionStatus.textContent = 'Ready for next trial';
+        positionStatus.className = 'position-status ready';
+        updateConditionUI();
+    } else {
+        analyzeAllTrials();
+    }
+}
+
+// NEW FUNCTION: Save landmark data to the Landmark collection
+async function saveLandmarkData(participantID, trialNumber, condition, frameData) {
+    console.log(`💾 Saving ${frameData.length} frames to Landmark collection for ${participantID} trial ${trialNumber}`);
+    
+    try {
+        // Create a batch to save all frames for this trial efficiently
+        const batch = db.batch();
+        const trialTimestamp = new Date().toISOString();
+        
+        frameData.forEach((frame, frameIndex) => {
+            // Create a unique document ID for each frame
+            const frameDocId = `${participantID}_trial${trialNumber}_frame${frameIndex}`;
+            const frameRef = db.collection("Landmark").doc(frameDocId);
+            
+            // Structure the data to match your export expectations
+            const landmarkDocument = {
+                // Participant and trial info
+                participantID: participantID,
+                trialID: `trial_${trialNumber}`,
+                trialNumber: trialNumber,
+                frameIndex: frameIndex,
+                condition_hand: condition.hand,
+                trialTimestamp: trialTimestamp,
                 
-                recording = false; // Set this immediately to prevent race conditions
+                // Frame-level measurements
+                timestamp: frame.timestamp,
+                normalizedDistance: frame.normalizedDistance,
+                thumbIndexAngle: frame.thumbIndexAngle,
+                handSize: frame.handSize,
+                
+                // Key landmark positions (for quick analysis)
+                wrist_x: frame.wrist?.x || null,
+                wrist_y: frame.wrist?.y || null,
+                wrist_z: frame.wrist?.z || null,
+                thumbTip_x: frame.thumbTip?.x || null,
+                thumbTip_y: frame.thumbTip?.y || null,
+                thumbTip_z: frame.thumbTip?.z || null,
+                indexTip_x: frame.indexTip?.x || null,
+                indexTip_y: frame.indexTip?.y || null,
+                indexTip_z: frame.indexTip?.z || null,
+                middleMcp_x: frame.middleMcp?.x || null,
+                middleMcp_y: frame.middleMcp?.y || null,
+                middleMcp_z: frame.middleMcp?.z || null,
+                
+                // All 21 MediaPipe hand landmarks (if available)
+                allLandmarks: frame.rawLandmarks || []
+            };
             
-                        
-            recording = false;
-            
-            clearInterval(mainTimerInterval);
-            document.getElementById('tapWidthFeedback').style.display = 'none';
-
-            window.tapFeedbackTimer = 0;
-            window.handPositionCorrect = false;
-
-            document.getElementById('countdown').style.display = 'none';
-            
-            // Show position status again
-            document.getElementById('hand-guide-overlay').style.display = 'block';
-            document.getElementById('hand-outline').style.display = 'block';
-            
-            const positionStatus = document.getElementById('position-status');
-            positionStatus.textContent = 'Analyzing results...';
-            positionStatus.className = 'position-status warning';
-
-            // Check if minimum taps were achieved
-            // Only check minimum taps if the trial completed naturally (15 seconds elapsed)
-// Always check minimum taps when trial ends, regardless of how it ended
-            if (tapEvents.length < MIN_REQUIRED_TAPS) {
-                console.log("❌ Too few taps:", tapEvents.length, "< minimum:", MIN_REQUIRED_TAPS);
-                showInsufficientTapsRestart();
-                return;
-            } else {
-                console.log("✅ Sufficient taps:", tapEvents.length, ">= minimum:", MIN_REQUIRED_TAPS);
+            // Add individual landmark coordinates as separate fields (easier for analysis)
+            if (frame.rawLandmarks && Array.isArray(frame.rawLandmarks)) {
+                frame.rawLandmarks.forEach((landmark, landmarkIndex) => {
+                    landmarkDocument[`landmark_${landmarkIndex}_x`] = landmark.x;
+                    landmarkDocument[`landmark_${landmarkIndex}_y`] = landmark.y;
+                    landmarkDocument[`landmark_${landmarkIndex}_z`] = landmark.z;
+                });
             }
-            // Process results immediately without delay
-            const result = calculateClinicalAssessment();
-            const trialDocName = `trial_${trialIndex + 1}`;
-
-            const rawFrames = frameData.map(f => ({
-                t: f.timestamp,
-                normDist: f.normalizedDistance,
-                angle: f.thumbIndexAngle,
-                handSize: f.handSize,
-                thumb: f.thumbTip,
-                index: f.indexTip,
-                wrist: f.wrist,
-                middleMcp: f.middleMcp,
-                allLandmarks: f.rawLandmarks
-            }));
-
-            db.collection("Participants")
-            .doc(participantID)
-            .collection("Trials")
-            .doc(trialDocName)
-            .set({
-                trialNumber: trialIndex + 1,
-                condition: trialConditions[trialIndex % trialConditions.length],
+            
+            batch.set(frameRef, landmarkDocument);
+        });
+        
+        // Commit the batch
+        await batch.commit();
+        console.log(`✅ Successfully saved ${frameData.length} landmark frames to Landmark collection`);
+        
+    } catch (error) {
+        console.error(`❌ Error saving landmark data for ${participantID} trial ${trialNumber}:`, error);
+        
+        // Fallback: try to save a summary document if batch fails
+        try {
+            const summaryRef = db.collection("Landmark").doc(`${participantID}_trial${trialNumber}_summary`);
+            await summaryRef.set({
+                participantID: participantID,
+                trialNumber: trialNumber,
+                condition_hand: condition.hand,
+                totalFrames: frameData.length,
                 timestamp: new Date().toISOString(),
-                rawFrames: rawFrames
-            })
-            .then(() => console.log(`Raw hand data saved for ${participantID} / ${trialDocName}`))
-            .catch(err => console.error("Error saving raw hand data:", err));
-
-            allTrialResults.push({
-                condition: trialConditions[trialIndex % trialConditions.length],
-                repetition: Math.floor(trialIndex / trialConditions.length) + 1,
-                result: result
+                error: "Batch save failed, frames not individually saved",
+                sampleFrame: frameData[0] || null // Save at least one frame as example
             });
-
-            trialIndex++;
-
-            if (trialIndex < totalTrials) {
-                positionStatus.textContent = 'Ready for next trial';
-                positionStatus.className = 'position-status ready';
-                updateConditionUI();
-            } else {
-                analyzeAllTrials();
-            }
+            console.log(`⚠️ Saved summary document as fallback for ${participantID} trial ${trialNumber}`);
+        } catch (summaryError) {
+            console.error(`❌ Even summary save failed:`, summaryError);
         }
+    }
+}
 
         function restartTrialDueToHandLoss() {
             if (!recording) return;
