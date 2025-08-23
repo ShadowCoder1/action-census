@@ -28,6 +28,12 @@
             position: relative;
             font-size: 1.25rem;
         }
+        
+        body.results-page {
+            overflow: auto;
+            height: auto;
+            min-height: 100vh;
+        }
         /* Subtle geometric background pattern */
         body::before {
             content: '';
@@ -2097,9 +2103,9 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
  function analyzeAllTrials() {
             showQuestionnaire();
         }
-
         function showFinalResults() {
             document.getElementById('finalResults').style.display = 'block';
+            document.body.classList.add('results-page');
             
             let rightTrials = allTrialResults.filter(t => t.condition.hand === 'right');
             let leftTrials = allTrialResults.filter(t => t.condition.hand === 'left');
