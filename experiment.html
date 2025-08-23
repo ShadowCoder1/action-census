@@ -2033,7 +2033,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             
             instructionText.innerHTML = `
                 <div style="color: #f59e0b; font-size: 2.8rem; margin-bottom: 1rem;">Too Few Taps</div>
-                <div style="color: #1a1a1a; font-size: 1.8rem; font-weight: 400;">Only ${tapEvents.length} taps detected (minimum: ${MIN_REQUIRED_TAPS})</div>
+                <div style="color: #1a1a1a; font-size: 1.8rem; font-weight: 400;">Please tap more frequently during the test</div>
             `;
             
             document.querySelector('.trial-overlay-instruction').innerHTML = 
