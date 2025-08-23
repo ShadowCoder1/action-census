@@ -350,9 +350,8 @@ button, input[type="submit"], .btn {
             100% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
         }
 
-        /* Trial overlay - Clean modal */
         .trial-overlay {
-            display: none;
+            display: none;        /* Keep only this display property */
             position: fixed;
             top: 0;
             left: 0;
@@ -361,7 +360,7 @@ button, input[type="submit"], .btn {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             z-index: 9999;
-            display: flex;
+            /* Removed the duplicate display: flex */
             flex-direction: column;
             align-items: center;
             justify-content: center;
