@@ -2866,6 +2866,13 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             return sign * y;
         }
         let overlayJustDismissed = false;
+                // Add this near the top of your JavaScript, after the mobile detection
+        document.addEventListener('touchstart', function(e) {
+            // Only prevent default on specific elements to avoid breaking scroll
+            if (e.target.closest('.trial-overlay') || e.target.closest('#trial-instructions-overlay')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
 
         document.addEventListener('keydown', function(e) {
             // Only handle keyboard events on non-mobile devices
@@ -2914,19 +2921,18 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         // Add touch event listeners for mobile
         function addTouchEventListeners() {
             if (isMobileDevice) {
-                // Add touch event to the trial overlay
+                // Only add touch event to the trial overlay, not the document
                 const overlay = document.getElementById('trial-instructions-overlay');
                 if (overlay) {
                     overlay.addEventListener('touchstart', handleStartAction, { passive: false });
                     overlay.addEventListener('click', handleStartAction);
                 }
-                
-                // Add touch event to the document for starting recording
-                document.addEventListener('touchstart', handleStartAction, { passive: false });
+                // Remove this line - it's causing the conflict:
+                // document.addEventListener('touchstart', handleStartAction, { passive: false });
             }
         }
-        
         // Unified action handler for both keyboard and touch
+// Unified action handler for both keyboard and touch
         function handleStartAction(e) {
             // Prevent default touch behavior to avoid scrolling
             if (e.type === 'touchstart') {
@@ -2937,16 +2943,22 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const countdownEl = document.getElementById('countdown');
             const isCountdownActive = countdownEl && countdownEl.style.display === 'block';
             
+            // Only handle events when overlay is visible OR when we're ready to start a new trial
+            const overlayVisible = overlay.style.display === 'flex';
+            const readyForNewTrial = !recording && !isCountdownActive && trialIndex < totalTrials && !overlayVisible;
+            
             // Handle overlay dismissal
-            if (overlay.style.display === 'flex') {
+            if (overlayVisible) {
                 overlay.style.display = 'none';
                 overlayJustDismissed = true;
+                setTimeout(() => {
+                    overlayJustDismissed = false;
+                }, 500); // Give a brief delay to prevent immediate re-triggering
                 return;
             }
             
             // Handle starting recording after overlay dismissal
             if (overlayJustDismissed) {
-                overlayJustDismissed = false;
                 if (!handDetected) {
                     alert('Please position your hand in view of the camera before starting.');
                     return;
@@ -2962,8 +2974,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             // Don't interfere if countdown is active or recording
             if (recording || isCountdownActive) return;
             
-            // Start new trial if available
-            if (trialIndex < totalTrials) {
+            // Start new trial if available and we're in the right state
+            if (readyForNewTrial) {
                 updateConditionUI();
             }
         }
