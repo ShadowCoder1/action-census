@@ -317,13 +317,12 @@ button, input[type="submit"], .btn {
         }
 
         /* Hand outline - Simplified */
-/* Hand outline - Simplified */
         #hand-outline {
             position: absolute;
-            top: 50%;
+            top: 45%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 420px;
+            width: 500px;
             height: auto;
             opacity: 0.3;
             pointer-events: none;
@@ -662,14 +661,16 @@ button, input[type="submit"], .btn {
             border-right: 1px solid rgba(0, 0, 0, 0.05);
             border-left: none;
         }
-        /* Hand outline positioning based on hand */
+/* Hand outline positioning based on hand */
         .layout-left-hand #hand-outline {
             left: 30% !important;
+            top: 45% !important;
             transform: translate(-50%, -50%) scaleX(-1);
         }
         
         .layout-right-hand #hand-outline {
             left: 70% !important;
+            top: 45% !important;
             transform: translate(-50%, -50%);
         }
         
@@ -769,9 +770,20 @@ button, input[type="submit"], .btn {
         @media (max-width: 768px) {
             /* Reset hand positioning for mobile - center everything */
             .layout-left-hand #hand-outline,
-            .layout-right-hand #hand-outline {
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
+                .layout-right-hand #hand-outline {
+                    left: 50% !important;
+                    top: 45% !important;
+                    width: 350px !important;
+                    transform: translate(-50%, -50%) !important;
+                }
+                
+                /* Show correct hand orientation even on mobile */
+                .layout-left-hand #hand-outline {
+                    transform: translate(-50%, -50%) scaleX(-1) !important;
+                }
+                
+                .layout-right-hand #hand-outline {
+                    transform: translate(-50%, -50%) !important;
             }
             
             .layout-left-hand .hand-guide-overlay,
@@ -824,9 +836,10 @@ button, input[type="submit"], .btn {
             .trial-overlay-instruction {
                 font-size: 1.1rem !important;
             }
-            
+                        
             #hand-outline {
-                width: 250px !important;
+                    width: 300px !important;
+                    top: 45% !important;
             }
             
             .countdown {
@@ -853,7 +866,8 @@ button, input[type="submit"], .btn {
             }
             
             #hand-outline {
-                width: 220px !important;
+                    width: 280px !important;
+                    top: 45% !important;
             }
         }
     </style>
