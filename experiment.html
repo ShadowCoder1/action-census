@@ -1695,7 +1695,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 
                 // Update display
                 const minutes = Math.floor(remaining / 60);
-                const seconds = Math.floor(remaining % 60);
+                const seconds = Math.max(1, Math.ceil(remaining % 60));
                 const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                 document.getElementById('timer-display').textContent = timerText;
                 document.getElementById('taps-display').textContent = `${tapEvents.length}`;
