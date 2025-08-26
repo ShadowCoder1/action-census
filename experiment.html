@@ -1650,12 +1650,17 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 handOutline.classList.remove('hand-outline-ready');
                 handOutline.classList.add('hand-outline-not-ready');
             } else if (goodDistance && fingersOpen) {
-        
-                positionStatus.innerHTML = '✓ Press SPACE when ready<br>then tap as FAST as you can!';
+                if (isMobileDevice) {
+                    positionStatus.innerHTML = '✓ Tap screen when ready<br>then tap as FAST as you can!';
+                } else {
+                    positionStatus.innerHTML = '✓ Press SPACE when ready<br>then tap as FAST as you can!';
+                }
                 positionStatus.className = 'position-status ready';
                 handOutline.classList.remove('hand-outline-not-ready');
                 handOutline.classList.add('hand-outline-ready');
-            } else {
+            }
+            
+            else {
                 handOutline.classList.remove('hand-outline-ready');
                 handOutline.classList.add('hand-outline-not-ready');
                 positionStatus.className = 'position-status warning';
