@@ -67,21 +67,15 @@ button, input[type="submit"], .btn {
 
 @media (max-width: 480px) {
     body {
-        font-size: 1.2rem;
+        font-size: 1.4rem;
     }
     
     h1, h2, h3, h4, h5, h6 {
-        font-size: 1.8rem;
+        font-size: 2.2rem;
     }
     
     p, li, label, input, button, textarea {
-        font-size: 1.1rem;
-        line-height: 1.6;
-    }
-    
-    button, input[type="submit"], .btn {
-        font-size: 1.2rem;
-        padding: 1rem 2rem;
+        font-size: 1.4rem;
     }
 }
 
@@ -317,12 +311,13 @@ button, input[type="submit"], .btn {
         }
 
         /* Hand outline - Simplified */
+/* Hand outline - Simplified */
         #hand-outline {
             position: absolute;
-            top: 45%;
+            top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 450px;
+            width: 420px;
             height: auto;
             opacity: 0.3;
             pointer-events: none;
@@ -456,70 +451,6 @@ button, input[type="submit"], .btn {
             border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
-        @media (max-width: 768px) {
-            .final-results {
-                padding: 2rem 1rem !important;
-            }
-            
-            .final-results p {
-                font-size: 1.8rem !important;
-                line-height: 1.4 !important;
-            }
-            
-            .final-results strong {
-                display: inline-block;
-            }
-            
-            .results-card {
-                padding: 1.5rem !important;
-                margin-bottom: 1rem !important;
-            }
-            
-            /* Make completion code more prominent on mobile */
-            .final-results p[style*="font-size: 2.8rem"] {
-                font-size: 2rem !important;
-            }
-            
-            /* Stack buttons vertically on mobile */
-            .final-results div[style*="display: flex"] {
-                flex-direction: column !important;
-                gap: 1rem !important;
-            }
-            
-            .final-results button {
-                font-size: 1.1rem !important;
-                padding: 1.25rem 2rem !important;
-            }
-        }
-        /* Touch-friendly improvements for mobile */
-        @media (max-width: 768px) {
-            .trial-overlay {
-                cursor: pointer;
-                -webkit-tap-highlight-color: transparent;
-            }
-            
-            .trial-overlay-footer {
-                animation: pulse 2s infinite;
-            }
-            
-            @keyframes pulse {
-                0% { opacity: 1; }
-                50% { opacity: 0.7; }
-                100% { opacity: 1; }
-            }
-            
-            /* Make sure touch events work on the overlay */
-            .trial-overlay-content {
-                pointer-events: auto;
-            }
-            
-            /* Improve button touch targets */
-            button {
-                min-height: 44px;
-                min-width: 44px;
-            }
-        }
-
         /* Responsive design */
         @media (max-width: 1024px) {
             .left-panel {
@@ -539,109 +470,44 @@ button, input[type="submit"], .btn {
                 font-size: 2.2rem;
             }
         }
-    @media (max-width: 768px) {
-        .main-container {
-            flex-direction: column !important;
-            height: 100vh;
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column !important;
+            }
+            
+            .left-panel {
+                width: 100%;
+                height: auto;
+                padding: 1.5rem;
+                border-right: none !important;
+                border-left: none !important;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            }
+            
+            
+            .metrics-section {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.5rem;
+            }
+            
+            .timer-display {
+                font-size: 4.2rem;
+            }
+            
+            .taps-display {
+                font-size: 5.6rem;
+            }
+            
+            .instructions {
+                display: none;
+            }
+            
+            .trial-overlay-title {
+                font-size: 3.5rem;
+            }
         }
-        
-        .left-panel {
-            width: 100% !important;
-            height: auto;
-            min-height: 200px;
-            max-height: 35vh;
-            padding: 1rem;
-            border-right: none !important;
-            border-left: none !important;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            overflow-y: auto;
-        }
-        
-        .right-panel {
-            flex: 1;
-            min-height: 65vh;
-        }
-        
-        .metrics-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-            gap: 1rem;
-        }
-        
-        .timer-display {
-            font-size: 2.5rem !important;
-            margin-bottom: 0.25rem;
-        }
-        
-        .taps-counter {
-            margin-bottom: 1rem;
-            gap: 0.5rem;
-        }
-        
-        .taps-display {
-            font-size: 3rem !important;
-        }
-        
-        .taps-subtitle {
-            font-size: 1rem;
-        }
-        
-        .trial-info {
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-        }
-        
-        .trial-number {
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .hand-instruction {
-            font-size: 1.8rem !important;
-        }
-        
-        .instructions {
-            display: none;
-        }
-        
-        .trial-overlay-title {
-            font-size: 2.5rem !important;
-        }
-        
-        .trial-overlay-instruction {
-            font-size: 1.3rem !important;
-        }
-        
-        .trial-overlay-footer {
-            font-size: 1rem !important;
-            padding: 1rem 2rem;
-        }
-        
-        #hand-outline {
-            width: 280px !important;
-        }
-        
-        .position-status {
-            font-size: 1.1rem !important;
-            padding: 1rem 1.5rem;
-            max-width: 90vw;
-            box-sizing: border-box;
-        }
-        
-        .feedback-panel {
-            bottom: 1rem;
-            left: 1rem;
-            right: 1rem;
-            transform: none;
-            max-width: calc(100vw - 2rem);
-        }
-        
-        .countdown {
-            font-size: 8rem !important;
-        }
-    }
 
         /* Layout adjustments - panel matches hand side to avoid Simon effect */
         .layout-right-hand .main-container {
@@ -661,16 +527,14 @@ button, input[type="submit"], .btn {
             border-right: 1px solid rgba(0, 0, 0, 0.05);
             border-left: none;
         }
-/* Hand outline positioning based on hand */
+        /* Hand outline positioning based on hand */
         .layout-left-hand #hand-outline {
             left: 30% !important;
-            top: 45% !important;
             transform: translate(-50%, -50%) scaleX(-1);
         }
         
         .layout-right-hand #hand-outline {
             left: 70% !important;
-            top: 45% !important;
             transform: translate(-50%, -50%);
         }
         
@@ -723,155 +587,16 @@ button, input[type="submit"], .btn {
             }
             
             .likert-option label {
-                font-size: 0.65rem;
-            }
-            
-            .likert-option input[type="radio"] {
-                transform: scale(0.9);
+                font-size: 0.7rem;
             }
             
             /* Stack questions vertically on mobile */
             div[style*="grid-template-columns: 1fr 1fr"],
             div[style*="grid-template-columns: 1fr 1fr 1fr"] {
                 grid-template-columns: 1fr !important;
-                gap: 1rem !important;
-            }
-            
-            /* Make questionnaire overlay mobile-friendly */
-            #questionnaire-overlay > div {
-                width: 98% !important;
-                max-height: 90vh !important;
-                padding: 1rem !important;
-                margin: 1rem !important;
-            }
-            
-            #questionnaire-overlay h2 {
-                font-size: 1.8rem !important;
-            }
-            
-            #questionnaire-overlay p {
-                font-size: 0.9rem !important;
-            }
-            
-            .question-group label {
-                font-size: 0.9rem !important;
-            }
-            
-            input[type="text"], textarea {
-                font-size: 1rem !important;
-            }
-            
-            button[type="submit"] {
-                font-size: 1rem !important;
-                padding: 0.75rem 1.5rem !important;
-            }
-        }
-
-        @media (max-width: 768px) {
-            /* Reset hand positioning for mobile - center everything */
-            .layout-left-hand #hand-outline,
-                .layout-right-hand #hand-outline {
-                    left: 50% !important;
-                    top: 45% !important;
-                    width: 320px !important;
-                    transform: translate(-50%, -50%) !important;
-                }
-                
-                /* Show correct hand orientation even on mobile */
-                .layout-left-hand #hand-outline {
-                    transform: translate(-50%, -50%) scaleX(-1) !important;
-                }
-                
-                .layout-right-hand #hand-outline {
-                    transform: translate(-50%, -50%) !important;
-            }
-            
-            .layout-left-hand .hand-guide-overlay,
-            .layout-right-hand .hand-guide-overlay {
-                left: 50% !important;
-            }
-            
-            /* Force column layout regardless of hand */
-            .layout-left-hand .main-container,.final-results
-            .layout-right-hand .main-container {
-                flex-direction: column !important;
-            }
-            
-            .layout-left-hand .left-panel,
-            .layout-right-hand .left-panel {
-                border-left: none !important;
-                border-right: none !important;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
-            }
-        }
-        /* Small mobile devices */
-        @media (max-width: 480px) {
-            .left-panel {
-                padding: 0.75rem !important;
-                max-height: 30vh !important;
-            }
-            
-            .metrics-section {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-            }
-            
-            .timer-display {
-                font-size: 2rem !important;
-            }
-            
-            .taps-display {
-                font-size: 2.5rem !important;
-            }
-            
-            .hand-instruction {
-                font-size: 1.5rem !important;
-            }
-            
-            .trial-overlay-title {
-                font-size: 2rem !important;
-            }
-            
-            .trial-overlay-instruction {
-                font-size: 1.1rem !important;
-            }
-                        
-            #hand-outline {
-                    width: 270px !important;
-                    top: 45% !important;
-            }
-            
-            .countdown {
-                font-size: 6rem !important;
-            }
-        }
-        
-        /* Very small devices */
-        @media (max-width: 360px) {
-            .left-panel {
-                padding: 0.5rem !important;
-            }
-            
-            .timer-display {
-                font-size: 1.8rem !important;
-            }
-            
-            .taps-display {
-                font-size: 2.2rem !important;
-            }
-            
-            .hand-instruction {
-                font-size: 1.3rem !important;
-            }
-            
-            #hand-outline {
-                    width: 250px !important;
-                    top: 45% !important;
             }
         }
     </style>
-    
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -1629,10 +1354,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 Math.pow((wrist.x - middleMcp.x), 2) +
                 Math.pow((wrist.y - middleMcp.y), 2)
             );
-            // More forgiving distance thresholds for mobile
-            const minDistance = isMobileDevice ? 0.25 : 0.28;
-            const maxDistance = isMobileDevice ? 0.35 : 0.32;
-            const goodDistance = handSize > minDistance && handSize < maxDistance;
+            
+            const goodDistance = handSize > 0.28 && handSize < 0.42; // Scaled proportionally
             
             const fingerDistance = Math.sqrt(
                 Math.pow((thumbTip.x - indexTip.x), 2) +
@@ -1650,29 +1373,21 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 handOutline.classList.remove('hand-outline-ready');
                 handOutline.classList.add('hand-outline-not-ready');
             } else if (goodDistance && fingersOpen) {
-                if (isMobileDevice) {
-                    positionStatus.innerHTML = '✓ Tap screen when ready<br>then tap as FAST as you can!';
-                } else {
-                    positionStatus.innerHTML = '✓ Press SPACE when ready<br>then tap as FAST as you can!';
-                }
+        
+                positionStatus.innerHTML = '✓ Press SPACE when ready<br>then tap as FAST as you can!';
                 positionStatus.className = 'position-status ready';
                 handOutline.classList.remove('hand-outline-not-ready');
                 handOutline.classList.add('hand-outline-ready');
-            }
-            
-            else {
+            } else {
                 handOutline.classList.remove('hand-outline-ready');
                 handOutline.classList.add('hand-outline-not-ready');
                 positionStatus.className = 'position-status warning';
                 
                 if (!goodDistance) {
-                    const tooClose = isMobileDevice ? 0.35 : 0.38;
-                    const tooFar = isMobileDevice ? 0.25 : 0.28;
-                    
-                    if (handSize > tooClose) {
-                        positionStatus.textContent = 'Move back from camera';
-                    } else if (handSize < tooFar) {
+                    if (handSize < 0.21) { // Scaled proportionally (0.15 * 1.4)
                         positionStatus.textContent = 'Move closer to camera';
+                    } else if (handSize > 0.42) { // Scaled proportionally (0.3 * 1.4)
+                        positionStatus.textContent = 'Move back from camera';
                     } else {
                         positionStatus.textContent = 'Adjust distance';
                     }
@@ -2603,7 +2318,6 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const positionStatus = document.getElementById('position-status');
             positionStatus.textContent = 'Position hand in view';
             positionStatus.className = 'position-status';
-            updateInstructionsForDevice();
         }
 
  function analyzeAllTrials() {
@@ -2890,119 +2604,49 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             return sign * y;
         }
         let overlayJustDismissed = false;
-                // Add this near the top of your JavaScript, after the mobile detection
-        document.addEventListener('touchstart', function(e) {
-            // Only prevent default on specific elements to avoid breaking scroll
-            if (e.target.closest('.trial-overlay') || e.target.closest('#trial-instructions-overlay')) {
-                e.preventDefault();
-            }
-        }, { passive: false });
 
         document.addEventListener('keydown', function(e) {
-            // Only handle keyboard events on non-mobile devices
-            if (isMobileDevice) return;
-            
             if (e.code === 'Space' || e.key === ' ') {
                 e.preventDefault();
-                handleStartAction(e);
+
+                const overlay = document.getElementById('trial-instructions-overlay');
+                const countdownEl = document.getElementById('countdown');
+                const isCountdownActive = countdownEl && countdownEl.style.display === 'block';
+
+                if (overlay.style.display === 'flex') {
+                    overlay.style.display = 'none';
+                    overlayJustDismissed = true;
+                    return;
+                }
+
+                if (overlayJustDismissed) {
+                    overlayJustDismissed = false;
+                    if (!handDetected) {
+                        alert('Please position your hand in view of the camera before starting.');
+                        return;
+                    }
+                    if (trialIndex >= totalTrials) {
+                        alert('All trials complete!');
+                        return;
+                    }
+                    startRecording();
+                    return;
+                }
+
+                if (recording || isCountdownActive) return;
+
+                if (trialIndex < totalTrials) {
+                    updateConditionUI();
+                }
             }
         });
 
         window.onload = function() {
-            // Detect if mobile on page load
-            isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-            
             document.getElementById('page-webcam').style.display = 'block';
             initializeHands();
             initializeCamera();
             updateConditionUI();
-            addTouchEventListeners();
-            
-            // Update on window resize
-            window.addEventListener('resize', () => {
-                const wasMobile = isMobileDevice;
-                isMobileDevice = window.innerWidth <= 768;
-                if (wasMobile !== isMobileDevice) {
-                    updateInstructionsForDevice();
-                }
-            });
         };
-        // Mobile detection and touch handling
-        let isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-        
-        // Update instructions based on device type
-        function updateInstructionsForDevice() {
-            const footerElement = document.querySelector('.trial-overlay-footer');
-            if (footerElement) {
-                if (isMobileDevice) {
-                    footerElement.textContent = 'Tap anywhere to begin';
-                } else {
-                    footerElement.textContent = 'Press SPACEBAR to begin';
-                }
-            }
-        }
-        
-        // Add touch event listeners for mobile
-        function addTouchEventListeners() {
-            if (isMobileDevice) {
-                // Only add touch event to the trial overlay, not the document
-                const overlay = document.getElementById('trial-instructions-overlay');
-                if (overlay) {
-                    overlay.addEventListener('touchstart', handleStartAction, { passive: false });
-                    overlay.addEventListener('click', handleStartAction);
-                }
-                // Remove this line - it's causing the conflict:
-                // document.addEventListener('touchstart', handleStartAction, { passive: false });
-            }
-        }
-        // Unified action handler for both keyboard and touch
-// Unified action handler for both keyboard and touch
-        function handleStartAction(e) {
-            // Prevent default touch behavior to avoid scrolling
-            if (e.type === 'touchstart') {
-                e.preventDefault();
-            }
-            
-            const overlay = document.getElementById('trial-instructions-overlay');
-            const countdownEl = document.getElementById('countdown');
-            const isCountdownActive = countdownEl && countdownEl.style.display === 'block';
-            
-            // Only handle events when overlay is visible OR when we're ready to start a new trial
-            const overlayVisible = overlay.style.display === 'flex';
-            const readyForNewTrial = !recording && !isCountdownActive && trialIndex < totalTrials && !overlayVisible;
-            
-            // Handle overlay dismissal
-            if (overlayVisible) {
-                overlay.style.display = 'none';
-                overlayJustDismissed = true;
-                setTimeout(() => {
-                    overlayJustDismissed = false;
-                }, 500); // Give a brief delay to prevent immediate re-triggering
-                return;
-            }
-            
-            // Handle starting recording after overlay dismissal
-            if (overlayJustDismissed) {
-                if (!handDetected) {
-                    alert('Please position your hand in view of the camera before starting.');
-                    return;
-                }
-                if (trialIndex >= totalTrials) {
-                    alert('All trials complete!');
-                    return;
-                }
-                startRecording();
-                return;
-            }
-            
-            // Don't interfere if countdown is active or recording
-            if (recording || isCountdownActive) return;
-            
-            // Start new trial if available and we're in the right state
-            if (readyForNewTrial) {
-                updateConditionUI();
-            }
-        }
     </script>
 </body>
 </html>
