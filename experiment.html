@@ -1538,10 +1538,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         function updateLiveMetrics() {
             const currentTime = Date.now() - startTime;
             const remaining = Math.max(0, (recordingDuration - currentTime) / 1000);
-            
-            // Update main timer - show exact seconds remaining
             const minutes = Math.floor(remaining / 60);
-            const seconds = Math.floor(remaining % 60);
+            const seconds = Math.ceil(remaining % 60);
             const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             
             document.getElementById('timer-display').textContent = timerText;
