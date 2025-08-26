@@ -2302,8 +2302,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             handGuide.style.display = 'block';
             document.getElementById('hand-outline').style.display = 'block';
             
-            const totalTapsDisplay = totalTapsAcrossAllTrials > 0 ? `<div style="font-size: 1.4rem; color: #22c55e; font-weight: 600; margin-bottom: 1.5rem; padding: 1rem; background: rgba(34, 197, 94, 0.1); border-radius: 12px; border: 1px solid rgba(34, 197, 94, 0.2);">🎯 Total taps so far: ${totalTapsAcrossAllTrials}</div>` : '';
-            
+            const totalTapsDisplay = totalTapsAcrossAllTrials > 0 ? `<div style="font-size: 2.4rem; color: #22c55e; font-weight: 300; margin-bottom: 2rem; padding: 1.5rem; background: rgba(34, 197, 94, 0.08); border-radius: 16px; border: 1px solid rgba(34, 197, 94, 0.15); letter-spacing: -0.01em;">Total taps so far: ${totalTapsAcrossAllTrials}</div>` : '';
             const instructionHTML = `${totalTapsDisplay}Trial ${trialNum} of ${total}<br><span style="font-size: 1.8rem; margin-top: 1rem; display: block;">Use your <strong>${handText.toUpperCase()}</strong> hand</span>`;
                         document.getElementById('trial-instructions-text').innerHTML = instructionHTML;
                         document.getElementById('trial-instructions-overlay').style.display = 'flex';
