@@ -492,6 +492,34 @@ button, input[type="submit"], .btn {
                 padding: 1.25rem 2rem !important;
             }
         }
+        /* Touch-friendly improvements for mobile */
+        @media (max-width: 768px) {
+            .trial-overlay {
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            .trial-overlay-footer {
+                animation: pulse 2s infinite;
+            }
+            
+            @keyframes pulse {
+                0% { opacity: 1; }
+                50% { opacity: 0.7; }
+                100% { opacity: 1; }
+            }
+            
+            /* Make sure touch events work on the overlay */
+            .trial-overlay-content {
+                pointer-events: auto;
+            }
+            
+            /* Improve button touch targets */
+            button {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
 
         /* Responsive design */
         @media (max-width: 1024px) {
@@ -2551,6 +2579,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const positionStatus = document.getElementById('position-status');
             positionStatus.textContent = 'Position hand in view';
             positionStatus.className = 'position-status';
+            updateInstructionsForDevice();
         }
 
  function analyzeAllTrials() {
@@ -2839,47 +2868,105 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         let overlayJustDismissed = false;
 
         document.addEventListener('keydown', function(e) {
+            // Only handle keyboard events on non-mobile devices
+            if (isMobileDevice) return;
+            
             if (e.code === 'Space' || e.key === ' ') {
                 e.preventDefault();
-
-                const overlay = document.getElementById('trial-instructions-overlay');
-                const countdownEl = document.getElementById('countdown');
-                const isCountdownActive = countdownEl && countdownEl.style.display === 'block';
-
-                if (overlay.style.display === 'flex') {
-                    overlay.style.display = 'none';
-                    overlayJustDismissed = true;
-                    return;
-                }
-
-                if (overlayJustDismissed) {
-                    overlayJustDismissed = false;
-                    if (!handDetected) {
-                        alert('Please position your hand in view of the camera before starting.');
-                        return;
-                    }
-                    if (trialIndex >= totalTrials) {
-                        alert('All trials complete!');
-                        return;
-                    }
-                    startRecording();
-                    return;
-                }
-
-                if (recording || isCountdownActive) return;
-
-                if (trialIndex < totalTrials) {
-                    updateConditionUI();
-                }
+                handleStartAction(e);
             }
         });
 
         window.onload = function() {
+            // Detect if mobile on page load
+            isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+            
             document.getElementById('page-webcam').style.display = 'block';
             initializeHands();
             initializeCamera();
             updateConditionUI();
+            addTouchEventListeners();
+            
+            // Update on window resize
+            window.addEventListener('resize', () => {
+                const wasMobile = isMobileDevice;
+                isMobileDevice = window.innerWidth <= 768;
+                if (wasMobile !== isMobileDevice) {
+                    updateInstructionsForDevice();
+                }
+            });
         };
+        // Mobile detection and touch handling
+        let isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+        
+        // Update instructions based on device type
+        function updateInstructionsForDevice() {
+            const footerElement = document.querySelector('.trial-overlay-footer');
+            if (footerElement) {
+                if (isMobileDevice) {
+                    footerElement.textContent = 'Tap anywhere to begin';
+                } else {
+                    footerElement.textContent = 'Press SPACEBAR to begin';
+                }
+            }
+        }
+        
+        // Add touch event listeners for mobile
+        function addTouchEventListeners() {
+            if (isMobileDevice) {
+                // Add touch event to the trial overlay
+                const overlay = document.getElementById('trial-instructions-overlay');
+                if (overlay) {
+                    overlay.addEventListener('touchstart', handleStartAction, { passive: false });
+                    overlay.addEventListener('click', handleStartAction);
+                }
+                
+                // Add touch event to the document for starting recording
+                document.addEventListener('touchstart', handleStartAction, { passive: false });
+            }
+        }
+        
+        // Unified action handler for both keyboard and touch
+        function handleStartAction(e) {
+            // Prevent default touch behavior to avoid scrolling
+            if (e.type === 'touchstart') {
+                e.preventDefault();
+            }
+            
+            const overlay = document.getElementById('trial-instructions-overlay');
+            const countdownEl = document.getElementById('countdown');
+            const isCountdownActive = countdownEl && countdownEl.style.display === 'block';
+            
+            // Handle overlay dismissal
+            if (overlay.style.display === 'flex') {
+                overlay.style.display = 'none';
+                overlayJustDismissed = true;
+                return;
+            }
+            
+            // Handle starting recording after overlay dismissal
+            if (overlayJustDismissed) {
+                overlayJustDismissed = false;
+                if (!handDetected) {
+                    alert('Please position your hand in view of the camera before starting.');
+                    return;
+                }
+                if (trialIndex >= totalTrials) {
+                    alert('All trials complete!');
+                    return;
+                }
+                startRecording();
+                return;
+            }
+            
+            // Don't interfere if countdown is active or recording
+            if (recording || isCountdownActive) return;
+            
+            // Start new trial if available
+            if (trialIndex < totalTrials) {
+                updateConditionUI();
+            }
+        }
     </script>
 </body>
 </html>
