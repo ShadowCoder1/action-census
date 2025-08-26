@@ -1665,9 +1665,9 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     const tooFar = isMobileDevice ? 0.25 : 0.28;
                     
                     if (handSize > tooClose) {
-                        positionStatus.textContent = 'Move closer to camera';
-                    } else if (handSize < tooFar) {
                         positionStatus.textContent = 'Move back from camera';
+                    } else if (handSize < tooFar) {
+                        positionStatus.textContent = 'Move closer to camera';
                     } else {
                         positionStatus.textContent = 'Adjust distance';
                     }
