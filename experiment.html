@@ -908,7 +908,9 @@ button, input[type="submit"], .btn {
         ];
         let trialIndex = 0;
         let totalTrials = trialConditions.length;
+
         let allTrialResults = []
+        let totalTapsAcrossAllTrials = 0;
         function createLikertScale(name, leftLabel, rightLabel) {
                     let html = '<div style="display: flex; align-items: center; gap: 0.5rem;">';
                     html += `<span style="font-size: 0.8rem; color: #666666; min-width: 60px; text-align: right;">${leftLabel}</span>`;
@@ -1813,7 +1815,9 @@ function stopRecording() {
 
     // Save detailed landmarks separately (non-blocking)
     saveLandmarkDataAsync(participantID, trialIndex + 1, trialConditions[trialIndex % trialConditions.length], frameData);
-
+    
+    totalTapsAcrossAllTrials += tapEvents.length;
+    
     allTrialResults.push({
         condition: trialConditions[trialIndex % trialConditions.length],
         repetition: Math.floor(trialIndex / trialConditions.length) + 1,
@@ -2298,10 +2302,11 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             handGuide.style.display = 'block';
             document.getElementById('hand-outline').style.display = 'block';
             
-            const instructionHTML = `Trial ${trialNum} of ${total}<br><span style="font-size: 1.8rem; margin-top: 1rem; display: block;">Use your <strong>${handText.toUpperCase()}</strong> hand</span>`;
-
-            document.getElementById('trial-instructions-text').innerHTML = instructionHTML;
-            document.getElementById('trial-instructions-overlay').style.display = 'flex';
+            const totalTapsDisplay = totalTapsAcrossAllTrials > 0 ? `<div style="font-size: 1.4rem; color: #22c55e; font-weight: 600; margin-bottom: 1.5rem; padding: 1rem; background: rgba(34, 197, 94, 0.1); border-radius: 12px; border: 1px solid rgba(34, 197, 94, 0.2);">🎯 Total taps so far: ${totalTapsAcrossAllTrials}</div>` : '';
+            
+            const instructionHTML = `${totalTapsDisplay}Trial ${trialNum} of ${total}<br><span style="font-size: 1.8rem; margin-top: 1rem; display: block;">Use your <strong>${handText.toUpperCase()}</strong> hand</span>`;
+                        document.getElementById('trial-instructions-text').innerHTML = instructionHTML;
+                        document.getElementById('trial-instructions-overlay').style.display = 'flex';
 
             // Update elegant trial display
             document.getElementById('trial-number').textContent = `Trial ${trialNum} of ${total}`;
