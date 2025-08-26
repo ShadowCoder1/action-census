@@ -1661,13 +1661,13 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 positionStatus.className = 'position-status warning';
                 
                 if (!goodDistance) {
-                  const tooClose = isMobileDevice ? 0.35 : 0.38;
-                    const tooFar = isMobileDevice ? 0.45 : 0.42;
+                    const tooClose = isMobileDevice ? 0.35 : 0.38;
+                    const tooFar = isMobileDevice ? 0.25 : 0.28;
                     
-                    if (handSize < tooClose) {
-                        positionStatus.textContent = 'Move back from camera';
-                    } else if (handSize > tooFar) {
+                    if (handSize > tooClose) {
                         positionStatus.textContent = 'Move closer to camera';
+                    } else if (handSize < tooFar) {
+                        positionStatus.textContent = 'Move back from camera';
                     } else {
                         positionStatus.textContent = 'Adjust distance';
                     }
