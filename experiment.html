@@ -1629,10 +1629,9 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 Math.pow((wrist.x - middleMcp.x), 2) +
                 Math.pow((wrist.y - middleMcp.y), 2)
             );
-            
             // More forgiving distance thresholds for mobile
             const minDistance = isMobileDevice ? 0.25 : 0.28;
-            const maxDistance = isMobileDevice ? 0.45 : 0.42;
+            const maxDistance = isMobileDevice ? 0.35 : 0.32;
             const goodDistance = handSize > minDistance && handSize < maxDistance;
             
             const fingerDistance = Math.sqrt(
@@ -1662,13 +1661,13 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 positionStatus.className = 'position-status warning';
                 
                 if (!goodDistance) {
-                    const tooClose = isMobileDevice ? 0.18 : 0.21;
+                  const tooClose = isMobileDevice ? 0.35 : 0.38;
                     const tooFar = isMobileDevice ? 0.45 : 0.42;
                     
                     if (handSize < tooClose) {
-                        positionStatus.textContent = 'Move closer to camera';
-                    } else if (handSize > tooFar) {
                         positionStatus.textContent = 'Move back from camera';
+                    } else if (handSize > tooFar) {
+                        positionStatus.textContent = 'Move closer to camera';
                     } else {
                         positionStatus.textContent = 'Adjust distance';
                     }
