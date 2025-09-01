@@ -2424,11 +2424,6 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const rightTapsPerRound = Math.round(calculateAverage(rightTrials, 'tapCount'));
             const leftTapsPerRound = Math.round(calculateAverage(leftTrials, 'tapCount'));
             
-            const demographicNorms = getDemographicAdjustedNorms();
-            const normMean = demographicNorms.mean;
-            const normSD = demographicNorms.sd;
-            const zScore = (avgTapsPerTenSec - normMean) / normSD;
-            const percentile = Math.round(Math.max(1, Math.min(99, (0.5 * (1 + erf(zScore / Math.sqrt(2)))) * 100)));
             // Generate Prolific completion code
             const prolificCode = "CXXRL3ML";
             
@@ -2454,9 +2449,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                             <strong style="font-weight: 700;">${leftTapsPerRound}</strong> times per round with your <strong style="font-weight: 700;">left hand</strong>.
                         </p>
                         
-                        <p style="font-size: 3.4rem; color: #1a1a1a; line-height: 1.3; font-weight: 300; letter-spacing: -0.02em;">
-                            You ranked higher than <strong style="font-weight: 700;">${percentile}%</strong> of participants.
-                        </p>
+    
                     </div>
                     
                     <div style="background: rgba(34, 197, 94, 0.1); border: 2px solid #22c55e; border-radius: 16px; padding: 2rem; margin-bottom: 3rem;">
@@ -2541,13 +2534,13 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const normMean = demographicNorms.mean;
             const normSD = demographicNorms.sd;
             const zScore = (avgTapsPerTenSec - normMean) / normSD;
-            const percentile = Math.round(Math.max(1, Math.min(99, (0.5 * (1 + erf(zScore / Math.sqrt(2)))) * 100)));
+
             
-            showShareOptions(rightTapsPerRound, leftTapsPerRound, percentile, avgTapsPerTenSec);
+            showShareOptions(rightTapsPerRound, leftTapsPerRound);
         }
         
-        function showShareOptions(rightTaps, leftTaps, percentile, avgTaps) {
-            const shareText = `🧠 Just completed a motor speed assessment!\n\n⚡ Right hand: ${rightTaps} taps (15s)\n⚡ Left hand: ${leftTaps} taps (15s)\n📊 Ranked higher than ${percentile}% of participants\n\nTry it yourself! 👆`;
+        function showShareOptions(rightTaps, leftTaps) {
+            const shareText = `🧠 Just completed a motor speed assessment!\n\n⚡ Right hand: ${rightTaps} taps (15s)\n⚡ Left hand: ${leftTaps} taps (15s)\n\nTry it yourself! 👆`;
             
             // Create share modal
             const modal = document.createElement('div');
