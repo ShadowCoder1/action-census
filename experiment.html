@@ -2048,7 +2048,10 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             currentMood: parseInt(responses.mood),
             taskMotivation: parseInt(responses.motivated),
             taskDistraction: parseInt(responses.distracted),
-            expectedPerformanceVsOthers: parseInt(responses.performance)
+            expectedPerformanceVsOthers: parseInt(responses.performance),
+                persistenceWhenFrustrated: parseInt(responses.persistence),
+                attentionSpanGeneral: parseInt(responses.attention),
+                enjoymentOfCompetition: parseInt(responses.competition)
         },
         demographics: {
             hasNeurologicalConditions: responses.neurological === 'yes',
