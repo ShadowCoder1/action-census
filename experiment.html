@@ -699,6 +699,21 @@ button, input[type="submit"], .btn {
                         <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Expected performance vs. others:</label>
                         <div class="likert-scale" id="performance-scale"></div>
                     </div>
+
+                    <div class="question-group">
+                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Persistence when tasks get frustrating:</label>
+                        <div class="likert-scale" id="persistence-scale"></div>
+                    </div>
+                    
+                    <div class="question-group">
+                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Attention span in general:</label>
+                        <div class="likert-scale" id="attention-scale"></div>
+                    </div>
+                    
+                    <div class="question-group">
+                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Enjoyment of competition:</label>
+                        <div class="likert-scale" id="competition-scale"></div>
+                    </div>
                 </div>
 
                 <!-- Neurological Question -->
@@ -726,6 +741,21 @@ button, input[type="submit"], .btn {
                         </label>
                         <label style="display: flex; align-items: center; font-size: 1.1rem; cursor: pointer;">
                             <input type="radio" name="handPain" value="yes" style="margin-right: 0.5rem; transform: scale(1.2);">
+                            Yes
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Injury/Disease History Question -->
+                <div class="question-group" style="margin-bottom: 1.5rem; background: rgba(0,0,0,0.02); padding: 1rem; border-radius: 8px;">
+                    <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">History of injury/disease affecting hand/arm movement:</label>
+                    <div style="display: flex; gap: 2rem;">
+                        <label style="display: flex; align-items: center; font-size: 1.1rem; cursor: pointer;">
+                            <input type="radio" name="handInjuryHistory" value="no" required style="margin-right: 0.5rem; transform: scale(1.2);">
+                            No
+                        </label>
+                        <label style="display: flex; align-items: center; font-size: 1.1rem; cursor: pointer;">
+                            <input type="radio" name="handInjuryHistory" value="yes" style="margin-right: 0.5rem; transform: scale(1.2);">
                             Yes
                         </label>
                     </div>
@@ -965,6 +995,9 @@ button, input[type="submit"], .btn {
             document.getElementById('motivated-scale').innerHTML = createLikertScale('motivated', 'Not at all', 'Extremely');
             document.getElementById('distracted-scale').innerHTML = createLikertScale('distracted', 'Not at all', 'Extremely');
             document.getElementById('performance-scale').innerHTML = createLikertScale('performance', 'Much Worse', 'Much Better');
+            document.getElementById('persistence-scale').innerHTML = createLikertScale('persistence', 'Give up quickly', 'Push through');
+            document.getElementById('attention-scale').innerHTML = createLikertScale('attention', 'Very short', 'Very long');
+            document.getElementById('competition-scale').innerHTML = createLikertScale('competition', 'Not at all', 'Very much');
             
             document.getElementById('questionnaire-overlay').style.display = 'flex';
             
@@ -1020,6 +1053,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         demographics: {
             hasNeurologicalConditions: responses.neurological === 'yes',
             hasHandPain: responses.handPain === 'yes',
+            hasHandInjuryHistory: responses.handInjuryHistory === 'yes',
             householdIncome: responses.income,
             zipCode: responses.zipcode
         },
@@ -1990,7 +2024,10 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     const expectedFields = [
         'videogame', 'musical', 'sports', 'caffeine', 
         'mood', 'motivated', 'distracted', 'performance',
-        'neurological', 'handPain', 'income', 'zipcode'
+        'neurological', 'handPain', 'income', 'zipcode',
+         persistenceWhenFrustrated: parseInt(responses.persistence),
+         attentionSpanGeneral: parseInt(responses.attention),
+         enjoymentOfCompetition: parseInt(responses.competition)
     ];
     
     const missingFields = expectedFields.filter(field => !responses[field]);
