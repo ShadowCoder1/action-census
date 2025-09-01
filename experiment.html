@@ -2020,14 +2020,10 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     
     console.log("📋 Questionnaire responses to save:", responses);
     
-    // Validate required fields
     const expectedFields = [
         'videogame', 'musical', 'sports', 'caffeine', 
         'mood', 'motivated', 'distracted', 'performance',
-        'neurological', 'handPain', 'income', 'zipcode',
-         persistenceWhenFrustrated: parseInt(responses.persistence),
-         attentionSpanGeneral: parseInt(responses.attention),
-         enjoymentOfCompetition: parseInt(responses.competition)
+        'neurological', 'handPain', 'handInjuryHistory', 'persistence', 'attention', 'competition', 'income', 'zipcode'
     ];
     
     const missingFields = expectedFields.filter(field => !responses[field]);
@@ -2055,6 +2051,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         },
         demographics: {
             hasNeurologicalConditions: responses.neurological === 'yes',
+            hasHandPain: responses.handPain === 'yes',
+            hasHandInjuryHistory: responses.handInjuryHistory === 'yes',
             householdIncome: responses.income,
             zipCode: responses.zipcode
         },
