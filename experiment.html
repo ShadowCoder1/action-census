@@ -716,6 +716,21 @@ button, input[type="submit"], .btn {
                     </div>
                 </div>
 
+                                <!-- Hand Pain Question -->
+                <div class="question-group" style="margin-bottom: 1.5rem; background: rgba(0,0,0,0.02); padding: 1rem; border-radius: 8px;">
+                    <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Do you currently have hand-related pain that affects your performance on tasks like this?</label>
+                    <div style="display: flex; gap: 2rem;">
+                        <label style="display: flex; align-items: center; font-size: 1.1rem; cursor: pointer;">
+                            <input type="radio" name="handPain" value="no" required style="margin-right: 0.5rem; transform: scale(1.2);">
+                            No
+                        </label>
+                        <label style="display: flex; align-items: center; font-size: 1.1rem; cursor: pointer;">
+                            <input type="radio" name="handPain" value="yes" style="margin-right: 0.5rem; transform: scale(1.2);">
+                            Yes
+                        </label>
+                    </div>
+                </div>
+
 <!-- Demographics Questions -->
 <div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 1.5rem;">
     <div style="background: rgba(59, 130, 246, 0.05); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; border-left: 3px solid #3b82f6;">
@@ -1004,6 +1019,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         // Demographics and health
         demographics: {
             hasNeurologicalConditions: responses.neurological === 'yes',
+            hasHandPain: responses.handPain === 'yes',
             householdIncome: responses.income,
             zipCode: responses.zipcode
         },
@@ -1974,7 +1990,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     const expectedFields = [
         'videogame', 'musical', 'sports', 'caffeine', 
         'mood', 'motivated', 'distracted', 'performance',
-        'neurological', 'income', 'zipcode'
+        'neurological', 'handPain', 'income', 'zipcode'
     ];
     
     const missingFields = expectedFields.filter(field => !responses[field]);
