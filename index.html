@@ -354,45 +354,115 @@
             }
         }
 
+        /* MOBILE-ONLY STYLES - These will ONLY affect mobile devices */
         @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+                background-size: 30px 30px; /* Smaller grid for mobile */
+            }
+
             h1 {
-                font-size: 4.5rem;
+                font-size: 3.5rem; /* Much smaller for mobile screens */
+                margin-bottom: 1.5rem;
+                line-height: 1.2;
+            }
+
+            h1::after {
+                width: 120px; /* Smaller underline */
+                height: 2px;
             }
             
             p {
-                font-size: 3.2rem;
+                font-size: 1.6rem; /* Much smaller text */
+                margin-bottom: 1.5rem;
+                line-height: 1.5;
             }
             
             .challenge {
-                font-size: 4rem;
+                font-size: 2rem; /* Much smaller challenge text */
+                margin: 2rem 0 1.5rem 0;
             }
         
             .continue-btn {
-                font-size: 2.5rem;
-                padding: 1.8rem 3.2rem;
+                font-size: 1.4rem; /* Much smaller button text */
+                padding: 1.2rem 2.5rem; /* Smaller button padding */
+                border-radius: 1rem;
+                margin-top: 1.5rem;
+            }
+
+            /* Adjust animations for mobile */
+            .grid-light {
+                width: 4px;
+                height: 4px;
+            }
+
+            .particle {
+                width: 2px;
+                height: 2px;
             }
         }
         
+        /* SMALL MOBILE STYLES - For very small screens */
         @media (max-width: 480px) {
+            body {
+                padding: 0.5rem;
+                background-size: 25px 25px;
+            }
+
             h1 {
-                font-size: 3.2rem;
+                font-size: 2.8rem; /* Even smaller for tiny screens */
+                margin-bottom: 1rem;
             }
             
             h1::after {
-                width: 150px;
+                width: 100px;
             }
         
             p {
-                font-size: 2.8rem;
+                font-size: 1.3rem;
+                margin-bottom: 1rem;
             }
             
             .challenge {
-                font-size: 3.5rem;
+                font-size: 1.7rem;
+                margin: 1.5rem 0 1rem 0;
             }
         
             .continue-btn {
+                font-size: 1.2rem;
+                padding: 1rem 2rem;
+                margin-top: 1rem;
+            }
+
+            /* Further reduce decorative elements on very small screens */
+            .grid-light {
+                width: 3px;
+                height: 3px;
+            }
+
+            .particle {
+                width: 1.5px;
+                height: 1.5px;
+            }
+        }
+
+        /* EXTRA SMALL MOBILE - For very narrow screens */
+        @media (max-width: 360px) {
+            h1 {
                 font-size: 2.2rem;
-                padding: 1.5rem 2.8rem;
+            }
+            
+            p {
+                font-size: 1.1rem;
+            }
+            
+            .challenge {
+                font-size: 1.4rem;
+            }
+        
+            .continue-btn {
+                font-size: 1rem;
+                padding: 0.8rem 1.5rem;
             }
         }
     </style>
