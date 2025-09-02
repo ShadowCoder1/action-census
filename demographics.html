@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Particinnnnpant Information | Parkinsense Assessment</title>
+  <title>Participant Information | Parkinsense Assessment</title>
   <style>
     * {
       margin: 0;
@@ -235,26 +235,6 @@
       color: #ef4444;
     }
 
-    @media (max-width: 768px) {
-      .container {
-        padding: 2rem;
-        margin: 1rem;
-      }
-      
-      form {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-      }
-      
-      h1 {
-        font-size: 2.8rem;
-      }
-      
-      button {
-        width: 100%;
-      }
-    }
-
     /* Loading state */
     .loading {
       opacity: 0.6;
@@ -275,6 +255,189 @@
       margin-bottom: 1rem;
       text-align: center;
       display: none;
+    }
+
+    /* MOBILE-ONLY STYLES - These will ONLY affect mobile devices */
+    @media (max-width: 768px) {
+      body {
+        font-size: 1rem;
+        padding: 1rem;
+        background-size: 30px 30px;
+      }
+
+      .container {
+        padding: 1.5rem;
+        margin: 0.5rem;
+        border-radius: 15px;
+        max-width: none;
+        width: calc(100% - 1rem);
+      }
+      
+      form {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 0.8rem;
+      }
+
+      .subtitle {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+        line-height: 1.5;
+      }
+
+      label {
+        font-size: 0.9rem;
+        margin-bottom: 0.4rem;
+      }
+
+      input, select {
+        padding: 1rem 1.2rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        background-size: 1.2em 1.2em;
+        padding-right: 2.2rem;
+      }
+
+      input {
+        padding-right: 1.2rem;
+      }
+      
+      button {
+        width: 100%;
+        padding: 1.2rem 2rem;
+        font-size: 1rem;
+        border-radius: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .success-message {
+        font-size: 0.9rem;
+        padding: 0.8rem;
+        margin-bottom: 1rem;
+      }
+
+      /* Adjust grid lights for mobile */
+      .grid-light {
+        width: 6px;
+        height: 6px;
+      }
+    }
+
+    /* SMALL MOBILE STYLES - For very small screens */
+    @media (max-width: 480px) {
+      body {
+        font-size: 0.9rem;
+        padding: 0.5rem;
+        background-size: 25px 25px;
+      }
+
+      .container {
+        padding: 1rem;
+        margin: 0.25rem;
+        width: calc(100% - 0.5rem);
+      }
+      
+      h1 {
+        font-size: 1.6rem;
+        margin-bottom: 0.6rem;
+      }
+
+      .subtitle {
+        font-size: 0.85rem;
+        margin-bottom: 1.5rem;
+      }
+
+      form {
+        gap: 1.2rem;
+      }
+
+      label {
+        font-size: 0.8rem;
+        margin-bottom: 0.3rem;
+      }
+
+      input, select {
+        padding: 0.9rem 1rem;
+        font-size: 0.9rem;
+        border-radius: 6px;
+        background-size: 1em 1em;
+        padding-right: 2rem;
+      }
+
+      input {
+        padding-right: 1rem;
+      }
+      
+      button {
+        padding: 1rem 1.5rem;
+        font-size: 0.9rem;
+        margin-top: 1.2rem;
+      }
+
+      .success-message {
+        font-size: 0.8rem;
+        padding: 0.7rem;
+      }
+
+      /* Further reduce grid lights */
+      .grid-light {
+        width: 4px;
+        height: 4px;
+      }
+    }
+
+    /* EXTRA SMALL MOBILE - For very narrow screens */
+    @media (max-width: 360px) {
+      body {
+        font-size: 0.85rem;
+        padding: 0.25rem;
+      }
+
+      .container {
+        padding: 0.8rem;
+      }
+
+      h1 {
+        font-size: 1.4rem;
+      }
+
+      .subtitle {
+        font-size: 0.8rem;
+        margin-bottom: 1.2rem;
+      }
+
+      form {
+        gap: 1rem;
+      }
+
+      label {
+        font-size: 0.75rem;
+      }
+
+      input, select {
+        padding: 0.8rem 0.9rem;
+        font-size: 0.85rem;
+        padding-right: 1.8rem;
+      }
+
+      input {
+        padding-right: 0.9rem;
+      }
+      
+      button {
+        padding: 0.9rem 1.2rem;
+        font-size: 0.85rem;
+        margin-top: 1rem;
+      }
+
+      .success-message {
+        font-size: 0.75rem;
+        padding: 0.6rem;
+      }
     }
   </style>
 
