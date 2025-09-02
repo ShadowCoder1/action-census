@@ -191,116 +191,168 @@
     .continue-button:active{transform:translateY(-2px) scale(1.01);}
 
     /* ===== MOBILE (no scroll to button) ===== */
-    @media (max-width: 768px) {
-      html, body {
-        height: 100dvh;
-        overflow: hidden;
-        padding: 0; /* we’ll handle padding inside container */
-        background-size: 30px 30px;
-      }
+  /* ===== MOBILE (refined, polished) ===== */
+@media (max-width: 768px) {
+  :root {
+    --space-xs: 0.5rem;
+    --space-sm: 0.75rem;
+    --space-md: 1rem;
+    --card-radius: 12px;
+    --shadow-soft: 0 4px 12px rgba(0,0,0,.08);
+    --shadow-medium: 0 8px 16px rgba(0,0,0,.12);
+  }
 
-      .container {
-        height: 100dvh;
-        grid-template-rows: auto 1fr auto; /* header, content, footer */
-        gap: 0.75rem;
-        padding: calc(0.5rem + var(--safe-top)) calc(0.5rem + var(--safe-left)) calc(0.5rem + var(--safe-bottom)) calc(0.5rem + var(--safe-left));
-      }
+  html, body {
+    height: 100dvh;
+    overflow: hidden;
+    padding: 0;
+    background-size: 30px 30px;
+  }
 
-      .header {
-        padding: 0.8rem;
-        border-radius: 12px;
-        flex-shrink: 0;
-      }
+  /* Page grid fits exactly in the viewport */
+  .container {
+    height: 100dvh;
+    grid-template-rows: auto 1fr auto; /* header / content / button */
+    gap: var(--space-sm);
+    padding:
+      calc(var(--space-sm) + env(safe-area-inset-top))
+      calc(var(--space-sm) + env(safe-area-inset-right))
+      calc(var(--space-sm) + env(safe-area-inset-bottom))
+      calc(var(--space-sm) + env(safe-area-inset-left));
+  }
 
-      h1 { font-size: 1.6rem; margin-bottom: 0.2rem; line-height: 1.1; }
-      .subtitle { font-size: 0.9rem; line-height: 1.25; margin-top: 0; }
+  /* Header — compact and balanced */
+  .header {
+    padding: var(--space-sm);
+    border-radius: var(--card-radius);
+    box-shadow: var(--shadow-soft);
+  }
 
-      .main-content {
-        padding: 0.75rem;
-        border-radius: 12px;
-        display: flex;
-        flex-direction: column;
-        min-height: 0;    /* allow child to size */
-        overflow: hidden; /* contain internals */
-      }
+  h1 {
+    /* scales smoothly from small phones up to big ones */
+    font-size: clamp(1.1rem, 4.6vw, 1.5rem);
+    line-height: 1.15;
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.01em;
+    font-weight: 600; /* a touch bolder for legibility */
+  }
 
-      /* Make video compact so it never pushes button below screen */
-      .video-section {
-        gap: 0.6rem;
-        flex: 1 1 auto;
-        min-height: 0;
-      }
+  .subtitle {
+    font-size: clamp(0.8rem, 3.6vw, 0.95rem);
+    line-height: 1.3;
+    color: #6b7280;
+    margin-top: 0;
+    font-weight: 450;
+  }
 
-      .progress-container { flex-shrink: 0; order: -1; }
-      .progress-text { font-size: 0.8rem; margin-bottom: 0.35rem; }
-      .progress-bar { height: 5px; margin-bottom: 0.5rem; }
+  /* Main card uses all remaining height without inner overflow */
+  .main-content {
+    padding: var(--space-sm);
+    border-radius: var(--card-radius);
+    box-shadow: var(--shadow-soft);
+    min-height: 0;
+    overflow: hidden;
+  }
 
-      /* Use aspect-ratio + a cap to keep it short */
-      .video-container {
-        height: auto;
-        padding-bottom: 0;         /* disable desktop trick */
-        aspect-ratio: 20 / 9;      /* shorter than 16:9 */
-        max-height: 32dvh;         /* hard cap so it never dominates */
-        border-radius: 10px;
-        flex: 0 0 auto;
-      }
-      .video-container #player { position: absolute; inset: 0; width: 100%; height: 100%; }
+  /* Video section uses a clean 16:9 box with a height cap */
+  .video-section {
+    gap: var(--space-sm);
+    flex: 1 1 auto;
+    min-height: 0;
+  }
 
-      /* Steps can scroll internally if needed without growing page */
-      .steps-content {
-        align-items: flex-start;
-        justify-content: flex-start;
-        padding: 0.5rem 0;
-        max-height: 48dvh;   /* keep within viewport budget */
-        overflow-y: auto;    /* scroll inside, not the page */
-      }
+  .progress-container { order: -1; flex-shrink: 0; }
+  .progress-text { font-size: 0.82rem; margin-bottom: 0.35rem; }
+  .progress-bar { height: 5px; margin-bottom: 0.5rem; }
 
-      .steps { width: 100%; padding: 0; }
-      .steps::before { left: 1.2rem; width: 2px; top: 1.2rem; height: calc(100% - 2.4rem); }
-      .steps::after  { left: 1.2rem; width: 8px; height: 8px; top: 1.2rem; }
-      @keyframes circularGlowDown{
-        0%{opacity:0;top:1.2rem;}10%{opacity:1;}90%{opacity:1;}100%{opacity:0;top:calc(100% - 1.2rem);}
-      }
+  .video-container {
+    /* Remove padding-bottom trick; use true aspect-ratio */
+    padding-bottom: 0;
+    height: auto;
+    aspect-ratio: 16 / 9;       /* ✅ prevents “smooshing” */
+    max-height: 38dvh;          /* won’t crowd the button */
+    border-radius: 10px;
+    flex: 0 0 auto;
+    box-shadow: var(--shadow-medium);
+  }
+  .video-container #player {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+  }
 
-      .step {
-        padding: 0.75rem 0.75rem 0.75rem 2.6rem;
-        margin-bottom: 0.8rem; border-radius: 10px; position: relative;
-      }
-      .step::before {
-        width: 2rem; height: 2rem; font-size: 0.85rem;
-        margin-right: 0; position: absolute; left: 0.2rem; top: 0.75rem;
-      }
-      .step-content { font-size: 0.9rem; line-height: 1.4; margin-left: 0; }
-      .step:hover, .step:hover::before { transform: none; }
+  /* Steps pane can scroll internally if needed, page itself will not scroll */
+  .steps-content {
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: var(--space-xs) 0;
+    max-height: 46dvh;        /* balanced with video + button */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 
-      /* FIXED button: always visible; we also leave space for it */
-      .button-area {
-        position: fixed;
-        left: 0; right: 0;
-        bottom: 0;
-        padding: 0.75rem calc(0.75rem + var(--safe-right)) calc(0.75rem + var(--safe-bottom)) calc(0.75rem + var(--safe-left));
-        background: linear-gradient(to top, rgba(255,255,255,0.95), rgba(255,255,255,0.6), transparent);
-        z-index: 5;
-      }
-      .continue-button {
-        width: 100%;
-        padding: 0.9rem 1.25rem;
-        font-size: 1rem;
-        border-radius: 12px;
-        box-shadow: 0 6px 16px rgba(34,197,94,.45);
-      }
-      .continue-button:hover { transform: none; box-shadow: 0 6px 16px rgba(34,197,94,.55); }
+  .steps { width: 100%; padding: 0; }
+  .steps::before { left: 1.1rem; width: 2px; top: 1rem; height: calc(100% - 2rem); }
+  .steps::after  { left: 1.1rem; width: 8px; height: 8px; top: 1rem; }
 
-      /* Reserve vertical space so main-content never hides behind the fixed button */
-      .main-content::before {
-        content: '';
-        display: block;
-        height: 64px; /* approximate button height */
-      }
+  .step {
+    padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+    margin-bottom: 0.75rem;
+    border-radius: 10px;
+    box-shadow: var(--shadow-soft);
+  }
+  .step::before {
+    width: 1.9rem; height: 1.9rem; font-size: 0.85rem;
+    left: 0.2rem; top: 0.75rem; margin-right: 0;
+  }
+  .step-content {
+    font-size: clamp(0.9rem, 3.6vw, 1rem);
+    line-height: 1.45;
+  }
 
-      /* Make grid lights lighter/smaller on mobile */
-      .grid-light { width: 5px; height: 5px; opacity: 0.5; }
-    }
+  /* Bottom button always visible; translucent top edge for depth */
+  .button-area {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    padding:
+      var(--space-sm)
+      calc(var(--space-sm) + env(safe-area-inset-right))
+      calc(var(--space-sm) + env(safe-area-inset-bottom))
+      calc(var(--space-sm) + env(safe-area-inset-left));
+    background: linear-gradient(to top, rgba(255,255,255,0.98), rgba(255,255,255,0.7), transparent);
+    z-index: 5;
+  }
+  .continue-button {
+    width: 100%;
+    padding: 0.9rem 1.25rem;
+    font-size: clamp(0.95rem, 3.8vw, 1.05rem);
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(34,197,94,.42);
+  }
+  .continue-button:hover { transform: none; box-shadow: 0 6px 16px rgba(34,197,94,.55); }
+
+  /* Reserve vertical space so content never hides behind the fixed CTA */
+  .main-content::before {
+    content: '';
+    display: block;
+    height: 64px; /* matches CTA height */
+  }
+
+  /* Tone down decoration on small screens */
+  .grid-light { width: 5px; height: 5px; opacity: 0.45; }
+}
+
+/* SMALL MOBILE tweaks */
+@media (max-width: 480px) {
+  .video-container { max-height: 34dvh; }
+  .steps-content { max-height: 44dvh; }
+  h1 { letter-spacing: 0; }
+}
+
+/* EXTRA SMALL MOBILE */
+@media (max-width: 360px) {
+  .video-container { max-height: 32dvh; }
+  .steps-content { max-height: 42dvh; }
+}
+
+
 
     /* SMALL MOBILE */
     @media (max-width: 480px) {
