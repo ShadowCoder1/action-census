@@ -986,4 +986,100 @@
       // Show selected tab content
       document.getElementById(tabName).classList.add('active');
 
-      // Update button base
+      // Update button based on active tab
+      const button = document.getElementById('mainButton');
+      if (tabName === 'video') {
+        button.innerHTML = 'Continue';
+        button.onclick = showStepsTab;
+      } else if (tabName === 'steps') {
+        button.innerHTML = '<a href="experiment.html" style="color: inherit; text-decoration: none;">Start Assessment</a>';
+        button.onclick = null;
+      }
+    }
+
+    // YouTube API callback
+    function onYouTubeIframeAPIReady() {
+      // Clear any existing player
+      if (player && player.destroy) {
+        player.destroy();
+      }
+      
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        player = new YT.Player('player', {
+          height: '100%',
+          width: '100%',
+          videoId: '1V2lw9vSOw0',
+          playerVars: {
+            'playsinline': 1,
+            'rel': 0,
+            'modestbranding': 1
+          },
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      }, 100);
+    }
+
+    function onPlayerReady(event) {
+      // Player is ready
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data == YT.PlayerState.PLAYING) {
+        startProgressTracking();
+      } else {
+        stopProgressTracking();
+      }
+    }
+
+    function startProgressTracking() {
+      progressInterval = setInterval(updateProgress, 500);
+    }
+
+    function stopProgressTracking() {
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
+    }
+
+    function updateProgress() {
+      if (player && player.getCurrentTime && player.getDuration) {
+        const currentTime = player.getCurrentTime();
+        const duration = player.getDuration();
+        
+        if (duration > 0) {
+          const percentage = (currentTime / duration) * 100;
+          const progressFill = document.getElementById('progressFill');
+          const progressText = document.getElementById('progressText');
+          
+          if (progressFill && progressText) {
+            progressFill.style.width = percentage + '%';
+            progressText.textContent = 'Please watch the video: ' + Math.round(percentage) + '% completed.';
+          }
+        }
+      }
+    }
+
+    // Handle page visibility changes and reloads
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden && player && player.getPlayerState) {
+    // Page became visible again, reinitialize if needed
+    setTimeout(() => {
+      if (player.getPlayerState() === -1 || player.getPlayerState() === 5) {
+        onYouTubeIframeAPIReady();
+      }
+    }, 500);
+  }
+});
+
+// Reinitialize on page load if player doesn't exist
+window.addEventListener('load', function() {
+  setTimeout(() => {
+    if (!player || !player.getPlayerState) {
+      onYouTubeIframeAPIReady();
+    }
+  }, 1000);
+});
