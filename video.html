@@ -267,23 +267,181 @@
       opacity: 1;
     }
 
+    /* MOBILE-ONLY STYLES - These will ONLY affect mobile devices */
     @media (max-width: 768px) {
       body {
         padding: 1rem;
+        background-size: 30px 30px;
+        align-items: flex-start;
+        padding-top: 2rem;
+      }
+
+      .container {
+        max-width: none;
+        width: calc(100% - 0.5rem);
       }
       
       .header, .video-section {
-        padding: 2rem;
+        padding: 1.5rem;
         margin-bottom: 1.5rem;
+        border-radius: 15px;
       }
       
       h1 {
-        font-size: 2rem;
+        font-size: 1.6rem;
+        margin-bottom: 0.8rem;
+      }
+
+      .subtitle {
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
+      .video-container {
+        border-radius: 8px;
+        margin-bottom: 1rem;
+      }
+
+      .video-caption {
+        font-size: 0.85rem;
+        margin-bottom: 1.2rem;
+      }
+
+      .progress-text {
+        font-size: 0.8rem;
+      }
+
+      .progress-bar {
+        height: 6px;
+        margin-bottom: 0.4rem;
+      }
+
+      .completion-message {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
       }
       
       .next-button {
         width: 100%;
-        padding: 1rem 2rem;
+        padding: 1.2rem 2rem;
+        font-size: 1rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+      }
+
+      .next-button:hover {
+        transform: none;
+        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+      }
+
+      /* Adjust grid lights for mobile */
+      .grid-light {
+        width: 6px;
+        height: 6px;
+      }
+    }
+
+    /* SMALL MOBILE STYLES - For very small screens */
+    @media (max-width: 480px) {
+      body {
+        padding: 0.5rem;
+        background-size: 25px 25px;
+      }
+
+      .container {
+        width: calc(100% - 0.25rem);
+      }
+      
+      .header, .video-section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+      
+      h1 {
+        font-size: 1.4rem;
+        margin-bottom: 0.6rem;
+      }
+
+      .subtitle {
+        font-size: 0.85rem;
+      }
+
+      .video-container {
+        margin-bottom: 0.8rem;
+        border-radius: 6px;
+      }
+
+      .video-caption {
+        font-size: 0.8rem;
+        margin-bottom: 1rem;
+      }
+
+      .progress-container {
+        margin-bottom: 1.2rem;
+      }
+
+      .progress-text {
+        font-size: 0.75rem;
+      }
+
+      .progress-bar {
+        height: 5px;
+      }
+
+      .completion-message {
+        font-size: 0.9rem;
+        margin-bottom: 1.2rem;
+      }
+      
+      .next-button {
+        padding: 1rem 1.5rem;
+        font-size: 0.9rem;
+      }
+
+      /* Further reduce grid lights */
+      .grid-light {
+        width: 4px;
+        height: 4px;
+      }
+    }
+
+    /* EXTRA SMALL MOBILE - For very narrow screens */
+    @media (max-width: 360px) {
+      body {
+        padding: 0.25rem;
+      }
+
+      .container {
+        width: calc(100% - 0.1rem);
+      }
+
+      .header, .video-section {
+        padding: 0.8rem;
+      }
+
+      h1 {
+        font-size: 1.2rem;
+      }
+
+      .subtitle {
+        font-size: 0.8rem;
+      }
+
+      .video-caption {
+        font-size: 0.75rem;
+      }
+
+      .progress-text {
+        font-size: 0.7rem;
+      }
+
+      .completion-message {
+        font-size: 0.85rem;
+      }
+
+      .next-button {
+        padding: 0.9rem 1.2rem;
+        font-size: 0.85rem;
       }
     }
   </style>
