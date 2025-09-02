@@ -526,22 +526,191 @@
       transform: translateY(-2px) scale(1.01);
     }
 
+    /* MOBILE-ONLY STYLES - These will ONLY affect mobile devices */
     @media (max-width: 768px) {
       body {
         padding: 0.5rem;
+        background-size: 30px 30px;
+        overflow-y: auto;
+        height: auto;
+        min-height: 100vh;
       }
       
       .container {
-        height: calc(100vh - 1rem);
+        height: auto;
+        min-height: calc(100vh - 1rem);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .header {
+        padding: 1rem;
       }
       
       h1 {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
+      }
+
+      .subtitle {
+        font-size: 0.9rem;
+      }
+
+      .main-content {
+        flex: 1;
+        padding: 1rem;
+        border-radius: 12px;
+      }
+
+      .video-section {
+        gap: 0.8rem;
+      }
+
+      .video-container {
+        border-radius: 8px;
+      }
+
+      .progress-text {
+        font-size: 0.75rem;
+      }
+
+      .progress-bar {
+        height: 5px;
+      }
+
+      .steps-content {
+        padding: 0.5rem 0;
+      }
+
+      .steps::before {
+        left: 1.4rem;
+        width: 3px;
+      }
+
+      .steps::after {
+        left: 1.4rem;
+        width: 12px;
+        height: 12px;
+      }
+
+      .step {
+        padding: 1rem;
+        margin-bottom: 1.2rem;
+        border-radius: 10px;
+      }
+
+      .step::before {
+        width: 2.4rem;
+        height: 2.4rem;
+        font-size: 1rem;
+        margin-right: 1.2rem;
+        position: absolute;
+        left: -1.2rem;
+      }
+
+      .step-content {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-left: 2rem;
+      }
+
+      .button-area {
+        padding: 1rem 0;
       }
       
       .continue-button {
         width: 100%;
-        padding: 1rem 2rem;
+        padding: 1.2rem 2rem;
+        font-size: 1rem;
+        border-radius: 1rem;
+      }
+
+      .continue-button:hover {
+        transform: none;
+      }
+
+      /* Adjust grid lights for mobile */
+      .grid-light {
+        width: 6px;
+        height: 6px;
+      }
+    }
+
+    /* SMALL MOBILE STYLES - For very small screens */
+    @media (max-width: 480px) {
+      body {
+        padding: 0.25rem;
+        background-size: 25px 25px;
+      }
+
+      .container {
+        gap: 0.8rem;
+        min-height: calc(100vh - 0.5rem);
+      }
+
+      .header {
+        padding: 0.8rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .subtitle {
+        font-size: 0.8rem;
+      }
+
+      .main-content {
+        padding: 0.8rem;
+      }
+
+      .step {
+        padding: 0.8rem;
+        margin-bottom: 1rem;
+      }
+
+      .step::before {
+        width: 2rem;
+        height: 2rem;
+        font-size: 0.9rem;
+        margin-right: 1rem;
+        left: -1rem;
+      }
+
+      .step-content {
+        font-size: 0.85rem;
+        margin-left: 1.5rem;
+      }
+
+      .continue-button {
+        padding: 1rem 1.5rem;
+        font-size: 0.9rem;
+      }
+
+      /* Further reduce grid lights */
+      .grid-light {
+        width: 4px;
+        height: 4px;
+      }
+    }
+
+    /* EXTRA SMALL MOBILE - For very narrow screens */
+    @media (max-width: 360px) {
+      h1 {
+        font-size: 1.3rem;
+      }
+
+      .subtitle {
+        font-size: 0.75rem;
+      }
+
+      .step-content {
+        font-size: 0.8rem;
+      }
+
+      .continue-button {
+        font-size: 0.85rem;
+        padding: 0.9rem 1.2rem;
       }
     }
   </style>
