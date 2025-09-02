@@ -409,6 +409,52 @@ button, input[type="submit"], .btn {
             display: inline-block;
         }
 
+                /* Mobile start button */
+        .mobile-start-button {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border: none;
+            padding: 1.2rem 3rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+            margin-top: 2rem;
+        }
+        
+        .mobile-start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        }
+        
+        .mobile-start-button:active {
+            transform: translateY(0);
+        }
+        
+        /* Show/hide based on device */
+        @media (max-width: 768px) {
+            .desktop-only {
+                display: none !important;
+            }
+            .mobile-only {
+                display: block !important;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-only {
+                display: none !important;
+            }
+            .desktop-only {
+                display: block !important;
+            }
+        }
+
         /* Feedback panel - Floating pill */
         .feedback-panel {
             position: absolute;
@@ -471,33 +517,70 @@ button, input[type="submit"], .btn {
             }
         }
         @media (max-width: 768px) {
+            body {
+                font-size: 1.1rem;
+                overflow: auto;
+            }
+            
             .main-container {
                 flex-direction: column !important;
+                height: 100vh;
             }
             
             .left-panel {
                 width: 100%;
                 height: auto;
-                padding: 1.5rem;
+                min-height: 200px;
+                padding: 1rem;
                 border-right: none !important;
                 border-left: none !important;
                 border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+                flex-shrink: 0;
             }
             
+            .right-panel {
+                flex: 1;
+                min-height: calc(100vh - 200px);
+            }
             
             .metrics-section {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 1.5rem;
+                margin-bottom: 1rem;
+                gap: 1rem;
             }
             
             .timer-display {
-                font-size: 4.2rem;
+                font-size: 2.8rem;
+                margin-bottom: 0;
+            }
+            
+            .taps-counter {
+                margin-bottom: 1rem;
+                gap: 0.5rem;
             }
             
             .taps-display {
-                font-size: 5.6rem;
+                font-size: 3.2rem;
+            }
+            
+            .taps-subtitle {
+                font-size: 1rem;
+            }
+            
+            .trial-info {
+                margin-bottom: 1rem;
+                padding-bottom: 1rem;
+            }
+            
+            .trial-number {
+                font-size: 0.9rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .hand-instruction {
+                font-size: 1.8rem;
             }
             
             .instructions {
@@ -505,10 +588,71 @@ button, input[type="submit"], .btn {
             }
             
             .trial-overlay-title {
-                font-size: 3.5rem;
+                font-size: 2.5rem;
+            }
+            
+            .trial-overlay-instruction {
+                font-size: 1.4rem;
+            }
+            
+            .trial-overlay-footer {
+                font-size: 1rem;
+                padding: 1rem 2rem;
+                margin-top: 2rem;
+            }
+            
+            #hand-outline {
+                width: 280px !important;
+            }
+            
+            .position-status {
+                font-size: 1.2rem;
+                padding: 1rem 2rem;
+                max-width: 90vw;
+                white-space: normal;
+                line-height: 1.3;
+            }
+            
+            .countdown {
+                font-size: 8rem;
+            }
+            
+            .feedback-panel {
+                bottom: 2rem;
+                padding: 0.8rem 1.5rem;
+            }
+            
+            .feedback-message {
+                font-size: 1.1rem;
             }
         }
-
+        
+        /* Additional mobile-specific styles */
+        @media (max-width: 480px) {
+            .timer-display {
+                font-size: 2.4rem;
+            }
+            
+            .taps-display {
+                font-size: 2.8rem;
+            }
+            
+            .hand-instruction {
+                font-size: 1.6rem;
+            }
+            
+            .trial-overlay-title {
+                font-size: 2.2rem;
+            }
+            
+            #hand-outline {
+                width: 240px !important;
+            }
+            
+            .countdown {
+                font-size: 6rem;
+            }
+        }
         /* Layout adjustments - panel matches hand side to avoid Simon effect */
         .layout-right-hand .main-container {
             flex-direction: row-reverse; /* Panel on right, video on left */
@@ -629,6 +773,7 @@ button, input[type="submit"], .btn {
     <div class="geometric-shape shape-2"></div>
 
     <!-- Trial instructions overlay -->
+<!-- Trial instructions overlay -->
     <div id="trial-instructions-overlay" class="trial-overlay" style="display: none;">
         <div class="trial-overlay-content">
             <div id="trial-instructions-text" class="trial-overlay-title">
@@ -637,7 +782,10 @@ button, input[type="submit"], .btn {
             <div class="trial-overlay-instruction">
                 Please tap as <strong style="color: #ef4444;">FAST</strong> as you can!
             </div>
-            <p class="trial-overlay-footer">Press SPACEBAR to begin</p>
+            <p class="trial-overlay-footer desktop-only">Press SPACEBAR to begin</p>
+            <button id="mobile-start-btn" class="mobile-only mobile-start-button" onclick="handleMobileStart()" style="display: none;">
+                START TRIAL
+            </button>
         </div>
     </div>
     <!-- Questionnaire overlay -->
@@ -2383,11 +2531,19 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             handGuide.style.display = 'block';
             document.getElementById('hand-outline').style.display = 'block';
             
-         const totalTapsDisplay = totalTapsAcrossAllTrials > 0 ? `<div style="font-size: 2.4rem; color: #22c55e; font-weight: 300; margin-bottom: 2rem; padding: 1.5rem; background: rgba(34, 197, 94, 0.08); border-radius: 16px; border: 1px solid rgba(34, 197, 94, 0.15); letter-spacing: -0.01em;">Total taps so far: <span style="font-weight: 700;">${totalTapsAcrossAllTrials}</span></div>` : '';
+            const totalTapsDisplay = totalTapsAcrossAllTrials > 0 ? `<div style="font-size: 2.4rem; color: #22c55e; font-weight: 300; margin-bottom: 2rem; padding: 1.5rem; background: rgba(34, 197, 94, 0.08); border-radius: 16px; border: 1px solid rgba(34, 197, 94, 0.15); letter-spacing: -0.01em;">Total taps so far: <span style="font-weight: 700;">${totalTapsAcrossAllTrials}</span></div>` : '';
             const instructionHTML = `${totalTapsDisplay}Trial ${trialNum} of ${total}<br><span style="font-size: 1.8rem; margin-top: 1rem; display: block;">Use your <strong>${handText.toUpperCase()}</strong> hand</span>`;
-                        document.getElementById('trial-instructions-text').innerHTML = instructionHTML;
-                        document.getElementById('trial-instructions-overlay').style.display = 'flex';
-
+            document.getElementById('trial-instructions-text').innerHTML = instructionHTML;
+            
+            // Show mobile button on mobile, hide on desktop
+            const mobileBtn = document.getElementById('mobile-start-btn');
+            if (window.innerWidth <= 768) {
+                mobileBtn.style.display = 'block';
+            } else {
+                mobileBtn.style.display = 'none';
+            }
+            
+            document.getElementById('trial-instructions-overlay').style.display = 'flex';
             // Update elegant trial display
             document.getElementById('trial-number').textContent = `Trial ${trialNum} of ${total}`;
             document.getElementById('hand-instruction').textContent = `${handText} Hand`;
@@ -2399,6 +2555,24 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const positionStatus = document.getElementById('position-status');
             positionStatus.textContent = 'Position hand in view';
             positionStatus.className = 'position-status';
+        }
+
+        function handleMobileStart() {
+            const overlay = document.getElementById('trial-instructions-overlay');
+            overlay.style.display = 'none';
+            
+            if (!handDetected) {
+                alert('Please position your hand in view of the camera before starting.');
+                updateConditionUI();
+                return;
+            }
+            
+            if (trialIndex >= totalTrials) {
+                alert('All trials complete!');
+                return;
+            }
+            
+            startRecording();
         }
 
  function analyzeAllTrials() {
@@ -2677,22 +2851,24 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
             return sign * y;
         }
+      
         let overlayJustDismissed = false;
-
+        
         document.addEventListener('keydown', function(e) {
-            if (e.code === 'Space' || e.key === ' ') {
+            // Only handle spacebar on desktop
+            if (window.innerWidth > 768 && (e.code === 'Space' || e.key === ' ')) {
                 e.preventDefault();
-
+        
                 const overlay = document.getElementById('trial-instructions-overlay');
                 const countdownEl = document.getElementById('countdown');
                 const isCountdownActive = countdownEl && countdownEl.style.display === 'block';
-
+        
                 if (overlay.style.display === 'flex') {
                     overlay.style.display = 'none';
                     overlayJustDismissed = true;
                     return;
                 }
-
+        
                 if (overlayJustDismissed) {
                     overlayJustDismissed = false;
                     if (!handDetected) {
@@ -2706,15 +2882,14 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     startRecording();
                     return;
                 }
-
+        
                 if (recording || isCountdownActive) return;
-
+        
                 if (trialIndex < totalTrials) {
                     updateConditionUI();
                 }
             }
         });
-
         window.onload = function() {
             document.getElementById('page-webcam').style.display = 'block';
             initializeHands();
