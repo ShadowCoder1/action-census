@@ -708,6 +708,13 @@ button, input[type="submit"], .btn {
                 top: 60% !important;
                 left: 50% !important;
             }
+                    /* FIXED: Ensure position status is visible and functional on mobile */
+            .position-status {
+                position: relative;
+                z-index: 150;
+                pointer-events: auto;
+                display: block !important;
+            }
             
             .position-status {
                 font-size: 1rem;
@@ -1523,14 +1530,15 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     handDetected = true;
                     const landmarks = results.multiHandLandmarks[0];
                     frameCount++;
-                    
-// Track hand detection during recording
+                
+                    // Track hand detection during recording
                     if (recording) {
                         lastHandSeenTime = Date.now();
                     }
-                                        
-                if (!recording) {
-                    updateHandPositionFeedback(landmarks);
+                                    
+                    // FIXED: Always update hand position feedback when not recording (including mobile)
+                    if (!recording) {
+                        updateHandPositionFeedback(landmarks);
                 }
                 
                 if (results.multiHandedness && results.multiHandedness.length > 0) {
@@ -1557,14 +1565,17 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 // Simplified visualization for clean interface
                 drawHandVisualization(landmarks, canvasElement);
                 
-                }
+            }
                 else {
                     handDetected = false;
                     currentDetectedHand = null;
-                    updateHandPositionFeedback(null);
+                    // FIXED: Always update feedback when no hand detected (including mobile)
+                    if (!recording) {
+                        updateHandPositionFeedback(null);
+                    }
                 }
-
-            canvasCtx.restore();
+                
+                canvasCtx.restore();
         }
 
         function updateHandPositionFeedback(landmarks) {
@@ -2010,6 +2021,14 @@ async function startRecordingMobileSafe() {
     // Show guide while we wait for a valid hand
     document.getElementById('hand-guide-overlay').style.display = 'block';
     document.getElementById('hand-outline').style.display = 'block';
+        // Show guide while we wait for a valid hand
+    document.getElementById('hand-guide-overlay').style.display = 'block';
+    document.getElementById('hand-outline').style.display = 'block';
+    
+    // FIXED: Force update hand position feedback on mobile
+    if (!handDetected) {
+        updateHandPositionFeedback(null);
+    }
 
     const positionStatus = document.getElementById('position-status');
     const countdownEl = document.getElementById('countdown');
@@ -2431,9 +2450,17 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             document.getElementById('taps-display').textContent = '0';
             
             // Reset position status
+// FIXED: Reset position status and ensure it works on mobile
             const positionStatus = document.getElementById('position-status');
             positionStatus.textContent = 'Position hand in view';
             positionStatus.className = 'position-status';
+            
+            // Force initial feedback update
+            setTimeout(() => {
+                if (!handDetected) {
+                    updateHandPositionFeedback(null);
+                }
+            }, 100);
         }
 
         function restartTrialDueToInactivity() {
