@@ -1351,37 +1351,39 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 }
             }).then(stream => {
                 videoElement.srcObject = stream;
-                    videoElement.onloadedmetadata = () => {
-                        canvasElement.width = videoElement.videoWidth;
-                        canvasElement.height = videoElement.videoHeight;
-                    
-                        // Ensure video plays on mobile
-                        videoElement.play().catch(e => console.warn("Video play failed:", e));
-                    
-                        let lastFrameTime = Date.now();
-                        let freezeWatchdog = null;
-                    
-                        const processFrame = async () => {
-                            try {
-                                await hands.send({ image: videoElement });
-                                lastFrameTime = Date.now();
-                            } catch (err) {
-                                console.warn("MediaPipe processing error:", err);
-                            }
-                            requestAnimationFrame(processFrame);
-                        };
-                    
-                        freezeWatchdog = setInterval(() => {
-                            const now = Date.now();
-                            if (now - lastFrameTime > 2000) {
-                                console.warn("Hand tracking seems frozen. Restarting MediaPipe Hands...");
-                                hands.close();
-                                initializeHands();
-                            }
-                        }, 1000);
-                    
+
+                videoElement.onloadedmetadata = () => {
+                    canvasElement.width = videoElement.videoWidth;
+                    canvasElement.height = videoElement.videoHeight;
+
+                    let lastFrameTime = Date.now();
+                    let freezeWatchdog = null;
+
+                    const processFrame = async () => {
+                        try {
+                            await hands.send({ image: videoElement });
+                            lastFrameTime = Date.now();
+                        } catch (err) {
+                            console.warn("MediaPipe processing error:", err);
+                        }
                         requestAnimationFrame(processFrame);
                     };
+
+                    freezeWatchdog = setInterval(() => {
+                        const now = Date.now();
+                        if (now - lastFrameTime > 2000) {
+                            console.warn("Hand tracking seems frozen. Restarting MediaPipe Hands...");
+                            hands.close();
+                            initializeHands();
+                        }
+                    }, 1000);
+
+                    requestAnimationFrame(processFrame);
+                };
+            }).catch(err => {
+                console.error("Camera access error:", err);
+            });
+        }
 
         // Moving average filter
         function movingAverage(data, windowSize) {
