@@ -1352,22 +1352,42 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             }).then(stream => {
                 videoElement.srcObject = stream;
 
-                videoElement.onloadedmetadata = () => {
-                    canvasElement.width = videoElement.videoWidth;
-                    canvasElement.height = videoElement.videoHeight;
-
-                    let lastFrameTime = Date.now();
-                    let freezeWatchdog = null;
-
-                    const processFrame = async () => {
-                        try {
+              videoElement.onloadedmetadata = () => {
+                canvasElement.width = videoElement.videoWidth;
+                canvasElement.height = videoElement.videoHeight;
+            
+                let lastFrameTime = Date.now();
+                let freezeWatchdog = null;
+            
+                const processFrame = async () => {
+                    try {
+                        // Check if video is ready and not paused
+                        if (videoElement.readyState >= 2 && !videoElement.paused) {
                             await hands.send({ image: videoElement });
                             lastFrameTime = Date.now();
-                        } catch (err) {
-                            console.warn("MediaPipe processing error:", err);
                         }
-                        requestAnimationFrame(processFrame);
-                    };
+                    } catch (err) {
+                        console.warn("MediaPipe processing error:", err);
+                    }
+                    requestAnimationFrame(processFrame);
+                };
+            
+                // Ensure video plays on mobile
+                videoElement.play().catch(e => console.warn("Video play failed:", e));
+            
+                freezeWatchdog = setInterval(() => {
+                    const now = Date.now();
+                    if (now - lastFrameTime > 2000) {
+                        console.warn("Hand tracking seems frozen. Restarting MediaPipe Hands...");
+                        // On mobile, try to restart the video stream too
+                        videoElement.play().catch(e => console.warn("Video restart failed:", e));
+                        hands.close();
+                        initializeHands();
+                    }
+                }, 1000);
+            
+                requestAnimationFrame(processFrame);
+            };
 
                     freezeWatchdog = setInterval(() => {
                         const now = Date.now();
