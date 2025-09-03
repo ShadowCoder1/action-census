@@ -1593,6 +1593,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 canvasCtx.restore();
         }
 
+         // REPLACE your updateHandPositionFeedback function with this version:
         function updateHandPositionFeedback(landmarks) {
             const positionStatus = document.getElementById('position-status');
             const handOutline = document.getElementById('hand-outline');
@@ -1605,7 +1606,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 window.handPositionCorrect = false;
                 return;
             }
-
+        
             const wrist = landmarks[WRIST];
             const thumbTip = landmarks[THUMB_TIP];
             const indexTip = landmarks[INDEX_TIP];
@@ -1618,17 +1619,14 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             
             // Use same thresholds for mobile and desktop
             const goodDistance = (handSize > 0.28 && handSize < 0.42);
-                        
+                            
             const fingerDistance = Math.sqrt(
                 Math.pow((thumbTip.x - indexTip.x), 2) +
                 Math.pow((thumbTip.y - indexTip.y), 2)
             );
             
-            // Allow slightly smaller normalized gap on phones for the "open" check
-            // FIXED: More lenient finger spacing for mobile
-                        // Use same threshold for mobile and desktop
+            // Use same threshold for mobile and desktop
             const fingersOpen = (fingerDistance > 0.12);
-            
             
             window.handPositionCorrect = goodDistance && fingersOpen;
             
@@ -1639,15 +1637,34 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 handOutline.classList.remove('hand-outline-ready');
                 handOutline.classList.add('hand-outline-not-ready');
             } else if (goodDistance && fingersOpen) {
-        
-                positionStatus.innerHTML = '✓ Press SPACE when ready<br>then tap as FAST as you can!';
+                // FIXED: Different ready messages for mobile vs desktop
+                if (window.innerWidth <= 768) {
+                    positionStatus.innerHTML = '✓ Tap here when ready<br>then tap as FAST as you can!';
+                } else {
+                    positionStatus.innerHTML = '✓ Press SPACE when ready<br>then tap as FAST as you can!';
+                }
                 positionStatus.className = 'position-status ready';
                 handOutline.classList.remove('hand-outline-not-ready');
                 handOutline.classList.add('hand-outline-ready');
+                
+                // FIXED: Make position status clickable on mobile
+                if (window.innerWidth <= 768) {
+                    positionStatus.style.cursor = 'pointer';
+                    positionStatus.onclick = () => {
+                        if (window.handPositionCorrect && !recording) {
+                            startRecording();
+                        }
+                    };
+                } else {
+                    positionStatus.style.cursor = '';
+                    positionStatus.onclick = null;
+                }
             } else {
                 handOutline.classList.remove('hand-outline-ready');
                 handOutline.classList.add('hand-outline-not-ready');
                 positionStatus.className = 'position-status warning';
+                positionStatus.style.cursor = '';
+                positionStatus.onclick = null;
                 
                 if (!goodDistance) {
                     const tooClose = 0.21;
@@ -1662,10 +1679,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 } else if (!fingersOpen) {
                     positionStatus.textContent = 'Open fingers wider';
                 }
-                
             }
         }
-
         function drawHandVisualization(landmarks, canvasElement) {
             const thumbTip = landmarks[THUMB_TIP];
             const indexTip = landmarks[INDEX_TIP];
