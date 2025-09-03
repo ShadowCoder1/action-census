@@ -1361,12 +1361,19 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
 
                     const processFrame = async () => {
                         try {
-                            await hands.send({ image: videoElement });
-                            lastFrameTime = Date.now();
+                            if (videoElement.readyState >= 2) { // Ensure video is ready
+                                await hands.send({ image: videoElement });
+                                lastFrameTime = Date.now();
+                            }
                         } catch (err) {
                             console.warn("MediaPipe processing error:", err);
                         }
-                        requestAnimationFrame(processFrame);
+                        if (!recording || Date.now() - lastFrameTime < 5000) { // Continue processing unless frozen
+                            requestAnimationFrame(processFrame);
+                        } else {
+                            // Restart processing if frozen during recording
+                            setTimeout(() => requestAnimationFrame(processFrame), 100);
+                        }
                     };
 
                     freezeWatchdog = setInterval(() => {
@@ -2896,20 +2903,18 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                             overlay.style.display = 'none';
                             overlayJustDismissed = true;
                             
-                            // Give more time for camera to stabilize and use requestAnimationFrame
-                            requestAnimationFrame(() => {
-                                requestAnimationFrame(() => {
-                                    if (!handDetected) {
-                                        alert('Please position your hand in view of the camera before starting.');
-                                        return;
-                                    }
-                                    if (trialIndex >= totalTrials) {
-                                        alert('All trials complete!');
-                                        return;
-                                    }
-                                    startRecording();
-                                });
-                            });
+// Wait longer for camera to be fully ready on mobile
+                            setTimeout(() => {
+                                if (!handDetected) {
+                                    alert('Please position your hand in view of the camera before starting.');
+                                    return;
+                                }
+                                if (trialIndex >= totalTrials) {
+                                    alert('All trials complete!');
+                                    return;
+                                }
+                                startRecording();
+                            }, 500);
                         }
                     }
                 });
