@@ -407,6 +407,23 @@ button, input[type="submit"], .btn {
             background: rgba(0, 0, 0, 0.05);
             border-radius: 50px;
             display: inline-block;
+            transition: all 0.2s ease;
+        }
+        
+        /* Mobile tap functionality */
+        @media (max-width: 768px) {
+            .trial-overlay-footer {
+                cursor: pointer;
+                background: rgba(59, 130, 246, 0.1);
+                border: 2px solid rgba(59, 130, 246, 0.3);
+                color: #3b82f6;
+                font-weight: 500;
+            }
+            
+            .trial-overlay-footer:active {
+                background: rgba(59, 130, 246, 0.2);
+                transform: scale(0.98);
+            }
         }
 
         /* Feedback panel - Floating pill */
@@ -637,7 +654,7 @@ button, input[type="submit"], .btn {
             <div class="trial-overlay-instruction">
                 Please tap as <strong style="color: #ef4444;">FAST</strong> as you can!
             </div>
-            <p class="trial-overlay-footer">Press SPACEBAR to begin</p>
+            <p class="trial-overlay-footer" id="begin-instruction">Press SPACEBAR to begin</p>
         </div>
     </div>
     <!-- Questionnaire overlay -->
@@ -2387,6 +2404,13 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const instructionHTML = `${totalTapsDisplay}Trial ${trialNum} of ${total}<br><span style="font-size: 1.8rem; margin-top: 1rem; display: block;">Use your <strong>${handText.toUpperCase()}</strong> hand</span>`;
                         document.getElementById('trial-instructions-text').innerHTML = instructionHTML;
                         document.getElementById('trial-instructions-overlay').style.display = 'flex';
+            // Update begin instruction text based on device
+                        const beginInstruction = document.getElementById('begin-instruction');
+                        if (window.innerWidth <= 768) {
+                            beginInstruction.textContent = 'Tap here to begin';
+                        } else {
+                            beginInstruction.textContent = 'Press SPACEBAR to begin';
+                        }
 
             // Update elegant trial display
             document.getElementById('trial-number').textContent = `Trial ${trialNum} of ${total}`;
@@ -2720,6 +2744,31 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             initializeHands();
             initializeCamera();
             updateConditionUI();
+            
+            // Add mobile tap functionality
+            document.getElementById('begin-instruction').addEventListener('click', function() {
+                if (window.innerWidth <= 768) { // Only on mobile
+                    const overlay = document.getElementById('trial-instructions-overlay');
+                    if (overlay.style.display === 'flex') {
+                        overlay.style.display = 'none';
+                        overlayJustDismissed = true;
+                        
+                        // Trigger the same logic as spacebar press
+                        setTimeout(() => {
+                            if (!handDetected) {
+                                alert('Please position your hand in view of the camera before starting.');
+                                return;
+                            }
+                            if (trialIndex >= totalTrials) {
+                                alert('All trials complete!');
+                                return;
+                            }
+                            startRecording();
+                        }, 100);
+                    }
+                }
+            });
+        };
             
             // Add mobile tap functionality
             document.getElementById('begin-instruction').addEventListener('click', function() {
