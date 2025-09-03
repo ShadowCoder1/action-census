@@ -1190,22 +1190,28 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         const demographicNorms = getDemographicAdjustedNorms();
         const normMean = demographicNorms.mean;
         const normSD = demographicNorms.sd;
-        // Initialize MediaPipe Hands
+                // Initialize MediaPipe Hands
         function initializeHands() {
-            hands = new Hands({
-                locateFile: (file) => {
-                    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-                }
-            });
-
-            hands.setOptions({
-                maxNumHands: 1,
-                modelComplexity: 1,
-                minDetectionConfidence: 0.7,
-                minTrackingConfidence: 0.7
-            });
-
-            hands.onResults(onHandsResults);
+            try {
+                hands = new Hands({
+                    locateFile: (file) => {
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                    }
+                });
+        
+                hands.setOptions({
+                    maxNumHands: 1,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.7,
+                    minTrackingConfidence: 0.7
+                });
+        
+                hands.onResults(onHandsResults);
+                console.log('MediaPipe Hands initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize MediaPipe Hands:', error);
+                document.getElementById('position-status').textContent = 'Failed to load hand tracking. Please refresh the page.';
+            }
         }
 
         // Initialize camera
@@ -2739,13 +2745,24 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             }
         });
 
-        window.onload = function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing...');
+            
+            // Show the main interface immediately
             document.getElementById('page-webcam').style.display = 'block';
-            initializeHands();
-            initializeCamera();
+            
+            // Initialize MediaPipe with fallback
+            try {
+                initializeHands();
+                initializeCamera();
+            } catch (error) {
+                console.error('MediaPipe initialization failed:', error);
+                alert('Camera initialization failed. Please refresh the page and ensure camera permissions are granted.');
+            }
+            
             updateConditionUI();
             
-            // Add mobile tap functionality - with safety check
+            // Add mobile tap functionality
             const beginInstruction = document.getElementById('begin-instruction');
             if (beginInstruction) {
                 beginInstruction.addEventListener('click', function() {
@@ -2755,7 +2772,6 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                             overlay.style.display = 'none';
                             overlayJustDismissed = true;
                             
-                            // Trigger the same logic as spacebar press
                             setTimeout(() => {
                                 if (!handDetected) {
                                     alert('Please position your hand in view of the camera before starting.');
@@ -2771,33 +2787,9 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     }
                 });
             }
-        };
-        
+        });
             
-            // Add mobile tap functionality
-            document.getElementById('begin-instruction').addEventListener('click', function() {
-                if (window.innerWidth <= 768) { // Only on mobile
-                    const overlay = document.getElementById('trial-instructions-overlay');
-                    if (overlay.style.display === 'flex') {
-                        overlay.style.display = 'none';
-                        overlayJustDismissed = true;
-                        
-                        // Trigger the same logic as spacebar press
-                        setTimeout(() => {
-                            if (!handDetected) {
-                                alert('Please position your hand in view of the camera before starting.');
-                                return;
-                            }
-                            if (trialIndex >= totalTrials) {
-                                alert('All trials complete!');
-                                return;
-                            }
-                            startRecording();
-                        }, 100);
-                    }
-                }
-            });
-        };
+            
     </script>
 </body>
 </html>
