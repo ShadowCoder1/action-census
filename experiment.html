@@ -1349,47 +1349,60 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     height: { ideal: 1080 },
                     facingMode: "user"
                 }
-            }).then(stream => {
-                videoElement.srcObject = stream;
-
-                videoElement.onloadedmetadata = () => {
-                    canvasElement.width = videoElement.videoWidth;
-                    canvasElement.height = videoElement.videoHeight;
-
-                    let lastFrameTime = Date.now();
-                    let freezeWatchdog = null;
-
-                    const processFrame = async () => {
-                        try {
-                            if (videoElement.readyState >= 2) { // Ensure video is ready
-                                await hands.send({ image: videoElement });
-                                lastFrameTime = Date.now();
-                            }
-                        } catch (err) {
-                            console.warn("MediaPipe processing error:", err);
+           }).then(async (stream) => {
+            videoElement.srcObject = stream;
+        
+            // MOBILE-ONLY: make sure the camera actually plays (iOS requires an explicit play)
+            if (window.innerWidth <= 768) {
+                videoElement.setAttribute('playsinline', 'true');
+                try { await videoElement.play(); } catch (e) { /* will auto-play on tap later */ }
+            }
+        
+            videoElement.onloadedmetadata = () => {
+                canvasElement.width = videoElement.videoWidth;
+                canvasElement.height = videoElement.videoHeight;
+        
+                let lastFrameTime = Date.now();
+                let freezeWatchdog = null;
+        
+                const processFrame = async () => {
+                    try {
+                        if (videoElement.readyState >= 2) { // Ensure video is ready
+                            await hands.send({ image: videoElement });
+                            lastFrameTime = Date.now();
                         }
-                        if (!recording || Date.now() - lastFrameTime < 5000) { // Continue processing unless frozen
-                            requestAnimationFrame(processFrame);
-                        } else {
-                            // Restart processing if frozen during recording
-                            setTimeout(() => requestAnimationFrame(processFrame), 100);
-                        }
-                    };
-
-                    freezeWatchdog = setInterval(() => {
-                        const now = Date.now();
-                        if (now - lastFrameTime > 2000) {
-                            console.warn("Hand tracking seems frozen. Restarting MediaPipe Hands...");
-                            hands.close();
-                            initializeHands();
-                        }
-                    }, 1000);
-
-                    requestAnimationFrame(processFrame);
+                    } catch (err) {
+                        console.warn("MediaPipe processing error:", err);
+                    }
+                    if (!recording || Date.now() - lastFrameTime < 5000) { // Continue processing unless frozen
+                        requestAnimationFrame(processFrame);
+                    } else {
+                        // Restart processing if frozen during recording
+                        setTimeout(() => requestAnimationFrame(processFrame), 100);
+                    }
                 };
-            }).catch(err => {
-                console.error("Camera access error:", err);
-            });
+        
+                freezeWatchdog = setInterval(async () => {
+                    const now = Date.now();
+                    if (now - lastFrameTime > 2000) {
+                        console.warn("Hand tracking seems frozen. Restarting MediaPipe Hands...");
+                        hands.close();
+                        initializeHands();
+        
+                        // MOBILE-ONLY: if the video got auto-paused when overlays changed, resume it
+                        if (window.innerWidth <= 768 && videoElement.paused) {
+                            try { await videoElement.play(); } catch (_) {}
+                        }
+                    }
+                }, 1000);
+        
+                requestAnimationFrame(processFrame);
+            };
+        }).catch(err => {
+            console.error("Camera access error:", err);
+        });
+
+
         }
 
         // Moving average filter
@@ -2896,14 +2909,18 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
 // Add mobile tap functionality
             const beginInstruction = document.getElementById('begin-instruction');
             if (beginInstruction) {
-                beginInstruction.addEventListener('click', function() {
+                beginInstruction.addEventListener('click', async function() {
                     if (window.innerWidth <= 768) { // Only on mobile
                         const overlay = document.getElementById('trial-instructions-overlay');
                         if (overlay.style.display === 'flex') {
                             overlay.style.display = 'none';
                             overlayJustDismissed = true;
-                            
-// Wait longer for camera to be fully ready on mobile
+                
+                            // Ensure the camera stream is actively playing on mobile before starting
+                            const videoEl = document.getElementById('inputVideo');
+                            try { await videoEl.play(); } catch (_) {}
+                
+                            // Give the camera a brief moment to settle, then start
                             setTimeout(() => {
                                 if (!handDetected) {
                                     alert('Please position your hand in view of the camera before starting.');
@@ -2917,7 +2934,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                             }, 500);
                         }
                     }
-                });
+                });  
             }
         });
             
