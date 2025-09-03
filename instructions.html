@@ -280,14 +280,15 @@
   }
 
   /* Steps pane can scroll internally if needed, page itself will not scroll */
+  
+  /* WITH: */
   .steps-content {
     align-items: flex-start;
     justify-content: flex-start;
     padding: var(--space-xs) 0;
-    max-height: 46dvh;        /* balanced with video + button */
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    flex: 1;  /* Let it use available space */
   }
+  
 
   .steps { width: 100%; padding: 0; }
   .steps::before { left: 1.1rem; width: 2px; top: 1rem; height: calc(100% - 2rem); }
@@ -451,26 +452,44 @@
       border: 0 !important;
     }
     
-    /* Steps: scrolls inside; page itself doesn’t scroll */
     html.is-mobile .steps-content {
       align-items: flex-start !important;
       justify-content: flex-start !important;
       padding: .5rem 0 !important;
-      max-height: 46dvh !important;
-      overflow-y: auto !important;
-      -webkit-overflow-scrolling: touch !important;
+      flex: 1 !important;  /* Let it use available space naturally */
     }
     html.is-mobile .step {
-      padding: .75rem .75rem .75rem 2.5rem !important;
-      margin-bottom: .75rem !important;
+      padding: .6rem .6rem .6rem 2.2rem !important;  /* More compact padding */
+      margin-bottom: .6rem !important;                /* Less space between steps */
       border-radius: 10px !important;
       box-shadow: 0 4px 12px rgba(0,0,0,.08) !important;
     }
+    html.is-mobile .step-content {
+      font-size: clamp(.9rem, 3.6vw, 1rem) !important;  /* Slightly smaller text */
+      line-height: 1.4 !important;                       /* Tighter line spacing */
+    }
     html.is-mobile .step::before {
-      width: 1.9rem !important; height: 1.9rem !important;
-      font-size: .85rem !important;
-      left: .2rem !important; top: .75rem !important;
+      width: 1.7rem !important; 
+      height: 1.7rem !important;
+      font-size: .8rem !important;
+      left: .15rem !important; 
+      top: .6rem !important;
       margin-right: 0 !important;
+    }
+
+        /* ADD these new rules - they adjust the vertical connecting line and glow dot for mobile */
+    html.is-mobile .steps::before { 
+      left: 1rem !important; 
+      width: 2px !important; 
+      top: .8rem !important; 
+      height: calc(100% - 1.6rem) !important; 
+    }
+    
+    html.is-mobile .steps::after { 
+      left: 1rem !important; 
+      width: 8px !important; 
+      height: 8px !important; 
+      top: .8rem !important; 
     }
     html.is-mobile .step-content {
       font-size: clamp(.95rem, 3.8vw, 1.05rem) !important;
