@@ -1601,13 +1601,9 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 Math.pow((wrist.y - middleMcp.y), 2)
             );
             
-            const isMobile = window.innerWidth <= 768;
-            
-            // FIXED: More lenient mobile thresholds to account for different camera/screen ratios
-            const goodDistance = isMobile
-                ? (handSize > 0.15 && handSize < 0.45)   // More forgiving mobile window
-                : (handSize > 0.28 && handSize < 0.42);  // desktop window
-            
+            // Use same thresholds for mobile and desktop
+            const goodDistance = (handSize > 0.28 && handSize < 0.42);
+                        
             const fingerDistance = Math.sqrt(
                 Math.pow((thumbTip.x - indexTip.x), 2) +
                 Math.pow((thumbTip.y - indexTip.y), 2)
@@ -1615,7 +1611,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             
             // Allow slightly smaller normalized gap on phones for the "open" check
             // FIXED: More lenient finger spacing for mobile
-            const fingersOpen = isMobile ? (fingerDistance > 0.08) : (fingerDistance > 0.12);
+                        // Use same threshold for mobile and desktop
+            const fingersOpen = (fingerDistance > 0.12);
             
             
             window.handPositionCorrect = goodDistance && fingersOpen;
@@ -1638,8 +1635,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 positionStatus.className = 'position-status warning';
                 
                 if (!goodDistance) {
-                    const tooClose = isMobile ? 0.12 : 0.21;  // More forgiving close threshold
-                    const tooFar   = isMobile ? 0.48 : 0.42;  // More forgiving far threshold
+                    const tooClose = 0.21;
+                    const tooFar = 0.42; // More forgiving far threshold
                     if (handSize < tooClose) {
                         positionStatus.textContent = 'Move closer to camera';
                     } else if (handSize > tooFar) {
@@ -2007,85 +2004,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         }
 
 
-// MOBILE-ONLY: wait until the hand is visible, then auto-start without any alerts
-async function startRecordingMobileSafe() {
-    if (trialIndex >= totalTrials) {
-        return;
-    }
 
-    const videoEl = document.getElementById('inputVideo');
-    videoEl.setAttribute('playsinline', 'true');
-    videoEl.muted = true;
-    try { await videoEl.play(); } catch (_) {}
-
-    // Show guide while we wait for a valid hand
-    document.getElementById('hand-guide-overlay').style.display = 'block';
-    document.getElementById('hand-outline').style.display = 'block';
-        // Show guide while we wait for a valid hand
-    document.getElementById('hand-guide-overlay').style.display = 'block';
-    document.getElementById('hand-outline').style.display = 'block';
-    
-    // FIXED: Force update hand position feedback on mobile
-    if (!handDetected) {
-        updateHandPositionFeedback(null);
-    }
-
-    const positionStatus = document.getElementById('position-status');
-    const countdownEl = document.getElementById('countdown');
-
-    // FIXED: Don't override the position status immediately - let updateHandPositionFeedback work
-    // positionStatus.textContent = 'Looking for your hand...';
-    // positionStatus.className = 'position-status warning';
-
-    // Poll for a correctly detected hand
-    let waitedMs = 0;
-    const pollIntervalMs = 200; // Check every 200ms
-    const maxWaitMs = 10000; // Wait up to 10 seconds
-
-    const poll = setInterval(() => {
-        if (videoEl.paused) { videoEl.play().catch(() => {}); }
-
-        // Let the normal updateHandPositionFeedback function handle all the status updates
-        const okHand = handDetected && isCorrectHandDetectedForCurrentTrial() && window.handPositionCorrect;
-        
-        if (okHand) {
-            clearInterval(poll);
-
-            // Start normal countdown flow
-            let countdown = 3;
-            countdownEl.style.display = 'block';
-            countdownEl.textContent = countdown;
-
-            countdownInterval = setInterval(() => {
-                if (!handDetected || !isCorrectHandDetectedForCurrentTrial() || !window.handPositionCorrect) {
-                    clearInterval(countdownInterval);
-                    countdownEl.style.display = 'none';
-                    // Don't override status - let updateHandPositionFeedback handle it
-                    return;
-                }
-
-                countdown--;
-                if (countdown > 0) {
-                    countdownEl.textContent = countdown;
-                    countdownEl.style.animation = 'none';
-                    setTimeout(() => {
-                        countdownEl.style.animation = 'countdownPulse 1s ease-in-out';
-                    }, 10);
-                } else {
-                    clearInterval(countdownInterval);
-                    countdownEl.style.display = 'none';
-                    startActualRecording();
-                }
-            }, 1000);
-        } else {
-            waitedMs += pollIntervalMs;
-            if (waitedMs >= maxWaitMs) {
-                clearInterval(poll);
-                // Don't override - let normal feedback system work
-            }
-        }
-    }, pollIntervalMs);
-}
 // Replace your existing stopRecording function with this fixed version
 function stopRecording() {
     if (!recording) return; // Prevent multiple calls
@@ -3047,16 +2966,16 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                             overlay.style.display = 'none';
                             overlayJustDismissed = true;
                 
-                            // make sure the camera is actually playing before we proceed
-                            const videoEl = document.getElementById('inputVideo');
-                            videoEl.setAttribute('playsinline', 'true');
-                            videoEl.muted = true;
-                            try { await videoEl.play(); } catch (_) {}
-                
-                            // small settle delay so the first live frame renders
-                            setTimeout(() => {
-                                startRecordingMobileSafe(); // <-- NEW mobile-only starter
-                            }, 250);
+                            // Use the same logic as desktop
+                            if (!handDetected) {
+                                alert('Please position your hand in view of the camera before starting.');
+                                return;
+                            }
+                            if (trialIndex >= totalTrials) {
+                                alert('All trials complete!');
+                                return;
+                            }
+                            startRecording(); // Use the exact same function as desktop
                         }
                     }
                 });
