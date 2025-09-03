@@ -761,7 +761,132 @@ button, input[type="submit"], .btn {
                 font-size: 8rem;
             }
         }
+
+                /* Mobile-specific questionnaire and results styling */
+        @media (max-width: 768px) {
+            #questionnaire-overlay {
+                padding: 0 !important;
+            }
+            
+            #questionnaire-overlay > div {
+                width: 100vw !important;
+                height: 100vh !important;
+                max-width: none !important;
+                max-height: none !important;
+                border-radius: 0 !important;
+                padding: 1rem !important;
+                box-sizing: border-box;
+                overflow-y: auto;
+            }
         
+            .mobile-question-group {
+                background: rgba(0, 0, 0, 0.02);
+                border-radius: 8px;
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+                border: 1px solid rgba(0, 0, 0, 0.05);
+            }
+        
+            .mobile-likert-container {
+                background: white;
+                border-radius: 8px;
+                padding: 0.75rem;
+                border: 1px solid rgba(0, 0, 0, 0.1);
+            }
+        
+            .mobile-likert-scale {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 0.1rem;
+            }
+        
+            .mobile-likert-scale .likert-option {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 0.25rem;
+                cursor: pointer;
+            }
+        
+            .mobile-likert-scale .likert-option input[type="radio"] {
+                transform: scale(1.3);
+                margin-bottom: 0.25rem;
+            }
+        
+            .mobile-likert-scale .likert-option span {
+                font-size: 0.8rem;
+                color: #666;
+                font-weight: 500;
+            }
+        
+            .final-results {
+                padding: 2rem 1rem !important;
+                min-height: 100vh;
+            }
+        
+            .final-results > div {
+                padding: 2rem 1rem !important;
+                text-align: center;
+            }
+        
+            .final-results p {
+                font-size: 1.4rem !important;
+                line-height: 1.4 !important;
+                margin-bottom: 2rem !important;
+            }
+        
+            .final-results p strong {
+                font-size: 1.6rem !important;
+                color: #22c55e;
+            }
+        
+            .final-results .mobile-button-container {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                width: 100%;
+            }
+        
+            .final-results button {
+                width: 100% !important;
+                padding: 1.25rem 2rem !important;
+                font-size: 1.2rem !important;
+                border-radius: 12px !important;
+                margin: 0 !important;
+            }
+        
+            .mobile-prolific-code {
+                background: rgba(34, 197, 94, 0.1) !important;
+                border: 2px solid #22c55e !important;
+                border-radius: 12px !important;
+                padding: 1.5rem !important;
+                margin: 2rem 0 !important;
+                text-align: center;
+            }
+        
+            .mobile-prolific-code p:first-child {
+                font-size: 1.2rem !important;
+                margin-bottom: 0.75rem !important;
+            }
+        
+            .mobile-prolific-code p:nth-child(2) {
+                font-size: 2rem !important;
+                font-weight: 700 !important;
+                letter-spacing: 0.1em;
+                color: #22c55e !important;
+                font-family: 'Courier New', monospace !important;
+                margin-bottom: 0.75rem !important;
+            }
+        
+            .mobile-prolific-code p:last-child {
+                font-size: 1rem !important;
+                color: #666 !important;
+                margin: 0 !important;
+            }
+        }
+                
     </style>
 
     <!-- Firebase SDK -->
@@ -1149,24 +1274,266 @@ button, input[type="submit"], .btn {
             return result;
         }
 
-        function showQuestionnaire() {
-            document.getElementById('page-webcam').style.display = 'none';
+function showQuestionnaire() {
+    document.getElementById('page-webcam').style.display = 'none';
+    
+    // Mobile-responsive questionnaire HTML
+    const questionnaireHTML = `
+        <div style="${window.innerWidth <= 768 ? 'width: 100vw; height: 100vh; overflow-y: auto; background: white; padding: 1rem; box-sizing: border-box;' : 'max-width: 1200px; width: 95%; max-height: 95vh; overflow-y: auto; background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.1);'}">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h2 style="font-size: ${window.innerWidth <= 768 ? 'clamp(1.8rem, 5vw, 2.2rem)' : '2.4rem'}; font-weight: 300; color: #1a1a1a; margin-bottom: 0.5rem; letter-spacing: -0.02em;">Quick Questions</h2>
+                <p style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; color: #666666; font-weight: 400;">Please answer these brief questions about your experience</p>
+            </div>
+
+            <form id="questionnaire-form" style="text-align: left;">
+                <!-- Likert Scale Explanation -->
+                <div style="background: rgba(59, 130, 246, 0.05); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; border-left: 3px solid #3b82f6;">
+                    <p style="font-size: ${window.innerWidth <= 768 ? 'clamp(0.9rem, 2.5vw, 1rem)' : '1rem'}; color: #1a1a1a; margin: 0;"><strong>Rating Scale:</strong> 1 = Very Low/Poor, 7 = Very High/Excellent</p>
+                </div>
+
+                <!-- Experience Questions -->
+                <div style="${window.innerWidth <= 768 ? 'margin-bottom: 2rem;' : 'display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;'}">
+                    <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}">
+                        <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Video game experience:</label>
+                        <div class="${window.innerWidth <= 768 ? 'mobile-likert-container' : 'likert-scale'}" id="videogame-scale-container">
+                            <div class="${window.innerWidth <= 768 ? 'mobile-likert-scale' : 'likert-scale'}" id="videogame-scale"></div>
+                        </div>
+                    </div>
+
+                    <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}">
+                        <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Musical experience:</label>
+                        <div class="${window.innerWidth <= 768 ? 'mobile-likert-container' : 'likert-scale'}" id="musical-scale-container">
+                            <div class="${window.innerWidth <= 768 ? 'mobile-likert-scale' : 'likert-scale'}" id="musical-scale"></div>
+                        </div>
+                    </div>
+
+                    <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}">
+                        <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Sports experience:</label>
+                        <div class="${window.innerWidth <= 768 ? 'mobile-likert-container' : 'likert-scale'}" id="sports-scale-container">
+                            <div class="${window.innerWidth <= 768 ? 'mobile-likert-scale' : 'likert-scale'}" id="sports-scale"></div>
+                        </div>
+                    </div>
+
+                    <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}">
+                        <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Caffeine intake today:</label>
+                        <div class="${window.innerWidth <= 768 ? 'mobile-likert-container' : 'likert-scale'}" id="caffeine-scale-container">
+                            <div class="${window.innerWidth <= 768 ? 'mobile-likert-scale' : 'likert-scale'}" id="caffeine-scale"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mood and Performance Questions -->
+                <div style="${window.innerWidth <= 768 ? 'margin-bottom: 2rem;' : 'display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;'}">
+                    <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}">
+                        <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Current mood:</label>
+                        <div class="${window.innerWidth <= 768 ? 'mobile-likert-container' : 'likert-scale'}" id="mood-scale-container">
+                            <div class="${window.innerWidth <= 768 ? 'mobile-likert-scale' : 'likert-scale'}" id="mood-scale"></div>
+                        </div>
+                    </div>
+
+                    <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}">
+                        <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Task motivation:</label>
+                        <div class="${window.innerWidth <= 768 ? 'mobile-likert-container' : 'likert-scale'}" id="motivated-scale-container">
+                            <div class="${window.innerWidth <= 768 ? 'mobile-likert-scale' : 'likert-scale'}" id="motivated-scale"></div>
+                        </div>
+                    </div>
+
+                    <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}">
+                        <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Task distraction:</label>
+                        <div class="${window.innerWidth <= 768 ? 'mobile-likert-container' : 'likert-scale'}" id="distracted-scale-container">
+                            <div class="${window.innerWidth <= 768 ? 'mobile-likert-scale' : 'likert-scale'}" id="distracted-scale"></div>
+                        </div>
+                    </div>
+
+                    <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}">
+                        <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Expected performance vs. others:</label>
+                        <div class="${window.innerWidth <= 768 ? 'mobile-likert-container' : 'likert-scale'}" id="performance-scale-container">
+                            <div class="${window.innerWidth <= 768 ? 'mobile-likert-scale' : 'likert-scale'}" id="performance-scale"></div>
+                        </div>
+                    </div>
+
+                    <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}">
+                        <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Persistence when tasks get frustrating:</label>
+                        <div class="${window.innerWidth <= 768 ? 'mobile-likert-container' : 'likert-scale'}" id="persistence-scale-container">
+                            <div class="${window.innerWidth <= 768 ? 'mobile-likert-scale' : 'likert-scale'}" id="persistence-scale"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}">
+                        <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Attention span in general:</label>
+                        <div class="${window.innerWidth <= 768 ? 'mobile-likert-container' : 'likert-scale'}" id="attention-scale-container">
+                            <div class="${window.innerWidth <= 768 ? 'mobile-likert-scale' : 'likert-scale'}" id="attention-scale"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}">
+                        <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Enjoyment of competition:</label>
+                        <div class="${window.innerWidth <= 768 ? 'mobile-likert-container' : 'likert-scale'}" id="competition-scale-container">
+                            <div class="${window.innerWidth <= 768 ? 'mobile-likert-scale' : 'likert-scale'}" id="competition-scale"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Neurological Question -->
+                <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}" style="margin-bottom: 1.5rem; background: rgba(0,0,0,0.02); padding: 1rem; border-radius: 8px;">
+                    <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Do you have any known neurological conditions?</label>
+                    <div style="display: flex; gap: 2rem;">
+                        <label style="display: flex; align-items: center; font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; cursor: pointer;">
+                            <input type="radio" name="neurological" value="no" required style="margin-right: 0.5rem; transform: scale(1.2);">
+                            No
+                        </label>
+                        <label style="display: flex; align-items: center; font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; cursor: pointer;">
+                            <input type="radio" name="neurological" value="yes" style="margin-right: 0.5rem; transform: scale(1.2);">
+                            Yes
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Hand Pain Question -->
+                <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}" style="margin-bottom: 1.5rem; background: rgba(0,0,0,0.02); padding: 1rem; border-radius: 8px;">
+                    <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Do you currently have hand-related pain that affects your performance on tasks like this?</label>
+                    <div style="display: flex; gap: 2rem;">
+                        <label style="display: flex; align-items: center; font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; cursor: pointer;">
+                            <input type="radio" name="handPain" value="no" required style="margin-right: 0.5rem; transform: scale(1.2);">
+                            No
+                        </label>
+                        <label style="display: flex; align-items: center; font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; cursor: pointer;">
+                            <input type="radio" name="handPain" value="yes" style="margin-right: 0.5rem; transform: scale(1.2);">
+                            Yes
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Injury/Disease History Question -->
+                <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}" style="margin-bottom: 1.5rem; background: rgba(0,0,0,0.02); padding: 1rem; border-radius: 8px;">
+                    <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">History of injury/disease affecting hand/arm movement:</label>
+                    <div style="display: flex; gap: 2rem;">
+                        <label style="display: flex; align-items: center; font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; cursor: pointer;">
+                            <input type="radio" name="handInjuryHistory" value="no" required style="margin-right: 0.5rem; transform: scale(1.2);">
+                            No
+                        </label>
+                        <label style="display: flex; align-items: center; font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; cursor: pointer;">
+                            <input type="radio" name="handInjuryHistory" value="yes" style="margin-right: 0.5rem; transform: scale(1.2);">
+                            Yes
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Demographics Questions -->
+                <div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 1.5rem;">
+                    <div style="background: rgba(59, 130, 246, 0.05); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; border-left: 3px solid #3b82f6;">
+                        <p style="font-size: ${window.innerWidth <= 768 ? 'clamp(0.9rem, 2.5vw, 0.95rem)' : '0.95rem'}; color: #1a1a1a; margin: 0;"><strong>Why we ask:</strong> Understanding participants' income levels and geographic location helps us examine how economic factors may influence physical ability. Your response helps ensure our findings reflect the experiences of people from diverse financial and geographical backgrounds.</p>
+                    </div>
+                    
+                    <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}" style="margin-bottom: 1.5rem;">
+                        <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">What is your total annual household income before taxes? (Please select the range that best represents your income.)</label>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <label style="display: flex; align-items: center; font-size: ${window.innerWidth <= 768 ? 'clamp(0.95rem, 2.8vw, 1rem)' : '1rem'}; cursor: pointer; padding: 0.3rem 0;">
+                                <input type="radio" name="income" value="less-than-20k" required style="margin-right: 0.75rem; transform: scale(1.2);">
+                                "Less than $20,000"
+                            </label>
+                            <label style="display: flex; align-items: center; font-size: ${window.innerWidth <= 768 ? 'clamp(0.95rem, 2.8vw, 1rem)' : '1rem'}; cursor: pointer; padding: 0.3rem 0;">
+                                <input type="radio" name="income" value="20k-39k" style="margin-right: 0.75rem; transform: scale(1.2);">
+                                "$20,000 - $39,999"
+                            </label>
+                            <label style="display: flex; align-items: center; font-size: ${window.innerWidth <= 768 ? 'clamp(0.95rem, 2.8vw, 1rem)' : '1rem'}; cursor: pointer; padding: 0.3rem 0;">
+                                <input type="radio" name="income" value="40k-59k" style="margin-right: 0.75rem; transform: scale(1.2);">
+                                "$40,000 - $59,999"
+                            </label>
+                            <label style="display: flex; align-items: center; font-size: ${window.innerWidth <= 768 ? 'clamp(0.95rem, 2.8vw, 1rem)' : '1rem'}; cursor: pointer; padding: 0.3rem 0;">
+                                <input type="radio" name="income" value="60k-79k" style="margin-right: 0.75rem; transform: scale(1.2);">
+                                "$60,000 - $79,999"
+                            </label>
+                            <label style="display: flex; align-items: center; font-size: ${window.innerWidth <= 768 ? 'clamp(0.95rem, 2.8vw, 1rem)' : '1rem'}; cursor: pointer; padding: 0.3rem 0;">
+                                <input type="radio" name="income" value="80k-99k" style="margin-right: 0.75rem; transform: scale(1.2);">
+                                "$80,000 - $99,999"
+                            </label>
+                            <label style="display: flex; align-items: center; font-size: ${window.innerWidth <= 768 ? 'clamp(0.95rem, 2.8vw, 1rem)' : '1rem'}; cursor: pointer; padding: 0.3rem 0;">
+                                <input type="radio" name="income" value="100k-149k" style="margin-right: 0.75rem; transform: scale(1.2);">
+                                "$100,000 - $149,999"
+                            </label>
+                            <label style="display: flex; align-items: center; font-size: ${window.innerWidth <= 768 ? 'clamp(0.95rem, 2.8vw, 1rem)' : '1rem'}; cursor: pointer; padding: 0.3rem 0;">
+                                <input type="radio" name="income" value="150k-plus" style="margin-right: 0.75rem; transform: scale(1.2);">
+                                "$150,000 or more"
+                            </label>
+                            <label style="display: flex; align-items: center; font-size: ${window.innerWidth <= 768 ? 'clamp(0.95rem, 2.8vw, 1rem)' : '1rem'}; cursor: pointer; padding: 0.3rem 0;">
+                                <input type="radio" name="income" value="prefer-not-to-answer" style="margin-right: 0.75rem; transform: scale(1.2);">
+                                "Prefer not to answer"
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="${window.innerWidth <= 768 ? 'margin-bottom: 2rem;' : 'display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;'}">
+                        <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}">
+                            <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1rem)' : '1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Zip/Postal code:</label>
+                            <input type="text" name="zipcode" placeholder="Your zip code" required style="width: 100%; padding: 0.5rem; font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1rem)' : '1rem'}; border: 2px solid #e5e7eb; border-radius: 6px;">
+                        </div>
+
+                        <div style="${window.innerWidth <= 768 ? 'margin-top: 1rem;' : 'display: flex; align-items: end;'}">
+                            <button type="submit" style="background-color: #000000; color: white; border: none; padding: 0.75rem 2rem; font-size: ${window.innerWidth <= 768 ? 'clamp(1.1rem, 3.5vw, 1.3rem)' : '1.1rem'}; font-weight: 500; border-radius: 40px; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; width: 100%;">
+                                Continue to Results
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}">
+                        <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1rem)' : '1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Additional feedback or comments:</label>
+                        <textarea name="feedback" rows="2" placeholder="Any additional thoughts about the test..." style="width: 100%; padding: 0.5rem; font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1rem)' : '1rem'}; border: 2px solid #e5e7eb; border-radius: 6px; resize: vertical; font-family: 'Inter', sans-serif;"></textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.getElementById('questionnaire-overlay').innerHTML = questionnaireHTML;
+    
+    // Create mobile-optimized Likert scales
+    function createMobileLikertScale(name, leftLabel, rightLabel) {
+        if (window.innerWidth <= 768) {
+            let html = '';
+            for (let i = 1; i <= 7; i++) {
+                html += `
+                    <label class="likert-option">
+                        <input type="radio" name="${name}" value="${i}" required>
+                        <span>${i}</span>
+                    </label>
+                `;
+            }
+            return html;
+        } else {
+            // Desktop version (unchanged)
+            let html = '<div style="display: flex; align-items: center; gap: 0.5rem;">';
+            html += `<span style="font-size: 0.8rem; color: #666666; min-width: 60px; text-align: right;">${leftLabel}</span>`;
             
-            // Populate Likert scales
-            document.getElementById('videogame-scale').innerHTML = createLikertScale('videogame', 'Very Low', 'Very High');
-            document.getElementById('musical-scale').innerHTML = createLikertScale('musical', 'Very Low', 'Very High');
-            document.getElementById('sports-scale').innerHTML = createLikertScale('sports', 'Very Low', 'Very High');
-            document.getElementById('caffeine-scale').innerHTML = createLikertScale('caffeine', 'None', 'Very High');
-            document.getElementById('mood-scale').innerHTML = createLikertScale('mood', 'Very Poor', 'Excellent');
-            document.getElementById('motivated-scale').innerHTML = createLikertScale('motivated', 'Not at all', 'Extremely');
-            document.getElementById('distracted-scale').innerHTML = createLikertScale('distracted', 'Not at all', 'Extremely');
-            document.getElementById('performance-scale').innerHTML = createLikertScale('performance', 'Much Worse', 'Much Better');
-            document.getElementById('persistence-scale').innerHTML = createLikertScale('persistence', 'Give up quickly', 'Push through');
-            document.getElementById('attention-scale').innerHTML = createLikertScale('attention', 'Very short', 'Very long');
-            document.getElementById('competition-scale').innerHTML = createLikertScale('competition', 'Not at all', 'Very much');
+            for (let i = 1; i <= 7; i++) {
+                html += `
+                    <label class="likert-option">
+                        <input type="radio" name="${name}" value="${i}" required>
+                        <span style="font-size: 0.75rem; color: #666666;">${i}</span>
+                    </label>
+                `;
+            }
             
-            document.getElementById('questionnaire-overlay').style.display = 'flex';
-            
+            html += `<span style="font-size: 0.8rem; color: #666666; min-width: 60px; text-align: left;">${rightLabel}</span>`;
+            html += '</div>';
+            return html;
+        }
+    }
+    
+    // Populate Likert scales
+    document.getElementById('videogame-scale').innerHTML = createMobileLikertScale('videogame', 'Very Low', 'Very High');
+    document.getElementById('musical-scale').innerHTML = createMobileLikertScale('musical', 'Very Low', 'Very High');
+    document.getElementById('sports-scale').innerHTML = createMobileLikertScale('sports', 'Very Low', 'Very High');
+    document.getElementById('caffeine-scale').innerHTML = createMobileLikertScale('caffeine', 'None', 'Very High');
+    document.getElementById('mood-scale').innerHTML = createMobileLikertScale('mood', 'Very Poor', 'Excellent');
+    document.getElementById('motivated-scale').innerHTML = createMobileLikertScale('motivated', 'Not at all', 'Extremely');
+    document.getElementById('distracted-scale').innerHTML = createMobileLikertScale('distracted', 'Not at all', 'Extremely');
+    document.getElementById('performance-scale').innerHTML = createMobileLikertScale('performance', 'Much Worse', 'Much Better');
+    document.getElementById('persistence-scale').innerHTML = createMobileLikertScale('persistence', 'Give up quickly', 'Push through');
+    document.getElementById('attention-scale').innerHTML = createMobileLikertScale('attention', 'Very short', 'Very long');
+    document.getElementById('competition-scale').innerHTML = createMobileLikertScale('competition', 'Not at all', 'Very much');
+    
+    document.getElementById('questionnaire-overlay').style.display = 'flex';
             // Handle form submission
 // Handle form submission
 document.getElementById('questionnaire-form').addEventListener('submit', function(e) {
@@ -2688,117 +3055,103 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
 
  function analyzeAllTrials() {
             showQuestionnaire();
-        }
-        function showFinalResults() {
-            document.getElementById('finalResults').style.display = 'block';
-            document.body.classList.add('results-page');
-            
-            let rightTrials = allTrialResults.filter(t => t.condition.hand === 'right');
-            let leftTrials = allTrialResults.filter(t => t.condition.hand === 'left');
+}
 
-            const calculateAverage = (trials, metric) => {
-                const values = trials.map(t => t.result.metrics[metric]);
-                return values.reduce((a, b) => a + b, 0) / values.length;
-            };
-            
-            const rightFastFreq = calculateAverage(rightTrials, 'avgFrequency');
-            const leftFastFreq = calculateAverage(leftTrials, 'avgFrequency');
-            const avgFastFreq = (rightFastFreq + leftFastFreq) / 2;
-
-            const avgTapsPerTenSec = avgFastFreq * 10;
-            const rightTapsPerRound = Math.round(calculateAverage(rightTrials, 'tapCount'));
-            const leftTapsPerRound = Math.round(calculateAverage(leftTrials, 'tapCount'));
-            
-            // Generate Prolific completion code
-            const prolificCode = "CXXRL3ML";
-            
-            function erf(x) {
-                const a1 =  0.254829592;
-                const a2 = -0.284496736;
-                const a3 =  1.421413741;
-                const a4 = -1.453152027;
-                const a5 =  1.061405429;
-                const p  =  0.3275911;
-                const sign = x < 0 ? -1 : 1;
-                x = Math.abs(x);
-                const t = 1.0 / (1.0 + p * x);
-                const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
-                return sign * y;
-            }
-            
-            let html = `
-                <div style="max-width: 1000px; margin: 0 auto; padding: 3rem 3rem; text-align: center; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column;">
-                    <div style="margin-bottom: 4rem;">
-                        <p style="font-size: 3.4rem; color: #1a1a1a; line-height: 1.3; margin-bottom: 4rem; font-weight: 300; letter-spacing: -0.02em;">
-                            You tapped <strong style="font-weight: 700;">${rightTapsPerRound}</strong> times per round (15s) with your <strong style="font-weight: 700;">right hand</strong> and<br>
-                            <strong style="font-weight: 700;">${leftTapsPerRound}</strong> times per round with your <strong style="font-weight: 700;">left hand</strong>.
-                        </p>
-                        
+function showFinalResults() {
+    document.getElementById('finalResults').style.display = 'block';
+    document.body.classList.add('results-page');
     
-                    </div>
+    let rightTrials = allTrialResults.filter(t => t.condition.hand === 'right');
+    let leftTrials = allTrialResults.filter(t => t.condition.hand === 'left');
+
+    const calculateAverage = (trials, metric) => {
+        const values = trials.map(t => t.result.metrics[metric]);
+        return values.reduce((a, b) => a + b, 0) / values.length;
+    };
+    
+    const rightFastFreq = calculateAverage(rightTrials, 'avgFrequency');
+    const leftFastFreq = calculateAverage(leftTrials, 'avgFrequency');
+    const avgFastFreq = (rightFastFreq + leftFastFreq) / 2;
+
+    const avgTapsPerTenSec = avgFastFreq * 10;
+    const rightTapsPerRound = Math.round(calculateAverage(rightTrials, 'tapCount'));
+    const leftTapsPerRound = Math.round(calculateAverage(leftTrials, 'tapCount'));
+    
+    const prolificCode = "CXXRL3ML";
+    
+    // Mobile-responsive results HTML
+    const isMobile = window.innerWidth <= 768;
+    
+    let html = `
+        <div style="max-width: 1000px; margin: 0 auto; padding: ${isMobile ? '2rem 1rem' : '3rem 3rem'}; text-align: center; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column;">
+            <div style="margin-bottom: ${isMobile ? '3rem' : '4rem'};">
+                <p style="font-size: ${isMobile ? 'clamp(1.4rem, 4vw, 2.2rem)' : '3.4rem'}; color: #1a1a1a; line-height: ${isMobile ? '1.4' : '1.3'}; margin-bottom: ${isMobile ? '2rem' : '4rem'}; font-weight: 300; letter-spacing: -0.02em;">
+                    You tapped <strong style="font-weight: 700; ${isMobile ? 'color: #22c55e; font-size: 1.1em;' : ''}">${rightTapsPerRound}</strong> times per round (15s) with your <strong style="font-weight: 700;">right hand</strong>${isMobile ? '<br>' : ' and<br>'}
+                    <strong style="font-weight: 700; ${isMobile ? 'color: #22c55e; font-size: 1.1em;' : ''}">${leftTapsPerRound}</strong> times per round with your <strong style="font-weight: 700;">left hand</strong>.
+                </p>
+            </div>
+            
+            <div class="${isMobile ? 'mobile-prolific-code' : ''}" style="${isMobile ? '' : 'background: rgba(34, 197, 94, 0.1); border: 2px solid #22c55e; border-radius: 16px; padding: 2rem; margin-bottom: 3rem;'}">
+                <p style="font-size: ${isMobile ? '1.3rem' : '1.6rem'}; color: #1a1a1a; margin-bottom: 1rem; font-weight: 500;">Prolific Completion Code:</p>
+                <p style="font-size: ${isMobile ? '2.2rem' : '2.8rem'}; color: #22c55e; font-weight: 700; letter-spacing: 0.1em; font-family: 'Courier New', monospace;">${prolificCode}</p>
+                <p style="font-size: ${isMobile ? '1rem' : '1.2rem'}; color: #666666; margin-top: 1rem;">Please copy this code and paste it into Prolific to complete your participation.</p>
+            </div>
+            
+            <div class="${isMobile ? 'mobile-button-container' : ''}" style="${isMobile ? '' : 'display: flex; gap: 2rem; justify-content: center;'}">
+                <button onclick="location.reload()" style="background-color: #000000; color: white; border: none; padding: ${isMobile ? '1.25rem 2rem' : '1.5rem 3rem'}; font-size: ${isMobile ? '1.2rem' : '1.3rem'}; font-weight: 500; border-radius: ${isMobile ? '12px' : '60px'}; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; ${isMobile ? 'width: 100%;' : ''}">
+                    Take Test Again
+                </button>
+                <button onclick="shareResults()" style="background-color: transparent; color: #000000; border: 2px solid #000000; padding: ${isMobile ? '1.25rem 2rem' : '1.5rem 3rem'}; font-size: ${isMobile ? '1.2rem' : '1.3rem'}; font-weight: 500; border-radius: ${isMobile ? '12px' : '60px'}; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; ${isMobile ? 'width: 100%;' : ''}">
+                    Share Results
+                </button>
+            </div>
+        </div>
+    `;
                     
-                    <div style="background: rgba(34, 197, 94, 0.1); border: 2px solid #22c55e; border-radius: 16px; padding: 2rem; margin-bottom: 3rem;">
-                        <p style="font-size: 1.6rem; color: #1a1a1a; margin-bottom: 1rem; font-weight: 500;">Prolific Completion Code:</p>
-                        <p style="font-size: 2.8rem; color: #22c55e; font-weight: 700; letter-spacing: 0.1em; font-family: 'Courier New', monospace;">${prolificCode}</p>
-                        <p style="font-size: 1.2rem; color: #666666; margin-top: 1rem;">Please copy this code and paste it into Prolific to complete your participation.</p>
-                    </div>
-                    
-                    <div style="display: flex; gap: 2rem; justify-content: center;">
-                        <button onclick="location.reload()" style="background-color: #000000; color: white; border: none; padding: 1.5rem 3rem; font-size: 1.3rem; font-weight: 500; border-radius: 60px; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif;">
-                            Take Test Again
-                        </button>
-                        <button onclick="shareResults()" style="background-color: transparent; color: #000000; border: 2px solid #000000; padding: 1.5rem 3rem; font-size: 1.3rem; font-weight: 500; border-radius: 60px; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif;">
-                            Share Results
-                        </button>
-                    </div>
-                </div>
-            `;
-                        
-            document.getElementById('finalResults').innerHTML = html;
+    document.getElementById('finalResults').innerHTML = html;
 
-            // Save final summary to database
-            const participantID = sessionStorage.getItem('prolificID') || 'anonymous';
+    // Save final summary to database (keep your existing code unchanged)
+    const participantID = sessionStorage.getItem('prolificID') || 'anonymous';
 
-            allTrialResults.forEach((trial, index) => {
-                const trialNum = `Trial ${index + 1}`;
-                const metrics = trial.result.metrics;
+    allTrialResults.forEach((trial, index) => {
+        const trialNum = `Trial ${index + 1}`;
+        const metrics = trial.result.metrics;
 
-                db.collection("Results")
-                    .doc(participantID)
-                    .collection("Trials")
-                    .doc(trialNum)
-                    .set({
-                        condition: trial.condition,
-                        repetition: trial.repetition,
-                        ...metrics,
-                        score: trial.result.score,
-                        details: trial.result.details,
-                        timestamp: new Date().toISOString()
-                    });
-            });
-
-            db.collection("Results")
+        db.collection("Results")
             .doc(participantID)
-            .collection("Summary")
-            .doc("FinalSummary")
+            .collection("Trials")
+            .doc(trialNum)
             .set({
-                completedAt: new Date().toISOString(),
-                totalTrials: allTrialResults.length,
-                prolificCompletionCode: prolificCode,
-                finalAverages: {
-                    tappingFrequency: avgFastFreq,
-                    tapsPerTenSeconds: avgTapsPerTenSec,
-                    percentile: percentile
-                },
-                allTrialMetrics: allTrialResults.map((t, idx) => ({
-                    trialNum: idx + 1,
-                    condition: t.condition,
-                    ...t.result.metrics
-                }))
-            })
-            .then(() => console.log("Final summary saved for", participantID))
-            .catch(err => console.error("Error saving final summary:", err));
-        }
+                condition: trial.condition,
+                repetition: trial.repetition,
+                ...metrics,
+                score: trial.result.score,
+                details: trial.result.details,
+                timestamp: new Date().toISOString()
+            });
+    });
+
+    db.collection("Results")
+    .doc(participantID)
+    .collection("Summary")
+    .doc("FinalSummary")
+    .set({
+        completedAt: new Date().toISOString(),
+        totalTrials: allTrialResults.length,
+        prolificCompletionCode: prolificCode,
+        finalAverages: {
+            tappingFrequency: avgFastFreq,
+            tapsPerTenSeconds: avgTapsPerTenSec
+        },
+        allTrialMetrics: allTrialResults.map((t, idx) => ({
+            trialNum: idx + 1,
+            condition: t.condition,
+            ...t.result.metrics
+        }))
+    })
+    .then(() => console.log("Final summary saved for", participantID))
+    .catch(err => console.error("Error saving final summary:", err));
+}
         // Social media share functions
         function shareResults() {
             const rightTrials = allTrialResults.filter(t => t.condition.hand === 'right');
