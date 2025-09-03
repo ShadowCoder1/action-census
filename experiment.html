@@ -1965,6 +1965,83 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             }, recordingDuration);
         }
 
+
+// MOBILE-ONLY: wait until the hand is visible, then auto-start without any alerts
+async function startRecordingMobileSafe() {
+    if (trialIndex >= totalTrials) {
+        // keep desktop behavior intact; on mobile we just stop here without alerts
+        return;
+    }
+
+    const videoEl = document.getElementById('inputVideo');
+    // Ensure mobile playback cannot be paused by overlays/modals
+    videoEl.setAttribute('playsinline', 'true');
+    videoEl.muted = true;
+    try { await videoEl.play(); } catch (_) {}
+
+    // Show guide while we wait for a valid hand
+    document.getElementById('hand-guide-overlay').style.display = 'block';
+    document.getElementById('hand-outline').style.display = 'block';
+
+    const positionStatus = document.getElementById('position-status');
+    positionStatus.textContent = 'Looking for your hand...';
+    positionStatus.className = 'position-status warning';
+
+    const countdownEl = document.getElementById('countdown');
+
+    // Poll up to 6 seconds for a correctly detected hand
+    let waitedMs = 0;
+    const pollIntervalMs = 100;
+    const maxWaitMs = 6000;
+
+    const poll = setInterval(() => {
+        // keep the video alive (some mobile browsers pause after any modal/overlay)
+        if (videoEl.paused) { videoEl.play().catch(() => {}); }
+
+        const okHand = handDetected && isCorrectHandDetectedForCurrentTrial() && window.handPositionCorrect;
+        if (okHand) {
+            clearInterval(poll);
+
+            // Smooth transition to the normal countdown -> recording flow
+            let countdown = 3;
+            countdownEl.style.display = 'block';
+            countdownEl.textContent = countdown;
+
+            countdownInterval = setInterval(() => {
+                // Abort countdown if the hand disappears or becomes incorrect
+                if (!handDetected || !isCorrectHandDetectedForCurrentTrial()) {
+                    clearInterval(countdownInterval);
+                    countdownEl.style.display = 'none';
+                    positionStatus.textContent = 'Position hand in view';
+                    positionStatus.className = 'position-status warning';
+                    return;
+                }
+
+                countdown--;
+                if (countdown > 0) {
+                    countdownEl.textContent = countdown;
+                    countdownEl.style.animation = 'none';
+                    setTimeout(() => {
+                        countdownEl.style.animation = 'countdownPulse 1s ease-in-out';
+                    }, 10);
+                } else {
+                    clearInterval(countdownInterval);
+                    countdownEl.style.display = 'none';
+                    startActualRecording(); // <- uses your existing logic
+                }
+            }, 1000);
+        } else {
+            waitedMs += pollIntervalMs;
+            if (waitedMs >= maxWaitMs) {
+                clearInterval(poll);
+                positionStatus.textContent = 'Position hand in view';
+                positionStatus.className = 'position-status warning';
+                // Do nothing else; user can re-tap to try again once their hand is visible
+            }
+        }
+    }, pollIntervalMs);
+}
+
 // Replace your existing stopRecording function with this fixed version
 function stopRecording() {
     if (!recording) return; // Prevent multiple calls
@@ -2913,41 +2990,25 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     if (window.innerWidth <= 768) { // Only on mobile
                         const overlay = document.getElementById('trial-instructions-overlay');
                         if (overlay.style.display === 'flex') {
-                
-                            // 1) VALIDATE FIRST while the overlay is still visible
-                            if (!handDetected) {
-                                alert('Please position your hand in view of the camera before starting.');
-                                // after closing alert, mobile browsers may pause the stream — resume it
-                                const videoEl = document.getElementById('inputVideo');
-                                try { await videoEl.play(); } catch (_) {}
-                                return; // keep overlay up; don't proceed
-                            }
-                            if (trialIndex >= totalTrials) {
-                                alert('All trials complete!');
-                                const videoEl = document.getElementById('inputVideo');
-                                try { await videoEl.play(); } catch (_) {}
-                                return;
-                            }
-                
-                            // 2) NOW hide overlay and begin (camera keeps running)
+                            // Do NOT pre-validate on mobile—alerts freeze/kill the camera.
+                            // Just close the overlay and start the mobile-safe flow.
                             overlay.style.display = 'none';
                             overlayJustDismissed = true;
                 
-                            // ensure camera is actively playing just before countdown/recording
+                            // make sure the camera is actually playing before we proceed
                             const videoEl = document.getElementById('inputVideo');
-                            try {
-                                videoEl.setAttribute('playsinline', 'true');
-                                videoEl.muted = true;
-                                await videoEl.play();
-                            } catch (_) {}
+                            videoEl.setAttribute('playsinline', 'true');
+                            videoEl.muted = true;
+                            try { await videoEl.play(); } catch (_) {}
                 
-                            // slight delay to let the first live frame render before countdown
+                            // small settle delay so the first live frame renders
                             setTimeout(() => {
-                                startRecording();
+                                startRecordingMobileSafe(); // <-- NEW mobile-only starter
                             }, 250);
                         }
                     }
                 });
+                
                 
             }
         });
