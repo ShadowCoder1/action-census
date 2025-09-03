@@ -1349,60 +1349,60 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     height: { ideal: 1080 },
                     facingMode: "user"
                 }
-           }).then(async (stream) => {
-            videoElement.srcObject = stream;
-        
-            // MOBILE-ONLY: make sure the camera actually plays (iOS requires an explicit play)
-            if (window.innerWidth <= 768) {
-                videoElement.setAttribute('playsinline', 'true');
-                try { await videoElement.play(); } catch (e) { /* will auto-play on tap later */ }
-            }
-        
-            videoElement.onloadedmetadata = () => {
-                canvasElement.width = videoElement.videoWidth;
-                canvasElement.height = videoElement.videoHeight;
-        
-                let lastFrameTime = Date.now();
-                let freezeWatchdog = null;
-        
-                const processFrame = async () => {
-                    try {
-                        if (videoElement.readyState >= 2) { // Ensure video is ready
-                            await hands.send({ image: videoElement });
-                            lastFrameTime = Date.now();
+            }).then(async (stream) => {
+                videoElement.srcObject = stream;
+            
+                // MOBILE-ONLY hardening (no effect on desktop rendering)
+                if (window.innerWidth <= 768) {
+                    // ensure inline playback & silent autoplay compliance
+                    videoElement.setAttribute('playsinline', 'true');
+                    videoElement.muted = true;
+                    try { await videoElement.play(); } catch (e) { /* will auto-play on user tap later */ }
+                }
+            
+                videoElement.onloadedmetadata = () => {
+                    canvasElement.width = videoElement.videoWidth;
+                    canvasElement.height = videoElement.videoHeight;
+            
+                    let lastFrameTime = Date.now();
+                    let freezeWatchdog = null;
+            
+                    const processFrame = async () => {
+                        try {
+                            if (videoElement.readyState >= 2) {
+                                await hands.send({ image: videoElement });
+                                lastFrameTime = Date.now();
+                            }
+                        } catch (err) {
+                            console.warn("MediaPipe processing error:", err);
                         }
-                    } catch (err) {
-                        console.warn("MediaPipe processing error:", err);
-                    }
-                    if (!recording || Date.now() - lastFrameTime < 5000) { // Continue processing unless frozen
-                        requestAnimationFrame(processFrame);
-                    } else {
-                        // Restart processing if frozen during recording
-                        setTimeout(() => requestAnimationFrame(processFrame), 100);
-                    }
+                        if (!recording || Date.now() - lastFrameTime < 5000) {
+                            requestAnimationFrame(processFrame);
+                        } else {
+                            setTimeout(() => requestAnimationFrame(processFrame), 100);
+                        }
+                    };
+            
+                    freezeWatchdog = setInterval(async () => {
+                        const now = Date.now();
+                        if (now - lastFrameTime > 2000) {
+                            console.warn("Hand tracking seems frozen. Restarting MediaPipe Hands...");
+                            hands.close();
+                            initializeHands();
+            
+                            // MOBILE-ONLY: if the video auto-paused (e.g., after alert/overlay), resume it
+                            if (window.innerWidth <= 768 && videoElement.paused) {
+                                try { await videoElement.play(); } catch (_) {}
+                            }
+                        }
+                    }, 1000);
+            
+                    requestAnimationFrame(processFrame);
                 };
-        
-                freezeWatchdog = setInterval(async () => {
-                    const now = Date.now();
-                    if (now - lastFrameTime > 2000) {
-                        console.warn("Hand tracking seems frozen. Restarting MediaPipe Hands...");
-                        hands.close();
-                        initializeHands();
-        
-                        // MOBILE-ONLY: if the video got auto-paused when overlays changed, resume it
-                        if (window.innerWidth <= 768 && videoElement.paused) {
-                            try { await videoElement.play(); } catch (_) {}
-                        }
-                    }
-                }, 1000);
-        
-                requestAnimationFrame(processFrame);
-            };
-        }).catch(err => {
-            console.error("Camera access error:", err);
-        });
-
-
+            }).catch(err => {
+                console.error("Camera access error:", err);
+            });
+            
         }
 
         // Moving average filter
@@ -2913,28 +2913,42 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     if (window.innerWidth <= 768) { // Only on mobile
                         const overlay = document.getElementById('trial-instructions-overlay');
                         if (overlay.style.display === 'flex') {
+                
+                            // 1) VALIDATE FIRST while the overlay is still visible
+                            if (!handDetected) {
+                                alert('Please position your hand in view of the camera before starting.');
+                                // after closing alert, mobile browsers may pause the stream — resume it
+                                const videoEl = document.getElementById('inputVideo');
+                                try { await videoEl.play(); } catch (_) {}
+                                return; // keep overlay up; don't proceed
+                            }
+                            if (trialIndex >= totalTrials) {
+                                alert('All trials complete!');
+                                const videoEl = document.getElementById('inputVideo');
+                                try { await videoEl.play(); } catch (_) {}
+                                return;
+                            }
+                
+                            // 2) NOW hide overlay and begin (camera keeps running)
                             overlay.style.display = 'none';
                             overlayJustDismissed = true;
                 
-                            // Ensure the camera stream is actively playing on mobile before starting
+                            // ensure camera is actively playing just before countdown/recording
                             const videoEl = document.getElementById('inputVideo');
-                            try { await videoEl.play(); } catch (_) {}
+                            try {
+                                videoEl.setAttribute('playsinline', 'true');
+                                videoEl.muted = true;
+                                await videoEl.play();
+                            } catch (_) {}
                 
-                            // Give the camera a brief moment to settle, then start
+                            // slight delay to let the first live frame render before countdown
                             setTimeout(() => {
-                                if (!handDetected) {
-                                    alert('Please position your hand in view of the camera before starting.');
-                                    return;
-                                }
-                                if (trialIndex >= totalTrials) {
-                                    alert('All trials complete!');
-                                    return;
-                                }
                                 startRecording();
-                            }, 500);
+                            }, 250);
                         }
                     }
-                });  
+                });
+                
             }
         });
             
