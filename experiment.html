@@ -2745,30 +2745,34 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             initializeCamera();
             updateConditionUI();
             
-            // Add mobile tap functionality
-            document.getElementById('begin-instruction').addEventListener('click', function() {
-                if (window.innerWidth <= 768) { // Only on mobile
-                    const overlay = document.getElementById('trial-instructions-overlay');
-                    if (overlay.style.display === 'flex') {
-                        overlay.style.display = 'none';
-                        overlayJustDismissed = true;
-                        
-                        // Trigger the same logic as spacebar press
-                        setTimeout(() => {
-                            if (!handDetected) {
-                                alert('Please position your hand in view of the camera before starting.');
-                                return;
-                            }
-                            if (trialIndex >= totalTrials) {
-                                alert('All trials complete!');
-                                return;
-                            }
-                            startRecording();
-                        }, 100);
+            // Add mobile tap functionality - with safety check
+            const beginInstruction = document.getElementById('begin-instruction');
+            if (beginInstruction) {
+                beginInstruction.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) { // Only on mobile
+                        const overlay = document.getElementById('trial-instructions-overlay');
+                        if (overlay.style.display === 'flex') {
+                            overlay.style.display = 'none';
+                            overlayJustDismissed = true;
+                            
+                            // Trigger the same logic as spacebar press
+                            setTimeout(() => {
+                                if (!handDetected) {
+                                    alert('Please position your hand in view of the camera before starting.');
+                                    return;
+                                }
+                                if (trialIndex >= totalTrials) {
+                                    alert('All trials complete!');
+                                    return;
+                                }
+                                startRecording();
+                            }, 100);
+                        }
                     }
-                }
-            });
+                });
+            }
         };
+        
             
             // Add mobile tap functionality
             document.getElementById('begin-instruction').addEventListener('click', function() {
