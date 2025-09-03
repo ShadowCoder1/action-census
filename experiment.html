@@ -715,11 +715,20 @@ button, input[type="submit"], .btn {
                 max-width: 280px;
                 line-height: 1.3;
             }
-            
+        
+            /* 2× bigger outline on mobile */
             #hand-outline {
-                width: 200px !important;
+                width: 400px !important;          /* was 200px */
                 top: 45% !important;
                 left: 50% !important;
+                /* do NOT force a generic transform here — we let layout classes control mirroring */
+            }
+        
+            /* Preserve correct mirroring on mobile, per hand side */
+            .layout-left-hand #hand-outline {
+                transform: translate(-50%, -50%) scaleX(-1) !important;
+            }
+            .layout-right-hand #hand-outline {
                 transform: translate(-50%, -50%) !important;
             }
             
@@ -735,7 +744,8 @@ button, input[type="submit"], .btn {
             .countdown {
                 font-size: 8rem;
             }
-                }
+        }
+        
     </style>
 
     <!-- Firebase SDK -->
@@ -1510,10 +1520,10 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                         lastHandSeenTime = Date.now();
                     }
                                         
-                // Hand position checking logic
-                if (!recording && (frameCount < 10 || frameCount % 10 === 0)) {
+                if (!recording) {
                     updateHandPositionFeedback(landmarks);
                 }
+                
                 if (results.multiHandedness && results.multiHandedness.length > 0) {
                     let rawLabel = results.multiHandedness[0].label;
                     currentDetectedHand = (rawLabel === "Right") ? "Left" : "Right";
