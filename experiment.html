@@ -1364,11 +1364,12 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         }
 
         // Initialize camera
+        // REPLACE YOUR initializeCamera function with this version:
         function initializeCamera() {
             const videoElement = document.getElementById('inputVideo');
             const canvasElement = document.getElementById('outputCanvas');
             canvasCtx = canvasElement.getContext('2d');
-
+        
             navigator.mediaDevices.getUserMedia({
                 video: {
                     width: { ideal: 1920 },
@@ -1378,12 +1379,22 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             }).then(async (stream) => {
                 videoElement.srcObject = stream;
             
-                // MOBILE-ONLY hardening (no effect on desktop rendering)
+                // FIXED: Proper mobile video setup
                 if (window.innerWidth <= 768) {
-                    // ensure inline playback & silent autoplay compliance
                     videoElement.setAttribute('playsinline', 'true');
+                    videoElement.setAttribute('webkit-playsinline', 'true');
                     videoElement.muted = true;
-                    try { await videoElement.play(); } catch (e) { /* will auto-play on user tap later */ }
+                    videoElement.autoplay = true;
+                    
+                    // Force play on mobile after metadata loads
+                    videoElement.addEventListener('loadedmetadata', async () => {
+                        try {
+                            await videoElement.play();
+                            console.log('📱 Mobile video started successfully');
+                        } catch (e) {
+                            console.warn('📱 Mobile video autoplay blocked, will play on user interaction');
+                        }
+                    });
                 }
             
                 videoElement.onloadedmetadata = () => {
@@ -1391,45 +1402,49 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     canvasElement.height = videoElement.videoHeight;
             
                     let lastFrameTime = Date.now();
-                    let freezeWatchdog = null;
             
                     const processFrame = async () => {
                         try {
-                            if (videoElement.readyState >= 2) {
+                            if (videoElement.readyState >= 2 && !videoElement.paused) {
                                 await hands.send({ image: videoElement });
                                 lastFrameTime = Date.now();
                             }
                         } catch (err) {
                             console.warn("MediaPipe processing error:", err);
                         }
-                        if (!recording || Date.now() - lastFrameTime < 5000) {
-                            requestAnimationFrame(processFrame);
-                        } else {
-                            setTimeout(() => requestAnimationFrame(processFrame), 100);
-                        }
+                        requestAnimationFrame(processFrame);
                     };
             
-                    freezeWatchdog = setInterval(async () => {
-                        const now = Date.now();
-                        if (now - lastFrameTime > 2000) {
-                            console.warn("Hand tracking seems frozen. Restarting MediaPipe Hands...");
-                            hands.close();
-                            initializeHands();
-            
-                            // MOBILE-ONLY: if the video auto-paused (e.g., after alert/overlay), resume it
-                            if (window.innerWidth <= 768 && videoElement.paused) {
-                                try { await videoElement.play(); } catch (_) {}
+                    // FIXED: Simplified watchdog for mobile
+                    const startWatchdog = () => {
+                        setInterval(async () => {
+                            const now = Date.now();
+                            if (now - lastFrameTime > 3000) {
+                                console.warn("Hand tracking frozen, restarting...");
+                                try {
+                                    hands.close();
+                                    initializeHands();
+                                    
+                                    // FIXED: Resume video on mobile if paused
+                                    if (window.innerWidth <= 768 && videoElement.paused) {
+                                        await videoElement.play();
+                                    }
+                                } catch (e) {
+                                    console.warn("Restart failed:", e);
+                                }
                             }
-                        }
-                    }, 1000);
+                        }, 2000);
+                    };
             
                     requestAnimationFrame(processFrame);
+                    startWatchdog();
                 };
             }).catch(err => {
                 console.error("Camera access error:", err);
+                alert("Camera access denied. Please refresh and grant camera permissions.");
             });
-            
         }
+        
 
         // Moving average filter
         function movingAverage(data, windowSize) {
@@ -1844,29 +1859,49 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             }
         }
 
-        // Start recording
+                // Start recording
+         // REPLACE YOUR startRecording function with this version:
         function startRecording() {
-            if (!handDetected) {
-                alert('Please position your hand in view of the camera before starting.');
-                return;
+            // FIXED: Mobile-specific validation without alerts that freeze camera
+            if (window.innerWidth <= 768) {
+                // On mobile, start countdown immediately if hand is detected
+                if (!handDetected) {
+                    // Instead of alert, show visual feedback
+                    const positionStatus = document.getElementById('position-status');
+                    positionStatus.textContent = 'Show your hand to camera';
+                    positionStatus.className = 'position-status error';
+                    return;
+                }
+            } else {
+                // Desktop validation (unchanged)
+                if (!handDetected) {
+                    alert('Please position your hand in view of the camera before starting.');
+                    return;
+                }
+        
+                if (!window.handPositionCorrect) {
+                    alert('Please position your hand correctly with fingers open before starting.');
+                    return;
+                }
+        
+                if (!isCorrectHandDetectedForCurrentTrial()) {
+                    const required = trialConditions[trialIndex % trialConditions.length].hand.toUpperCase();
+                    alert(`Please show your ${required} hand before starting.`);
+                    return;
+                }
             }
-
-            if (!window.handPositionCorrect) {
-                alert('Please position your hand correctly with fingers open before starting.');
-                return;
-            }
-
-            if (!isCorrectHandDetectedForCurrentTrial()) {
-                const required = trialConditions[trialIndex % trialConditions.length].hand.toUpperCase();
-                alert(`Please show your ${required} hand before starting.`);
-                return;
-            }
-
+        
             if (trialIndex >= totalTrials) {
-                alert('All trials complete!');
-                return;
+                if (window.innerWidth <= 768) {
+                    const positionStatus = document.getElementById('position-status');
+                    positionStatus.textContent = 'All trials complete!';
+                    return;
+                } else {
+                    alert('All trials complete!');
+                    return;
+                }
             }
-
+        
             // Reset data
             distanceSignal = [];
             timeSignal = [];
@@ -1875,20 +1910,33 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             tapEvents = [];
             frameCount = 0;
             frameData = [];
-
+        
             // Start countdown
             let countdown = 3;
             const countdownEl = document.getElementById('countdown');
             countdownEl.style.display = 'block';
             countdownEl.textContent = countdown;
-
+        
             countdownInterval = setInterval(() => {
-                if (!handDetected || !isCorrectHandDetectedForCurrentTrial()) {
-                    clearInterval(countdownInterval);
-                    countdownEl.style.display = 'none';
-                    
-                    window.handPositionCorrect = false;
-                    return;
+                // FIXED: More lenient countdown checks for mobile
+                if (window.innerWidth <= 768) {
+                    // On mobile, only check if hand is still detected
+                    if (!handDetected) {
+                        clearInterval(countdownInterval);
+                        countdownEl.style.display = 'none';
+                        const positionStatus = document.getElementById('position-status');
+                        positionStatus.textContent = 'Hand lost - try again';
+                        positionStatus.className = 'position-status error';
+                        return;
+                    }
+                } else {
+                    // Desktop checks (unchanged)
+                    if (!handDetected || !isCorrectHandDetectedForCurrentTrial()) {
+                        clearInterval(countdownInterval);
+                        countdownEl.style.display = 'none';
+                        window.handPositionCorrect = false;
+                        return;
+                    }
                 }
                 
                 countdown--;
@@ -1905,6 +1953,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 }
             }, 1000);
         }
+
 
         // Start actual recording
         function startActualRecording() {
@@ -2955,35 +3004,109 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             
             // Add mobile tap functionality
 // Add mobile tap functionality
+            // Add mobile tap functionality
             const beginInstruction = document.getElementById('begin-instruction');
             if (beginInstruction) {
                 beginInstruction.addEventListener('click', async function() {
                     if (window.innerWidth <= 768) { // Only on mobile
                         const overlay = document.getElementById('trial-instructions-overlay');
                         if (overlay.style.display === 'flex') {
-                            // Do NOT pre-validate on mobile—alerts freeze/kill the camera.
-                            // Just close the overlay and start the mobile-safe flow.
                             overlay.style.display = 'none';
-                            overlayJustDismissed = true;
-                
-                            // Use the same logic as desktop
-                            if (!handDetected) {
-                                alert('Please position your hand in view of the camera before starting.');
-                                return;
-                            }
-                            if (trialIndex >= totalTrials) {
-                                alert('All trials complete!');
-                                return;
-                            }
-                            startRecording(); // Use the exact same function as desktop
+                            
+                            // FIXED: Give a brief moment for camera to stabilize
+                            setTimeout(() => {
+                                // Ensure video is playing before starting
+                                const videoElement = document.getElementById('inputVideo');
+                                if (videoElement.paused) {
+                                    videoElement.play().then(() => {
+                                        startRecording();
+                                    }).catch(() => {
+                                        startRecording(); // Try anyway
+                                    });
+                                } else {
+                                    startRecording();
+                                }
+                            }, 100);
                         }
                     }
                 });
-                
-                
             }
-        });
             
+        });
+        function restartTrialMobileSafe(reason) {
+            if (!recording) return;
+            
+            recording = false;
+            clearInterval(mainTimerInterval);
+            
+            // Reset tracking variables
+            lastHandSeenTime = 0;
+            
+            // Reset UI
+            document.getElementById('hand-guide-overlay').style.display = 'block';
+            document.getElementById('hand-outline').style.display = 'block';
+            document.getElementById('tapWidthFeedback').style.display = 'none';
+            document.getElementById('countdown').style.display = 'none';
+            
+            // FIXED: Mobile-safe restart messaging
+            if (window.innerWidth <= 768) {
+                // Use position status instead of overlay on mobile
+                const positionStatus = document.getElementById('position-status');
+                switch(reason) {
+                    case 'handLoss':
+                        positionStatus.textContent = 'Keep hand visible - tap to retry';
+                        break;
+                    case 'inactivity':
+                        positionStatus.textContent = 'Keep tapping - tap to retry';
+                        break;
+                    case 'fewTaps':
+                        positionStatus.textContent = 'Tap faster - tap to retry';
+                        break;
+                    default:
+                        positionStatus.textContent = 'Tap to retry trial';
+                }
+                positionStatus.className = 'position-status warning';
+                
+                // Make position status clickable for retry
+                positionStatus.style.cursor = 'pointer';
+                positionStatus.onclick = () => {
+                    positionStatus.onclick = null;
+                    positionStatus.style.cursor = '';
+                    startRecording();
+                };
+            } else {
+                // Desktop behavior unchanged
+                const overlay = document.getElementById('trial-instructions-overlay');
+                const instructionText = document.getElementById('trial-instructions-text');
+                
+                switch(reason) {
+                    case 'handLoss':
+                        instructionText.innerHTML = `
+                            <div style="color: #f59e0b; font-size: 2.8rem; margin-bottom: 1rem;">Hand Lost</div>
+                            <div style="color: #1a1a1a; font-size: 1.8rem; font-weight: 400;">Keep hand visible during test</div>
+                        `;
+                        break;
+                    case 'inactivity':
+                        instructionText.innerHTML = `
+                            <div style="color: #f59e0b; font-size: 2.8rem; margin-bottom: 1rem;">Trial Paused</div>
+                            <div style="color: #1a1a1a; font-size: 1.8rem; font-weight: 400;">Continue tapping throughout</div>
+                        `;
+                        break;
+                    case 'fewTaps':
+                        instructionText.innerHTML = `
+                            <div style="color: #f59e0b; font-size: 2.8rem; margin-bottom: 1rem;">Too Few Taps</div>
+                            <div style="color: #1a1a1a; font-size: 1.8rem; font-weight: 400;">Tap more frequently</div>
+                        `;
+                        break;
+                }
+                
+                overlay.style.display = 'flex';
+            }
+            
+            // Reset displays
+            document.getElementById('timer-display').textContent = '00:15';
+            document.getElementById('taps-display').textContent = '0';
+        }
             
     </script>
 </body>
