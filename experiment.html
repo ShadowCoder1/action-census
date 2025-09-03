@@ -1592,9 +1592,9 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             
             const isMobile = window.innerWidth <= 768;
             
-            // On phones the normalized geometry often reads smaller; ease the window slightly
+            // FIXED: More lenient mobile thresholds to account for different camera/screen ratios
             const goodDistance = isMobile
-                ? (handSize > 0.22 && handSize < 0.36)   // mobile-friendly window
+                ? (handSize > 0.15 && handSize < 0.45)   // More forgiving mobile window
                 : (handSize > 0.28 && handSize < 0.42);  // desktop window
             
             const fingerDistance = Math.sqrt(
@@ -1603,7 +1603,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             );
             
             // Allow slightly smaller normalized gap on phones for the "open" check
-            const fingersOpen = isMobile ? (fingerDistance > 0.10) : (fingerDistance > 0.12);
+            // FIXED: More lenient finger spacing for mobile
+            const fingersOpen = isMobile ? (fingerDistance > 0.08) : (fingerDistance > 0.12);
             
             
             window.handPositionCorrect = goodDistance && fingersOpen;
@@ -1626,8 +1627,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 positionStatus.className = 'position-status warning';
                 
                 if (!goodDistance) {
-                    const tooClose = isMobile ? 0.18 : 0.21;
-                    const tooFar   = isMobile ? 0.38 : 0.42;
+                    const tooClose = isMobile ? 0.12 : 0.21;  // More forgiving close threshold
+                    const tooFar   = isMobile ? 0.48 : 0.42;  // More forgiving far threshold
                     if (handSize < tooClose) {
                         positionStatus.textContent = 'Move closer to camera';
                     } else if (handSize > tooFar) {
@@ -1998,12 +1999,10 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
 // MOBILE-ONLY: wait until the hand is visible, then auto-start without any alerts
 async function startRecordingMobileSafe() {
     if (trialIndex >= totalTrials) {
-        // keep desktop behavior intact; on mobile we just stop here without alerts
         return;
     }
 
     const videoEl = document.getElementById('inputVideo');
-    // Ensure mobile playback cannot be paused by overlays/modals
     videoEl.setAttribute('playsinline', 'true');
     videoEl.muted = true;
     try { await videoEl.play(); } catch (_) {}
@@ -2013,36 +2012,36 @@ async function startRecordingMobileSafe() {
     document.getElementById('hand-outline').style.display = 'block';
 
     const positionStatus = document.getElementById('position-status');
-    positionStatus.textContent = 'Looking for your hand...';
-    positionStatus.className = 'position-status warning';
-
     const countdownEl = document.getElementById('countdown');
 
-    // Poll up to 6 seconds for a correctly detected hand
+    // FIXED: Don't override the position status immediately - let updateHandPositionFeedback work
+    // positionStatus.textContent = 'Looking for your hand...';
+    // positionStatus.className = 'position-status warning';
+
+    // Poll for a correctly detected hand
     let waitedMs = 0;
-    const pollIntervalMs = 100;
-    const maxWaitMs = 6000;
+    const pollIntervalMs = 200; // Check every 200ms
+    const maxWaitMs = 10000; // Wait up to 10 seconds
 
     const poll = setInterval(() => {
-        // keep the video alive (some mobile browsers pause after any modal/overlay)
         if (videoEl.paused) { videoEl.play().catch(() => {}); }
 
+        // Let the normal updateHandPositionFeedback function handle all the status updates
         const okHand = handDetected && isCorrectHandDetectedForCurrentTrial() && window.handPositionCorrect;
+        
         if (okHand) {
             clearInterval(poll);
 
-            // Smooth transition to the normal countdown -> recording flow
+            // Start normal countdown flow
             let countdown = 3;
             countdownEl.style.display = 'block';
             countdownEl.textContent = countdown;
 
             countdownInterval = setInterval(() => {
-                // Abort countdown if the hand disappears or becomes incorrect
-                if (!handDetected || !isCorrectHandDetectedForCurrentTrial()) {
+                if (!handDetected || !isCorrectHandDetectedForCurrentTrial() || !window.handPositionCorrect) {
                     clearInterval(countdownInterval);
                     countdownEl.style.display = 'none';
-                    positionStatus.textContent = 'Position hand in view';
-                    positionStatus.className = 'position-status warning';
+                    // Don't override status - let updateHandPositionFeedback handle it
                     return;
                 }
 
@@ -2056,21 +2055,18 @@ async function startRecordingMobileSafe() {
                 } else {
                     clearInterval(countdownInterval);
                     countdownEl.style.display = 'none';
-                    startActualRecording(); // <- uses your existing logic
+                    startActualRecording();
                 }
             }, 1000);
         } else {
             waitedMs += pollIntervalMs;
             if (waitedMs >= maxWaitMs) {
                 clearInterval(poll);
-                positionStatus.textContent = 'Position hand in view';
-                positionStatus.className = 'position-status warning';
-                // Do nothing else; user can re-tap to try again once their hand is visible
+                // Don't override - let normal feedback system work
             }
         }
     }, pollIntervalMs);
 }
-
 // Replace your existing stopRecording function with this fixed version
 function stopRecording() {
     if (!recording) return; // Prevent multiple calls
