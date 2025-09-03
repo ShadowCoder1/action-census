@@ -2886,6 +2886,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             updateConditionUI();
             
             // Add mobile tap functionality
+// Add mobile tap functionality
             const beginInstruction = document.getElementById('begin-instruction');
             if (beginInstruction) {
                 beginInstruction.addEventListener('click', function() {
@@ -2895,17 +2896,20 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                             overlay.style.display = 'none';
                             overlayJustDismissed = true;
                             
-                            setTimeout(() => {
-                                if (!handDetected) {
-                                    alert('Please position your hand in view of the camera before starting.');
-                                    return;
-                                }
-                                if (trialIndex >= totalTrials) {
-                                    alert('All trials complete!');
-                                    return;
-                                }
-                                startRecording();
-                            }, 100);
+                            // Give more time for camera to stabilize and use requestAnimationFrame
+                            requestAnimationFrame(() => {
+                                requestAnimationFrame(() => {
+                                    if (!handDetected) {
+                                        alert('Please position your hand in view of the camera before starting.');
+                                        return;
+                                    }
+                                    if (trialIndex >= totalTrials) {
+                                        alert('All trials complete!');
+                                        return;
+                                    }
+                                    startRecording();
+                                });
+                            });
                         }
                     }
                 });
