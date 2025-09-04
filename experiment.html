@@ -499,13 +499,17 @@ button, input[type="submit"], .btn {
                 font-size: 2.2rem;
             }
         }
-       @media (max-width: 768px) {
+        @media (max-width: 768px) {
             .main-container {
                 flex-direction: column !important;
                 height: 100vh !important;
             }
             
             .left-panel {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
                 width: 100%;
                 height: auto;
                 min-height: 120px;
@@ -513,13 +517,17 @@ button, input[type="submit"], .btn {
                 padding: 1rem;
                 border-right: none !important;
                 border-left: none !important;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+                border-top: 1px solid rgba(0, 0, 0, 0.05);
+                border-bottom: none;
                 flex-shrink: 0;
+                z-index: 100;
+                background: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(20px);
             }
             
             .right-panel {
                 flex: 1;
-                height: calc(100vh - 150px);
+                height: 100vh;
                 min-height: 0;
             }
             
@@ -1345,12 +1353,6 @@ function showQuestionnaire() {
                         </div>
                     </div>
 
-                    <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}">
-                        <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Expected performance vs. others:</label>
-                        <div class="${window.innerWidth <= 768 ? 'mobile-likert-container' : 'likert-scale'}" id="performance-scale-container">
-                            <div class="${window.innerWidth <= 768 ? 'mobile-likert-scale' : 'likert-scale'}" id="performance-scale"></div>
-                        </div>
-                    </div>
 
                     <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}">
                         <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Persistence when tasks get frustrating:</label>
@@ -1528,7 +1530,6 @@ function showQuestionnaire() {
     document.getElementById('mood-scale').innerHTML = createMobileLikertScale('mood', 'Very Poor', 'Excellent');
     document.getElementById('motivated-scale').innerHTML = createMobileLikertScale('motivated', 'Not at all', 'Extremely');
     document.getElementById('distracted-scale').innerHTML = createMobileLikertScale('distracted', 'Not at all', 'Extremely');
-    document.getElementById('performance-scale').innerHTML = createMobileLikertScale('performance', 'Much Worse', 'Much Better');
     document.getElementById('persistence-scale').innerHTML = createMobileLikertScale('persistence', 'Give up quickly', 'Push through');
     document.getElementById('attention-scale').innerHTML = createMobileLikertScale('attention', 'Very short', 'Very long');
     document.getElementById('competition-scale').innerHTML = createMobileLikertScale('competition', 'Not at all', 'Very much');
@@ -1550,11 +1551,10 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     // Log what we're about to save
     console.log("📋 Questionnaire responses to save:", responses);
     
-    // Validate that we have the expected fields
     const expectedFields = [
         'videogame', 'musical', 'sports', 'caffeine', 
-        'mood', 'motivated', 'distracted', 'performance',
-        'neurological', 'income', 'zipcode'
+        'mood', 'motivated', 'distracted',
+        'neurological', 'handPain', 'handInjuryHistory', 'persistence', 'attention', 'competition', 'income', 'zipcode'
     ];
     
     const missingFields = expectedFields.filter(field => !responses[field]);
@@ -2681,7 +2681,6 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             currentMood: parseInt(responses.mood),
             taskMotivation: parseInt(responses.motivated),
             taskDistraction: parseInt(responses.distracted),
-            expectedPerformanceVsOthers: parseInt(responses.performance),
                 persistenceWhenFrustrated: parseInt(responses.persistence),
                 attentionSpanGeneral: parseInt(responses.attention),
                 enjoymentOfCompetition: parseInt(responses.competition)
