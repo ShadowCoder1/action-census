@@ -476,93 +476,93 @@
       Information saved successfully! Redirecting...
     </div>
     
-    <form id="infoForm">
-      <div class="form-group">
-        <label for="prolificID">
-          Prolific ID (if applicable)
-        </label>
-        <input type="text" id="prolificID" placeholder="Leave blank if not from Prolific" />
-      </div>
+  <form id="infoForm">
+  <div class="form-group">
+    <label for="age">
+      Age <span class="required">*</span>
+    </label>
+    <input type="number" min="0" max="90" id="age" required placeholder="Enter your age" />
+  </div>
 
-      <div class="form-group">
-        <label for="age">
-          Age <span class="required">*</span>
-        </label>
-        <input type="number" min="0" max="90" id="age" required placeholder="Enter your age" />
-      </div>
+  <div class="form-group">
+    <label for="gender">
+      Gender
+    </label>
+    <select id="gender">
+      <option value="">Select gender</option>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+      <option value="other">Other</option>
+    </select>
+  </div>
 
-      <div class="form-group">
-        <label for="gender">
-          Gender
-        </label>
-        <select id="gender">
-          <option value="">Select gender</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
+  <div class="form-group">
+    <label for="handedness">
+      Handedness
+    </label>
+    <select id="handedness">
+      <option value="">Select handedness</option>
+      <option value="right">Right-handed</option>
+      <option value="left">Left-handed</option>
+      <option value="ambidextrous">Ambidextrous</option>
+    </select>
+  </div>
 
-      <div class="form-group">
-        <label for="handedness">
-          Handedness
-        </label>
-        <select id="handedness">
-          <option value="">Select handedness</option>
-          <option value="right">Right-handed</option>
-          <option value="left">Left-handed</option>
-          <option value="ambidextrous">Ambidextrous</option>
-        </select>
-      </div>
+  <div class="form-group">
+    <label for="education">
+      Education (Years)
+    </label>
+    <input type="number" min="0" max="40" id="education" placeholder="Years of education" />
+  </div>
 
-      <div class="form-group">
-        <label for="education">
-          Education (Years)
-        </label>
-        <input type="number" min="0" max="40" id="education" placeholder="Years of education" />
-      </div>
+  <div class="form-group">
+    <label for="sleep">
+      Sleep Last Night
+    </label>
+    <select id="sleep">
+      <option value="">Select hours slept</option>
+      <option value="less_than_4">Less than 4 hours</option>
+      <option value="4_6">4–6 hours</option>
+      <option value="6_8">6–8 hours</option>
+      <option value="8_plus">8+ hours</option>
+    </select>
+  </div>
 
-      <div class="form-group">
-        <label for="sleep">
-          Sleep Last Night
-        </label>
-        <select id="sleep">
-          <option value="">Select hours slept</option>
-          <option value="less_than_4">Less than 4 hours</option>
-          <option value="4_6">4–6 hours</option>
-          <option value="6_8">6–8 hours</option>
-          <option value="8_plus">8+ hours</option>
-        </select>
-      </div>
+  <div class="form-group">
+    <label for="ethnicity">
+      Ethnicity
+    </label>
+    <select id="ethnicity">
+      <option value="">Select ethnicity</option>
+      <option value="hispanic">Hispanic or Latino</option>
+      <option value="non_hispanic">Not Hispanic or Latino</option>
+    </select>
+  </div>
 
-      <div class="form-group">
-        <label for="ethnicity">
-          Ethnicity
-        </label>
-        <select id="ethnicity">
-          <option value="">Select ethnicity</option>
-          <option value="hispanic">Hispanic or Latino</option>
-          <option value="non_hispanic">Not Hispanic or Latino</option>
-        </select>
-      </div>
+  <div class="form-group">
+    <label for="race">
+      Race
+    </label>
+    <select id="race">
+      <option value="">Select race</option>
+      <option value="white">White</option>
+      <option value="black">Black or African American</option>
+      <option value="asian">Asian</option>
+      <option value="native">American Indian or Alaska Native</option>
+      <option value="pacific">Pacific Islander</option>
+      <option value="multiple">Multiple</option>
+    </select>
+  </div>
 
-      <div class="form-group">
-        <label for="race">
-          Race
-        </label>
-        <select id="race">
-          <option value="">Select race</option>
-          <option value="white">White</option>
-          <option value="black">Black or African American</option>
-          <option value="asian">Asian</option>
-          <option value="native">American Indian or Alaska Native</option>
-          <option value="pacific">Pacific Islander</option>
-          <option value="multiple">Multiple</option>
-        </select>
-      </div>
+  <div class="form-group full-width">
+    <label for="prolificID">
+      Prolific ID (if applicable)
+    </label>
+    <input type="text" id="prolificID" placeholder="Leave blank if not from Prolific" />
+  </div>
 
-      <button type="button" onclick="startExperiment()">Continue to Assessment</button>
-    </form>
+  <button type="button" onclick="startExperiment()">Continue to Assessment</button>
+  </form>
   </div>
 
   <script>
