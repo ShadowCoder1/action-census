@@ -479,9 +479,9 @@
     <form id="infoForm">
       <div class="form-group">
         <label for="prolificID">
-          Prolific ID <span class="required">*</span>
+          Prolific ID (if applicable)
         </label>
-        <input type="text" id="prolificID" required placeholder="Enter your Prolific ID" />
+        <input type="text" id="prolificID" placeholder="Leave blank if not from Prolific" />
       </div>
 
       <div class="form-group">
@@ -576,9 +576,14 @@
       const ethnicity = document.getElementById('ethnicity').value;
       const race = document.getElementById('race').value;
     
-      if (!pid || !age) {
-        alert('Please fill in all required fields (Prolific ID and Age).');
+      if (!age) {
+        alert('Please fill in the required field: Age.');
         return;
+      }
+      
+      // If no Prolific ID provided, generate a unique anonymous ID
+      if (!pid) {
+        pid = `anon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       }
 
       // Add loading state
