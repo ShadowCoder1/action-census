@@ -1282,6 +1282,11 @@ button, input[type="submit"], .btn {
             return result;
         }
 
+        function isIPad() {
+            return /iPad/.test(navigator.userAgent) || 
+                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        }
+
 function showQuestionnaire() {
     document.getElementById('page-webcam').style.display = 'none';
     
@@ -2004,8 +2009,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 handOutline.classList.remove('hand-outline-ready');
                 handOutline.classList.add('hand-outline-not-ready');
             } else if (goodDistance && fingersOpen) {
-                // FIXED: Different ready messages for mobile vs desktop
-                if (window.innerWidth <= 768) {
+    // FIXED: Different ready messages for mobile/iPad vs desktop
+                if (window.innerWidth <= 768 || isIPad()) {
                     positionStatus.innerHTML = '✓ Tap here when ready<br>then tap as FAST as you can!';
                 } else {
                     positionStatus.innerHTML = '✓ Press SPACE when ready<br>then tap as FAST as you can!';
@@ -2015,7 +2020,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 handOutline.classList.add('hand-outline-ready');
                 
                 // FIXED: Make position status clickable on mobile
-                if (window.innerWidth <= 768) {
+                // FIXED: Make position status clickable on mobile and iPad
+                if (window.innerWidth <= 768 || isIPad()) {
                     positionStatus.style.cursor = 'pointer';
                     positionStatus.onclick = () => {
                         if (window.handPositionCorrect && !recording) {
@@ -3005,53 +3011,53 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
 
 
         
-        function updateConditionUI() {
-            const trialNum = trialIndex + 1;
-            const condition = trialConditions[trialIndex % trialConditions.length];
-            const handText = condition.hand.charAt(0).toUpperCase() + condition.hand.slice(1);
-            const total = totalTrials;
-            
-            window.handPositionCorrect = false;
-            
-            // Update layout based on hand
-            const mainContainer = document.getElementById('main-container');
-            if (condition.hand === 'left') {
-                document.body.classList.add('layout-left-hand');
-                document.body.classList.remove('layout-right-hand');
-            } else {
-                document.body.classList.add('layout-right-hand');
-                document.body.classList.remove('layout-left-hand');
-            }
-            
-            const handGuide = document.getElementById('hand-guide-overlay');
-            handGuide.style.display = 'block';
-            document.getElementById('hand-outline').style.display = 'block';
-            
-         const totalTapsDisplay = totalTapsAcrossAllTrials > 0 ? `<div style="font-size: 2.4rem; color: #22c55e; font-weight: 300; margin-bottom: 2rem; padding: 1.5rem; background: rgba(34, 197, 94, 0.08); border-radius: 16px; border: 1px solid rgba(34, 197, 94, 0.15); letter-spacing: -0.01em;">Total taps so far: <span style="font-weight: 700;">${totalTapsAcrossAllTrials}</span></div>` : '';
-            const instructionHTML = `${totalTapsDisplay}Trial ${trialNum} of ${total}<br><span style="font-size: 1.8rem; margin-top: 1rem; display: block;">Use your <strong>${handText.toUpperCase()}</strong> hand</span>`;
-                        document.getElementById('trial-instructions-text').innerHTML = instructionHTML;
-                        document.getElementById('trial-instructions-overlay').style.display = 'flex';
-            // Update begin instruction text based on device
-                        const beginInstruction = document.getElementById('begin-instruction');
-                        if (window.innerWidth <= 768) {
-                            beginInstruction.textContent = 'Tap here to begin';
-                        } else {
-                            beginInstruction.textContent = 'Press SPACEBAR to begin';
-                        }
+   function updateConditionUI() {
+    const trialNum = trialIndex + 1;
+    const condition = trialConditions[trialIndex % trialConditions.length];
+    const handText = condition.hand.charAt(0).toUpperCase() + condition.hand.slice(1);
+    const total = totalTrials;
+    
+    window.handPositionCorrect = false;
+    
+    // Update layout based on hand
+    const mainContainer = document.getElementById('main-container');
+    if (condition.hand === 'left') {
+        document.body.classList.add('layout-left-hand');
+        document.body.classList.remove('layout-right-hand');
+    } else {
+        document.body.classList.add('layout-right-hand');
+        document.body.classList.remove('layout-left-hand');
+    }
+    
+    const handGuide = document.getElementById('hand-guide-overlay');
+    handGuide.style.display = 'block';
+    document.getElementById('hand-outline').style.display = 'block';
+    
+    const totalTapsDisplay = totalTapsAcrossAllTrials > 0 ? `<div style="font-size: 2.4rem; color: #22c55e; font-weight: 300; margin-bottom: 2rem; padding: 1.5rem; background: rgba(34, 197, 94, 0.08); border-radius: 16px; border: 1px solid rgba(34, 197, 94, 0.15); letter-spacing: -0.01em;">Total taps so far: <span style="font-weight: 700;">${totalTapsAcrossAllTrials}</span></div>` : '';
+    const instructionHTML = `${totalTapsDisplay}Trial ${trialNum} of ${total}<br><span style="font-size: 1.8rem; margin-top: 1rem; display: block;">Use your <strong>${handText.toUpperCase()}</strong> hand</span>`;
+    document.getElementById('trial-instructions-text').innerHTML = instructionHTML;
+    document.getElementById('trial-instructions-overlay').style.display = 'flex';
+    
+    // Update begin instruction text based on device
+    const beginInstruction = document.getElementById('begin-instruction');
+    if (window.innerWidth <= 768 || isIPad()) {
+        beginInstruction.textContent = 'Tap here to begin';
+    } else {
+        beginInstruction.textContent = 'Press SPACEBAR to begin';
+    }
 
-            // Update elegant trial display
-            document.getElementById('trial-number').textContent = `Trial ${trialNum} of ${total}`;
-            document.getElementById('hand-instruction').textContent = `${handText} Hand`;
-            
-            // Reset displays
-            document.getElementById('timer-display').textContent = '00:15';
-            document.getElementById('taps-display').textContent = '0';
-            
-            const positionStatus = document.getElementById('position-status');
-            positionStatus.textContent = 'Position hand in view';
-            positionStatus.className = 'position-status';
-        }
-
+    // Update elegant trial display
+    document.getElementById('trial-number').textContent = `Trial ${trialNum} of ${total}`;
+    document.getElementById('hand-instruction').textContent = `${handText} Hand`;
+    
+    // Reset displays
+    document.getElementById('timer-display').textContent = '00:15';
+    document.getElementById('taps-display').textContent = '0';
+    
+    const positionStatus = document.getElementById('position-status');
+    positionStatus.textContent = 'Position hand in view';
+    positionStatus.className = 'position-status';
+   }
  function analyzeAllTrials() {
             showQuestionnaire();
 }
@@ -3384,7 +3390,7 @@ function showFinalResults() {
             const beginInstruction = document.getElementById('begin-instruction');
             if (beginInstruction) {
                 beginInstruction.addEventListener('click', async function() {
-                    if (window.innerWidth <= 768) { // Only on mobile
+                    if (window.innerWidth <= 768 || isIPad()) { // Only on mobile and iPad
                         const overlay = document.getElementById('trial-instructions-overlay');
                         if (overlay.style.display === 'flex') {
                             overlay.style.display = 'none';
