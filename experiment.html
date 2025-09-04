@@ -3076,6 +3076,9 @@ function showFinalResults() {
     const rightTapsPerRound = Math.round(calculateAverage(rightTrials, 'tapCount'));
     const leftTapsPerRound = Math.round(calculateAverage(leftTrials, 'tapCount'));
     
+    // Check if participant came from Prolific
+    const participantID = sessionStorage.getItem('prolificID') || '';
+    const isFromProlific = participantID && !participantID.startsWith('anon_');
     const prolificCode = "CXXRL3ML";
     
     // Mobile-responsive results HTML
@@ -3088,14 +3091,19 @@ function showFinalResults() {
                     You tapped <strong style="font-weight: 700; ${isMobile ? 'color: #22c55e; font-size: 1.1em;' : ''}">${rightTapsPerRound}</strong> times per round (15s) with your <strong style="font-weight: 700;">right hand</strong>${isMobile ? '<br>' : ' and<br>'}
                     <strong style="font-weight: 700; ${isMobile ? 'color: #22c55e; font-size: 1.1em;' : ''}">${leftTapsPerRound}</strong> times per round with your <strong style="font-weight: 700;">left hand</strong>.
                 </p>
-            </div>
-            
+            </div>`;
+    
+    // Only show Prolific code if participant came from Prolific
+    if (isFromProlific) {
+        html += `
             <div class="${isMobile ? 'mobile-prolific-code' : ''}" style="${isMobile ? '' : 'background: rgba(34, 197, 94, 0.1); border: 2px solid #22c55e; border-radius: 16px; padding: 2rem; margin-bottom: 3rem;'}">
                 <p style="font-size: ${isMobile ? '1.3rem' : '1.6rem'}; color: #1a1a1a; margin-bottom: 1rem; font-weight: 500;">Prolific Completion Code:</p>
                 <p style="font-size: ${isMobile ? '2.2rem' : '2.8rem'}; color: #22c55e; font-weight: 700; letter-spacing: 0.1em; font-family: 'Courier New', monospace;">${prolificCode}</p>
                 <p style="font-size: ${isMobile ? '1rem' : '1.2rem'}; color: #666666; margin-top: 1rem;">Please copy this code and paste it into Prolific to complete your participation.</p>
-            </div>
+            </div>`;
+    }
             
+    html += `
             <div class="${isMobile ? 'mobile-button-container' : ''}" style="${isMobile ? '' : 'display: flex; gap: 2rem; justify-content: center;'}">
                 <button onclick="location.reload()" style="background-color: #000000; color: white; border: none; padding: ${isMobile ? '1.25rem 2rem' : '1.5rem 3rem'}; font-size: ${isMobile ? '1.2rem' : '1.3rem'}; font-weight: 500; border-radius: ${isMobile ? '12px' : '60px'}; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; ${isMobile ? 'width: 100%;' : ''}">
                     Take Test Again
@@ -3109,15 +3117,15 @@ function showFinalResults() {
                     
     document.getElementById('finalResults').innerHTML = html;
 
-    // Save final summary to database (keep your existing code unchanged)
-    const participantID = sessionStorage.getItem('prolificID') || 'anonymous';
+    // Save final summary to database (rest of function unchanged)
+    const finalParticipantID = participantID || 'anonymous';
 
     allTrialResults.forEach((trial, index) => {
         const trialNum = `Trial ${index + 1}`;
         const metrics = trial.result.metrics;
 
         db.collection("Results")
-            .doc(participantID)
+            .doc(finalParticipantID)
             .collection("Trials")
             .doc(trialNum)
             .set({
@@ -3131,13 +3139,14 @@ function showFinalResults() {
     });
 
     db.collection("Results")
-    .doc(participantID)
+    .doc(finalParticipantID)
     .collection("Summary")
     .doc("FinalSummary")
     .set({
         completedAt: new Date().toISOString(),
         totalTrials: allTrialResults.length,
-        prolificCompletionCode: prolificCode,
+        prolificCompletionCode: isFromProlific ? prolificCode : null,
+        isFromProlific: isFromProlific,
         finalAverages: {
             tappingFrequency: avgFastFreq,
             tapsPerTenSeconds: avgTapsPerTenSec
@@ -3148,7 +3157,7 @@ function showFinalResults() {
             ...t.result.metrics
         }))
     })
-    .then(() => console.log("Final summary saved for", participantID))
+    .then(() => console.log("Final summary saved for", finalParticipantID))
     .catch(err => console.error("Error saving final summary:", err));
 }
         // Social media share functions
