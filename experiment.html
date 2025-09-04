@@ -1282,11 +1282,16 @@ button, input[type="submit"], .btn {
             return result;
         }
 
-        function isIPad() {
-            return /iPad/.test(navigator.userAgent) || 
-                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        function isIPadOrTablet() {
+            // Detect iPad specifically, including newer iPads that identify as Mac
+            const isIPad = /iPad/.test(navigator.userAgent) || 
+                           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            
+            // Also catch other large tablets (screen size between phone and desktop)
+            const isLargeTablet = window.innerWidth > 768 && window.innerWidth <= 1024 && 'ontouchstart' in window;
+            
+            return isIPad || isLargeTablet;
         }
-
 function showQuestionnaire() {
     document.getElementById('page-webcam').style.display = 'none';
     
@@ -1496,7 +1501,8 @@ function showQuestionnaire() {
     
     // Create mobile-optimized Likert scales
     function createMobileLikertScale(name, leftLabel, rightLabel) {
-        if (window.innerWidth <= 768) {
+                // FIXED: Mobile/tablet-specific validation without alerts that freeze camera
+        if (window.innerWidth <= 768 || isIPadOrTablet()) {
             let html = '';
             for (let i = 1; i <= 7; i++) {
                 html += `
@@ -1733,6 +1739,20 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 console.error('Failed to initialize MediaPipe Hands:', error);
                 document.getElementById('position-status').textContent = 'Failed to load hand tracking. Please refresh the page.';
             }
+        }
+
+                // iPad-specific optimizations
+        if (isIPadOrTablet()) {
+            // Reduce processing frequency for better performance
+            const originalProcessFrame = hands.onResults;
+            let frameSkipCounter = 0;
+            
+            hands.onResults = function(results) {
+                frameSkipCounter++;
+                if (frameSkipCounter % 2 === 0) { // Process every other frame on iPad
+                    originalProcessFrame.call(this, results);
+                }
+            };
         }
 
         // Initialize camera
@@ -2010,7 +2030,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 handOutline.classList.add('hand-outline-not-ready');
             } else if (goodDistance && fingersOpen) {
     // FIXED: Different ready messages for mobile/iPad vs desktop
-                if (window.innerWidth <= 768 || isIPad()) {
+                if (window.innerWidth <= 768 || isIPadOrTablet()) {
                     positionStatus.innerHTML = '✓ Tap here when ready<br>then tap as FAST as you can!';
                 } else {
                     positionStatus.innerHTML = '✓ Press SPACE when ready<br>then tap as FAST as you can!';
@@ -3389,8 +3409,20 @@ function showFinalResults() {
             // Add mobile tap functionality
             const beginInstruction = document.getElementById('begin-instruction');
             if (beginInstruction) {
-                beginInstruction.addEventListener('click', async function() {
-                    if (window.innerWidth <= 768 || isIPad()) { // Only on mobile and iPad
+                    beginInstruction.addEventListener('click', async function() {
+                        if (window.innerWidth <= 768 || isIPadOrTablet()) { // Only on mobile and iPad
+                            e.preventDefault(); // Add this line
+                            const overlay = document.getElementById('trial-instructions-overlay');
+                            if (overlay.style.display === 'flex') {
+                                overlay.style.display = 'none';
+                                
+                                // Wait longer for iPad to stabilize
+                                setTimeout(() => {
+                                    startRecording();
+                                }, 200); // Increased delay for iPad
+                            }
+                        }
+                    });
                         const overlay = document.getElementById('trial-instructions-overlay');
                         if (overlay.style.display === 'flex') {
                             overlay.style.display = 'none';
