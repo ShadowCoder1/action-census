@@ -567,7 +567,7 @@
 
   <script>
     function startExperiment() {
-      const pid = document.getElementById('prolificID').value.trim();
+      let pid = document.getElementById('prolificID').value.trim();
       const age = parseInt(document.getElementById('age').value);
       const sex = document.getElementById('gender').value;
       const handedness = document.getElementById('handedness').value;
