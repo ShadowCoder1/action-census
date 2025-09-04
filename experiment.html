@@ -1292,6 +1292,11 @@ button, input[type="submit"], .btn {
             
             return isIPad || isLargeTablet;
         }
+
+        function isIPad() {
+            return /iPad/.test(navigator.userAgent) || 
+                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        }
 function showQuestionnaire() {
     document.getElementById('page-webcam').style.display = 'none';
     
@@ -1734,6 +1739,21 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 });
         
                 hands.onResults(onHandsResults);
+                
+                // iPad-specific optimizations - ADD THIS HERE
+                if (isIPadOrTablet()) {
+                    console.log('iPad detected - applying performance optimizations');
+                    const originalOnResults = hands.onResults;
+                    let frameSkipCounter = 0;
+                    
+                    hands.onResults = function(results) {
+                        frameSkipCounter++;
+                        if (frameSkipCounter % 2 === 0) { // Process every other frame on iPad
+                            originalOnResults.call(this, results);
+                        }
+                    };
+                }
+                
                 console.log('MediaPipe Hands initialized successfully');
             } catch (error) {
                 console.error('Failed to initialize MediaPipe Hands:', error);
@@ -1742,18 +1762,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         }
 
                 // iPad-specific optimizations
-        if (isIPadOrTablet()) {
-            // Reduce processing frequency for better performance
-            const originalProcessFrame = hands.onResults;
-            let frameSkipCounter = 0;
-            
-            hands.onResults = function(results) {
-                frameSkipCounter++;
-                if (frameSkipCounter % 2 === 0) { // Process every other frame on iPad
-                    originalProcessFrame.call(this, results);
-                }
-            };
-        }
+
 
         // Initialize camera
         // REPLACE YOUR initializeCamera function with this version:
@@ -3409,41 +3418,30 @@ function showFinalResults() {
             // Add mobile tap functionality
             const beginInstruction = document.getElementById('begin-instruction');
             if (beginInstruction) {
-                    beginInstruction.addEventListener('click', async function() {
-                        if (window.innerWidth <= 768 || isIPadOrTablet()) { // Only on mobile and iPad
-                            e.preventDefault(); // Add this line
-                            const overlay = document.getElementById('trial-instructions-overlay');
-                            if (overlay.style.display === 'flex') {
-                                overlay.style.display = 'none';
-                                
-                                // Wait longer for iPad to stabilize
-                                setTimeout(() => {
+                 beginInstruction.addEventListener('click', async function(e) {
+                if (window.innerWidth <= 768 || isIPadOrTablet()) { // Only on mobile and iPad
+                    e.preventDefault();
+                    const overlay = document.getElementById('trial-instructions-overlay');
+                    if (overlay.style.display === 'flex') {
+                        overlay.style.display = 'none';
+                        
+                        // Wait longer for iPad to stabilize
+                        setTimeout(() => {
+                            // Ensure video is playing before starting
+                            const videoElement = document.getElementById('inputVideo');
+                            if (videoElement.paused) {
+                                videoElement.play().then(() => {
                                     startRecording();
-                                }, 200); // Increased delay for iPad
+                                }).catch(() => {
+                                    startRecording(); // Try anyway
+                                });
+                            } else {
+                                startRecording();
                             }
-                        }
-                    });
-                        const overlay = document.getElementById('trial-instructions-overlay');
-                        if (overlay.style.display === 'flex') {
-                            overlay.style.display = 'none';
-                            
-                            // FIXED: Give a brief moment for camera to stabilize
-                            setTimeout(() => {
-                                // Ensure video is playing before starting
-                                const videoElement = document.getElementById('inputVideo');
-                                if (videoElement.paused) {
-                                    videoElement.play().then(() => {
-                                        startRecording();
-                                    }).catch(() => {
-                                        startRecording(); // Try anyway
-                                    });
-                                } else {
-                                    startRecording();
-                                }
-                            }, 100);
-                        }
+                        }, 200); // Increased delay for iPad
                     }
-                });
+                }
+            });
             }
             
         });
