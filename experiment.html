@@ -2100,7 +2100,6 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         function updateHandPositionFeedback(landmarks) {
             const positionStatus = document.getElementById('position-status');
             const handOutline = document.getElementById('hand-outline');
-            readyToStart = true;
             
             if (!landmarks) {
                 positionStatus.textContent = 'No hand detected';
@@ -2462,6 +2461,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
 
         // Start actual recording
         function startActualRecording() {
+            readyToStart = false;
+            preStartTapCount = 0;
             document.getElementById('hand-guide-overlay').style.display = 'none';
             document.getElementById('hand-outline').style.display = 'none';
             
@@ -2635,10 +2636,13 @@ function stopRecording() {
     });
 
     trialIndex++;
-
+    
     if (trialIndex < totalTrials) {
         positionStatus.textContent = 'Ready for next trial';
         positionStatus.className = 'position-status ready';
+        // CRITICAL: Reset auto-start detection between trials
+        readyToStart = false;
+        preStartTapCount = 0;
         updateConditionUI();
     } else {
         analyzeAllTrials();
@@ -2970,11 +2974,11 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             document.getElementById('timer-display').textContent = '00:15';
             document.getElementById('taps-display').textContent = '0';
             
-            // Reset position status
             const positionStatus = document.getElementById('position-status');
             positionStatus.textContent = 'Position hand in view';
             positionStatus.className = 'position-status';
             readyToStart = true;
+            preStartTapCount = 0;
         }
         // Calculate clinical assessment (keeping original)
         function calculateClinicalAssessment() {
@@ -3127,6 +3131,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             positionStatus.textContent = 'Position hand in view';
             positionStatus.className = 'position-status';
             readyToStart = true;
+            preStartTapCount = 0;
         }
 
 
