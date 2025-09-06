@@ -2087,31 +2087,21 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const normalizedDistance = (distance / handSize) * 100;
             const currentTime = Date.now();
             
-            // Mobile-specific: Use different thresholds and add stability check
-            const isMobile = window.innerWidth <= 768;
-            const tapThreshold = isMobile ? 25 : 30; // More sensitive on mobile
-            const minTimeBetweenTaps = isMobile ? 500 : 300; // Longer delay on mobile to prevent false triggers
+            // Immediate tap detection - start on first tap
+            const tapThreshold = window.innerWidth <= 768 ? 25 : 30;
             
             // Simple tap detection - fingers close together indicates a tap
             if (normalizedDistance < tapThreshold) {
-                if (currentTime - lastPreStartTapTime > minTimeBetweenTaps) {
-                    preStartTapCount++;
-                    lastPreStartTapTime = currentTime;
-                    
-                    console.log(`Mobile tap detected: ${preStartTapCount}, distance: ${normalizedDistance}`);
-                    
-                    // On mobile, require 2 clear taps to prevent false starts from feedback flashing
-                    const requiredTaps = isMobile ? 2 : 1;
-                    
-                    if (preStartTapCount >= requiredTaps) {
-                        console.log("Auto-starting from tap detection");
-                        readyToStart = false;
-                        preStartTapCount = 0;
-                        startActualRecording();
-                    }
+                // Prevent multiple rapid triggers
+                if (currentTime - lastPreStartTapTime > 200) {
+                    console.log("Immediate tap detected - starting recording");
+                    readyToStart = false;
+                    preStartTapCount = 0;
+                    startActualRecording();
                 }
+                lastPreStartTapTime = currentTime;
             }
-         }
+        }
 
          // REPLACE your updateHandPositionFeedback function with this version:
         function updateHandPositionFeedback(landmarks) {
@@ -2157,7 +2147,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 handOutline.classList.remove('hand-outline-ready');
                 handOutline.classList.add('hand-outline-not-ready');
                 } else if (goodDistance && fingersOpen) {
-                    positionStatus.innerHTML = '✓ Ready! Start tapping<br>as FAST as you can!';
+                    positionStatus.innerHTML = '✓ Ready! Tap to start';
                     positionStatus.className = 'position-status ready';
                     handOutline.classList.remove('hand-outline-not-ready');
                     handOutline.classList.add('hand-outline-ready');
@@ -2165,6 +2155,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     // Remove any click handlers since we're using tap detection
                     positionStatus.style.cursor = '';
                     positionStatus.onclick = null;
+
             } else {
                 handOutline.classList.remove('hand-outline-ready');
                 handOutline.classList.add('hand-outline-not-ready');
