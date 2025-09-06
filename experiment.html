@@ -2079,14 +2079,23 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const normalizedDistance = (distance / handSize) * 100;
             const currentTime = Date.now();
             
+            // Mobile-specific: Use different thresholds and add stability check
+            const isMobile = window.innerWidth <= 768;
+            const tapThreshold = isMobile ? 25 : 30; // More sensitive on mobile
+            const minTimeBetweenTaps = isMobile ? 500 : 300; // Longer delay on mobile to prevent false triggers
+            
             // Simple tap detection - fingers close together indicates a tap
-            if (normalizedDistance < 30) {
-                if (currentTime - lastPreStartTapTime > 300) { // Minimum 200ms between taps
+            if (normalizedDistance < tapThreshold) {
+                if (currentTime - lastPreStartTapTime > minTimeBetweenTaps) {
                     preStartTapCount++;
                     lastPreStartTapTime = currentTime;
                     
-                    // Start recording after first tap
-                    if (preStartTapCount >= 1) {
+                    console.log(`Mobile tap detected: ${preStartTapCount}, distance: ${normalizedDistance}`);
+                    
+                    // On mobile, require 2 clear taps to prevent false starts from feedback flashing
+                    const requiredTaps = isMobile ? 2 : 1;
+                    
+                    if (preStartTapCount >= requiredTaps) {
                         console.log("Auto-starting from tap detection");
                         readyToStart = false;
                         preStartTapCount = 0;
@@ -2094,7 +2103,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     }
                 }
             }
-        }
+         }
 
          // REPLACE your updateHandPositionFeedback function with this version:
         function updateHandPositionFeedback(landmarks) {
