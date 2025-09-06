@@ -2081,7 +2081,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             
             // Simple tap detection - fingers close together indicates a tap
             if (normalizedDistance < 30) {
-                if (currentTime - lastPreStartTapTime > 200) { // Minimum 200ms between taps
+                if (currentTime - lastPreStartTapTime > 300) { // Minimum 200ms between taps
                     preStartTapCount++;
                     lastPreStartTapTime = currentTime;
                     
@@ -2100,6 +2100,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         function updateHandPositionFeedback(landmarks) {
             const positionStatus = document.getElementById('position-status');
             const handOutline = document.getElementById('hand-outline');
+            readyToStart = true;
             
             if (!landmarks) {
                 positionStatus.textContent = 'No hand detected';
@@ -2973,6 +2974,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const positionStatus = document.getElementById('position-status');
             positionStatus.textContent = 'Position hand in view';
             positionStatus.className = 'position-status';
+            readyToStart = true;
         }
         // Calculate clinical assessment (keeping original)
         function calculateClinicalAssessment() {
@@ -3124,6 +3126,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const positionStatus = document.getElementById('position-status');
             positionStatus.textContent = 'Position hand in view';
             positionStatus.className = 'position-status';
+            readyToStart = true;
         }
 
 
@@ -3171,6 +3174,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     const positionStatus = document.getElementById('position-status');
     positionStatus.textContent = 'Position hand in view';
     positionStatus.className = 'position-status';
+    readyToStart = true;
    }
  function analyzeAllTrials() {
             showQuestionnaire();
