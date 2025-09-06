@@ -2028,10 +2028,18 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
 
                   // Always record data during recording, regardless of hand detection issues
 // Always record data during recording, regardless of hand detection issues
+// Only record data if correct hand is detected
                 if (recording) {
                     const currentTime = Date.now() - startTime;
                     if (currentTime < recordingDuration) {
-                        processFingerTapAdvanced(landmarks, results.image.width, results.image.height);
+                        // Check if correct hand is being used
+                        if (isCorrectHandDetectedForCurrentTrial()) {
+                            processFingerTapAdvanced(landmarks, results.image.width, results.image.height);
+                        } else {
+                            // Wrong hand detected during recording - restart trial
+                            console.log("Wrong hand detected during recording, restarting trial");
+                            restartTrialDueToWrongHand();
+                        }
                     }
                 } else if (readyToStart && window.handPositionCorrect) {
                     // Detect taps to auto-start when ready
@@ -2983,6 +2991,45 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             document.getElementById('timer-display').textContent = '00:15';
             document.getElementById('taps-display').textContent = '0';
             
+            const positionStatus = document.getElementById('position-status');
+            positionStatus.textContent = 'Position hand in view';
+            positionStatus.className = 'position-status';
+            readyToStart = true;
+            preStartTapCount = 0;
+        }
+
+        function restartTrialDueToWrongHand() {
+            if (!recording) return;
+            
+            recording = false;
+            clearInterval(mainTimerInterval);
+            
+            // Reset UI
+            document.getElementById('hand-guide-overlay').style.display = 'block';
+            document.getElementById('hand-outline').style.display = 'block';
+            document.getElementById('tapWidthFeedback').style.display = 'none';
+            document.getElementById('countdown').style.display = 'none';
+            
+            // Show restart message
+            const overlay = document.getElementById('trial-instructions-overlay');
+            const instructionText = document.getElementById('trial-instructions-text');
+            const requiredHand = trialConditions[trialIndex % trialConditions.length].hand.toUpperCase();
+            
+            instructionText.innerHTML = `
+                <div style="color: #ef4444; font-size: 2.8rem; margin-bottom: 1rem;">Wrong Hand!</div>
+                <div style="color: #1a1a1a; font-size: 1.8rem; font-weight: 400;">Please use your ${requiredHand} hand</div>
+            `;
+            
+            document.querySelector('.trial-overlay-instruction').innerHTML = 
+                `Please tap with your <strong>${requiredHand}</strong> hand only`;
+            
+            overlay.style.display = 'flex';
+            
+            // Reset displays
+            document.getElementById('timer-display').textContent = '00:15';
+            document.getElementById('taps-display').textContent = '0';
+            
+            // Reset position status
             const positionStatus = document.getElementById('position-status');
             positionStatus.textContent = 'Position hand in view';
             positionStatus.className = 'position-status';
