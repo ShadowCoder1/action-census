@@ -2024,8 +2024,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         if (!recording) {
             updateHandPositionFeedback(landmarks);
             
-            // Only detect pre-start taps if correct hand AND position is correct
-            if (readyToStart && window.handPositionCorrect && isCorrectHandDetectedForCurrentTrial()) {
+            // SIMPLIFIED: Only check if correct hand is detected for auto-start
+            if (readyToStart && isCorrectHandDetectedForCurrentTrial()) {
                 detectPreStartTaps(landmarks, results.image.width, results.image.height);
             }
         }
@@ -2063,74 +2063,37 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
  }
 
 
-     function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
-    // Use the EXACT same tap detection logic as during recording
-        const currentTime = Date.now();
-        
-        const thumbTip = landmarks[THUMB_TIP];
-        const indexTip = landmarks[INDEX_TIP];
-        const wrist = landmarks[WRIST];
-        const middleMcp = landmarks[MIDDLE_MCP];
-        
-        const handSize = Math.sqrt(
-            Math.pow((wrist.x - middleMcp.x) * imageWidth, 2) +
-            Math.pow((wrist.y - middleMcp.y) * imageHeight, 2)
-        );
-        
-        const distance = Math.sqrt(
-            Math.pow((thumbTip.x - indexTip.x) * imageWidth, 2) +
-            Math.pow((thumbTip.y - indexTip.y) * imageHeight, 2) +
-            Math.pow((thumbTip.z - indexTip.z) * imageWidth * 0.5, 2)
-        );
-        
-        const normalizedDistance = (distance / handSize) * 100;
-        
-        // Add to temporary signals for tap detection
-        if (!window.preStartDistanceSignal) window.preStartDistanceSignal = [];
-        if (!window.preStartTimeSignal) window.preStartTimeSignal = [];
-        
-        window.preStartDistanceSignal.push(normalizedDistance);
-        window.preStartTimeSignal.push(currentTime);
-        
-        // Keep only recent data (last 2 seconds)
-        const cutoffTime = currentTime - 2000;
-        while (window.preStartTimeSignal.length > 0 && window.preStartTimeSignal[0] < cutoffTime) {
-            window.preStartDistanceSignal.shift();
-            window.preStartTimeSignal.shift();
+function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
+    const currentTime = Date.now();
+    
+    const thumbTip = landmarks[THUMB_TIP];
+    const indexTip = landmarks[INDEX_TIP];
+    const wrist = landmarks[WRIST];
+    const middleMcp = landmarks[MIDDLE_MCP];
+    
+    const handSize = Math.sqrt(
+        Math.pow((wrist.x - middleMcp.x) * imageWidth, 2) +
+        Math.pow((wrist.y - middleMcp.y) * imageHeight, 2)
+    );
+    
+    const distance = Math.sqrt(
+        Math.pow((thumbTip.x - indexTip.x) * imageWidth, 2) +
+        Math.pow((thumbTip.y - indexTip.y) * imageHeight, 2) +
+        Math.pow((thumbTip.z - indexTip.z) * imageWidth * 0.5, 2)
+    );
+    
+    const normalizedDistance = (distance / handSize) * 100;
+    
+    // MUCH MORE AGGRESSIVE: Start immediately on any finger movement that looks like a tap
+    if (normalizedDistance < 40) { // More lenient threshold
+        if (currentTime - lastPreStartTapTime > 100) { // Faster detection
+            console.log("🚀 TAP DETECTED - STARTING NOW! Distance:", normalizedDistance);
+            lastPreStartTapTime = currentTime;
+            startActualRecording();
+            return;
         }
-        
-        // Only try to detect taps if we have enough data
-        if (window.preStartDistanceSignal.length > 10) {
-            // Use the same smoothing and detection as recording
-            const smoothed = movingAverage(window.preStartDistanceSignal, 3);
-            if (smoothed.length > 1) {
-                const velocity = calculateDerivative(smoothed, window.preStartTimeSignal);
-                
-                // Check for tap using velocity method (same as recording)
-                for (let i = 1; i < velocity.length - 1; i++) {
-                    const t = window.preStartTimeSignal[i];
-                    const dist = smoothed[i];
-                    const velPrev = velocity[i - 1];
-                    const velCurr = velocity[i];
-                    
-                    // Same tap detection logic as recording
-                    if (dist < 30 && velPrev < 0 && velCurr >= 0) {
-                        if (currentTime - lastPreStartTapTime > 300) {
-                            console.log("Tap detected using recording logic - starting immediately");
-                            lastPreStartTapTime = currentTime;
-                            
-                            // Reset pre-start data
-                            window.preStartDistanceSignal = [];
-                            window.preStartTimeSignal = [];
-                            
-                            startActualRecording();
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-     }
+    }
+}
          // REPLACE your updateHandPositionFeedback function with this version:
         function updateHandPositionFeedback(landmarks) {
             const positionStatus = document.getElementById('position-status');
