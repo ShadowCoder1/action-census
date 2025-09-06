@@ -3161,8 +3161,11 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         // Update begin instruction text based on device
     // Update begin instruction text based on device
     const beginInstruction = document.getElementById('begin-instruction');
-    beginInstruction.textContent = 'Position hand correctly and start tapping';
-
+    if (window.innerWidth <= 768 || isIPad()) {
+        beginInstruction.textContent = 'Tap here to begin';
+    } else {
+        beginInstruction.textContent = 'Press SPACEBAR to begin';
+    }
     // Update elegant trial display
     document.getElementById('trial-number').textContent = `Trial ${trialNum} of ${total}`;
     document.getElementById('hand-instruction').textContent = `${handText} Hand`;
