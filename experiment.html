@@ -1995,117 +1995,72 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         }
 
         // Process hand detection results
-        function onHandsResults(results) {
-            const canvasElement = document.getElementById('outputCanvas');
-            canvasCtx.save();
-            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-            
-            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-                handDetected = true;
-                const landmarks = results.multiHandLandmarks[0];
-                frameCount++;
-            
-                // Track hand detection during recording
-                if (recording) {
-                    lastHandSeenTime = Date.now();
-                }
-                
-                // Get hand label
-                if (results.multiHandedness && results.multiHandedness.length > 0) {
-                    let rawLabel = results.multiHandedness[0].label;
-                    currentDetectedHand = (rawLabel === "Right") ? "Left" : "Right";
-                } else {
-                    currentDetectedHand = null;
-                }
-            
-                // Always update hand position feedback when not recording
-                if (!recording) {
-                    updateHandPositionFeedback(landmarks);
-                    
-                    // Only detect pre-start taps if correct hand AND position is correct
-                    if (readyToStart && window.handPositionCorrect && isCorrectHandDetectedForCurrentTrial()) {
-                        detectPreStartTaps(landmarks, results.image.width, results.image.height);
-                    }
-                }
-                
-                // Handle recording state
-                if (recording) {
-                    const currentTime = Date.now() - startTime;
-                    if (currentTime < recordingDuration) {
-                        // Check if correct hand is being used
-                        if (isCorrectHandDetectedForCurrentTrial()) {
-                            processFingerTapAdvanced(landmarks, results.image.width, results.image.height);
-                        } else {
-                            // Wrong hand detected during recording - restart trial
-                            console.log("Wrong hand detected during recording, restarting trial");
-                            restartTrialDueToWrongHand();
-                            return;
-                        }
-                    }
-                }
-                
-                // Draw visualization
-                drawHandVisualization(landmarks, canvasElement);
-                
-            } else {
-                handDetected = false;
-                currentDetectedHand = null;
-                
-                // Always update feedback when no hand detected
-                if (!recording) {
-                    updateHandPositionFeedback(null);
-                }
-            }
-                
-                if (results.multiHandedness && results.multiHandedness.length > 0) {
-                    let rawLabel = results.multiHandedness[0].label;
-                    currentDetectedHand = (rawLabel === "Right") ? "Left" : "Right";
-                } else {
-                    currentDetectedHand = null;
-                }
-                
-                const requiredHand = trialConditions[trialIndex % trialConditions.length].hand.toLowerCase();
+ function onHandsResults(results) {
+    const canvasElement = document.getElementById('outputCanvas');
+    canvasCtx.save();
+    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    
+    canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
-                  // Always record data during recording, regardless of hand detection issues
-// Always record data during recording, regardless of hand detection issues
-// Only record data if correct hand is detected
-                if (recording) {
-                    const currentTime = Date.now() - startTime;
-                    if (currentTime < recordingDuration) {
-                        // Check if correct hand is being used
-                        if (isCorrectHandDetectedForCurrentTrial()) {
-                            processFingerTapAdvanced(landmarks, results.image.width, results.image.height);
-                        } else {
-                            // Wrong hand detected during recording - restart trial
-                            console.log("Wrong hand detected during recording, restarting trial");
-                            restartTrialDueToWrongHand();
-                        }
-                    }
-                } else if (readyToStart && window.handPositionCorrect) {
-                    // Detect taps to auto-start when ready
-                    detectPreStartTaps(landmarks, results.image.width, results.image.height);
-                }
-                
-                // Only show hand warnings when not recording
-                if (!recording && (!currentDetectedHand || currentDetectedHand.toLowerCase() !== requiredHand)) {
+    if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        handDetected = true;
+        const landmarks = results.multiHandLandmarks[0];
+        frameCount++;
+
+        // Track hand detection during recording
+        if (recording) {
+            lastHandSeenTime = Date.now();
+        }
+        
+        // Get hand label
+        if (results.multiHandedness && results.multiHandedness.length > 0) {
+            let rawLabel = results.multiHandedness[0].label;
+            currentDetectedHand = (rawLabel === "Right") ? "Left" : "Right";
+        } else {
+            currentDetectedHand = null;
+        }
+
+        // Always update hand position feedback when not recording
+        if (!recording) {
+            updateHandPositionFeedback(landmarks);
+            
+            // Only detect pre-start taps if correct hand AND position is correct
+            if (readyToStart && window.handPositionCorrect && isCorrectHandDetectedForCurrentTrial()) {
+                detectPreStartTaps(landmarks, results.image.width, results.image.height);
+            }
+        }
+        
+        // Handle recording state
+        if (recording) {
+            const currentTime = Date.now() - startTime;
+            if (currentTime < recordingDuration) {
+                // Check if correct hand is being used
+                if (isCorrectHandDetectedForCurrentTrial()) {
+                    processFingerTapAdvanced(landmarks, results.image.width, results.image.height);
+                } else {
+                    // Wrong hand detected during recording - restart trial
+                    console.log("Wrong hand detected during recording, restarting trial");
+                    restartTrialDueToWrongHand();
                     return;
                 }
-                // Simplified visualization for clean interface
-                drawHandVisualization(landmarks, canvasElement);
-                
             }
-                else {
-                    handDetected = false;
-                    currentDetectedHand = null;
-                    // FIXED: Always update feedback when no hand detected (including mobile)
-                    if (!recording) {
-                        updateHandPositionFeedback(null);
-                    }
-                }
-                
-                canvasCtx.restore();
         }
+        
+        // Draw visualization
+        drawHandVisualization(landmarks, canvasElement);
+        
+    } else {
+        handDetected = false;
+        currentDetectedHand = null;
+        
+        // Always update feedback when no hand detected
+        if (!recording) {
+            updateHandPositionFeedback(null);
+        }
+    }
+    
+    canvasCtx.restore();
+ }
 
 
      function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
@@ -2541,114 +2496,96 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
 
 
         // Start actual recording
-        function startActualRecording() {
-
-            readyToStart = false;
-            preStartTapCount = 0;
-            lastPreStartTapTime = 0;
-            document.getElementById('hand-guide-overlay').style.display = 'none';
-            document.getElementById('hand-outline').style.display = 'none';
-            
-            recording = true;
-            
-            lastHandSeenTime = 0;
-            lastTapTime = 0;
-            
-            startTime = Date.now();
-            distanceSignal = [];
-            timeSignal = [];
-            smoothedSignal = [];
-            velocitySignal = [];
-            tapEvents = [];
-            frameCount = 0;
-            readyToStart = false;
-            preStartTapCount = 0;
-            lastPreStartTapTime = 0;
-            
-            // Clear pre-start detection arrays
-            window.preStartDistanceSignal = [];
-            window.preStartTimeSignal = [];
-            
-            // Single timer update function to keep both timers in sync
-                        // Single timer update function to keep both timers in sync
-            mainTimerInterval = setInterval(() => {
-                const currentTime = Date.now() - startTime;
-                const remaining = Math.max(0, (recordingDuration - currentTime) / 1000);
-                
-                // Check if hand has been missing for too long consecutively
-                if (!handDetected) {
-                    if (lastHandSeenTime === 0) {
-                        // Hand was never detected since recording started - give 3 seconds grace period
-                        const timeSinceRecordingStart = Date.now() - startTime;
-                        if (timeSinceRecordingStart > MAX_ALLOWED_HAND_LOSS) {
-                            restartTrialDueToHandLoss();
-                            return;
-                        }
-                    } else {
-                        // Hand was detected before but now missing
-                        const timeSinceLastSeen = Date.now() - lastHandSeenTime;
-                        if (timeSinceLastSeen > MAX_ALLOWED_HAND_LOSS) {
-                            restartTrialDueToHandLoss();
-                            return;
-                        }
-                    }
-                }
-                
-                // Update display
-                const minutes = Math.floor(remaining / 60);
-                const seconds = Math.max(1, Math.ceil(remaining % 60));
-                const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                document.getElementById('timer-display').textContent = timerText;
-                document.getElementById('taps-display').textContent = `${tapEvents.length}`;
-                
-// Stop immediately when timer hits 0
-   // Stop when actual elapsed time reaches or exceeds duration
-                if (currentTime >= recordingDuration) {
-                    console.log("⏰ Timer ended - calling stopRecording with", tapEvents.length, "taps");
-                    stopRecording();
-                }
-            }, 100);
-
-            // Separate inactivity checker
-             // Separate inactivity checker
-            let inactivityChecker = setInterval(() => {
-                if (!recording) {
-                    clearInterval(inactivityChecker);
+function startActualRecording() {
+    readyToStart = false;
+    preStartTapCount = 0;
+    lastPreStartTapTime = 0;
+    
+    // Clear pre-start detection arrays
+    window.preStartDistanceSignal = [];
+    window.preStartTimeSignal = [];
+    
+    document.getElementById('hand-guide-overlay').style.display = 'none';
+    document.getElementById('hand-outline').style.display = 'none';
+    
+    recording = true;
+    
+    lastHandSeenTime = 0;
+    lastTapTime = 0;
+    
+    startTime = Date.now();
+    distanceSignal = [];
+    timeSignal = [];
+    smoothedSignal = [];
+    velocitySignal = [];
+    tapEvents = [];
+    frameCount = 0;
+    
+    // Rest of the function remains the same...
+    mainTimerInterval = setInterval(() => {
+        const currentTime = Date.now() - startTime;
+        const remaining = Math.max(0, (recordingDuration - currentTime) / 1000);
+        
+        if (!handDetected) {
+            if (lastHandSeenTime === 0) {
+                const timeSinceRecordingStart = Date.now() - startTime;
+                if (timeSinceRecordingStart > MAX_ALLOWED_HAND_LOSS) {
+                    restartTrialDueToHandLoss();
                     return;
                 }
-                
-                const currentTime = Date.now() - startTime;
-                
-                // Check for no taps after 5 seconds
-                if (currentTime > MAX_ALLOWED_NO_TAPS && tapEvents.length === 0) {
-                    clearInterval(inactivityChecker);
-                    restartTrialDueToInactivity();
+            } else {
+                const timeSinceLastSeen = Date.now() - lastHandSeenTime;
+                if (timeSinceLastSeen > MAX_ALLOWED_HAND_LOSS) {
+                    restartTrialDueToHandLoss();
                     return;
                 }
-                
-                // Check for gap between taps if we have at least one tap
-                if (tapEvents.length > 0) {
-                    const lastTapTimestamp = tapEvents[tapEvents.length - 1].time;
-                    const timeSinceLastTap = currentTime - lastTapTimestamp;
-                    if (timeSinceLastTap > MAX_ALLOWED_NO_TAPS) {
-                        console.log("💤 Inactivity detected - calling restart");
-                        clearInterval(inactivityChecker);
-                        restartTrialDueToInactivity();
-                        return;
-                    }
-                }
-            }, 500); // Check every 500ms
-            
-            
-            // Backup timeout to ensure recording stops at exactly 15 seconds
-            setTimeout(() => {
-                if (recording) {
-                    stopRecording();
-                }
-            }, recordingDuration);
+            }
         }
+        
+        const minutes = Math.floor(remaining / 60);
+        const seconds = Math.max(1, Math.ceil(remaining % 60));
+        const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        document.getElementById('timer-display').textContent = timerText;
+        document.getElementById('taps-display').textContent = `${tapEvents.length}`;
+        
+        if (currentTime >= recordingDuration) {
+            console.log("⏰ Timer ended - calling stopRecording with", tapEvents.length, "taps");
+            stopRecording();
+        }
+    }, 100);
 
-
+    let inactivityChecker = setInterval(() => {
+        if (!recording) {
+            clearInterval(inactivityChecker);
+            return;
+        }
+        
+        const currentTime = Date.now() - startTime;
+        
+        if (currentTime > MAX_ALLOWED_NO_TAPS && tapEvents.length === 0) {
+            clearInterval(inactivityChecker);
+            restartTrialDueToInactivity();
+            return;
+        }
+        
+        if (tapEvents.length > 0) {
+            const lastTapTimestamp = tapEvents[tapEvents.length - 1].time;
+            const timeSinceLastTap = currentTime - lastTapTimestamp;
+            if (timeSinceLastTap > MAX_ALLOWED_NO_TAPS) {
+                console.log("💤 Inactivity detected - calling restart");
+                clearInterval(inactivityChecker);
+                restartTrialDueToInactivity();
+                return;
+            }
+        }
+    }, 500);
+    
+    setTimeout(() => {
+        if (recording) {
+            stopRecording();
+        }
+    }, recordingDuration);
+}
 
 // Replace your existing stopRecording function with this fixed version
 function stopRecording() {
@@ -3267,14 +3204,14 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
 
 
         
-   function updateConditionUI() {
+  function updateConditionUI() {
     const trialNum = trialIndex + 1;
     const condition = trialConditions[trialIndex % trialConditions.length];
     const handText = condition.hand.charAt(0).toUpperCase() + condition.hand.slice(1);
     const total = totalTrials;
-    const positionStatus = document.getElementById('position-status');
-    positionStatus.textContent = 'Position hand in view';
-    positionStatus.className = 'position-status';
+    
+    // Reset all state variables
+    window.handPositionCorrect = false;
     readyToStart = true;
     preStartTapCount = 0;
     lastPreStartTapTime = 0;
@@ -3283,10 +3220,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     window.preStartDistanceSignal = [];
     window.preStartTimeSignal = [];
     
-    window.handPositionCorrect = false;
-    
     // Update layout based on hand
-    const mainContainer = document.getElementById('main-container');
     if (condition.hand === 'left') {
         document.body.classList.add('layout-left-hand');
         document.body.classList.remove('layout-right-hand');
@@ -3304,7 +3238,6 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     document.getElementById('trial-instructions-text').innerHTML = instructionHTML;
     document.getElementById('trial-instructions-overlay').style.display = 'flex';
     
-        // Update begin instruction text based on device
     // Update begin instruction text based on device
     const beginInstruction = document.getElementById('begin-instruction');
     if (window.innerWidth <= 768 || isIPad()) {
@@ -3312,6 +3245,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     } else {
         beginInstruction.textContent = 'Press SPACEBAR to begin';
     }
+    
     // Update elegant trial display
     document.getElementById('trial-number').textContent = `Trial ${trialNum} of ${total}`;
     document.getElementById('hand-instruction').textContent = `${handText} Hand`;
@@ -3323,8 +3257,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     const positionStatus = document.getElementById('position-status');
     positionStatus.textContent = 'Position hand in view';
     positionStatus.className = 'position-status';
-    readyToStart = true;
-   }
+  }
  function analyzeAllTrials() {
             showQuestionnaire();
 }
