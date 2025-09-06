@@ -2469,8 +2469,10 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
 
         // Start actual recording
         function startActualRecording() {
+
             readyToStart = false;
             preStartTapCount = 0;
+            lastPreStartTapTime = 0;
             document.getElementById('hand-guide-overlay').style.display = 'none';
             document.getElementById('hand-outline').style.display = 'none';
             
@@ -2648,9 +2650,11 @@ function stopRecording() {
     if (trialIndex < totalTrials) {
         positionStatus.textContent = 'Ready for next trial';
         positionStatus.className = 'position-status ready';
-        // CRITICAL: Reset auto-start detection between trials
-        readyToStart = false;
+        // CRITICAL: Reset a
+                // CRITICAL: Reset auto-start detection between trials
+        readyToStart = true;  // Enable for next trial
         preStartTapCount = 0;
+        lastPreStartTapTime = 0;
         updateConditionUI();
     } else {
         analyzeAllTrials();
@@ -2933,13 +2937,13 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             document.getElementById('timer-display').textContent = '00:15';
             document.getElementById('taps-display').textContent = '0';
             
-            // Reset position status
-// FIXED: Reset position status and ensure it works on mobile
+                        // Reset position status
             const positionStatus = document.getElementById('position-status');
             positionStatus.textContent = 'Position hand in view';
             positionStatus.className = 'position-status';
-            readyToStart = true; // Enable auto-start detection
-            
+            readyToStart = true;
+            preStartTapCount = 0;
+            lastPreStartTapTime = 0;
             // Force initial feedback update
             setTimeout(() => {
                 if (!handDetected) {
