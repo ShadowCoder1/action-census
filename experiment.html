@@ -1225,6 +1225,10 @@ button, input[type="submit"], .btn {
         let countdownInterval;
         let frameCount = 0;
         let mainTimerInterval;
+        // Tap detection for auto-start
+        let readyToStart = false;
+        let preStartTapCount = 0;
+        let lastPreStartTapTime = 0;
         
         // Hand detection tracking during recording
         // Hand detection tracking during recording
@@ -2023,11 +2027,15 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 const requiredHand = trialConditions[trialIndex % trialConditions.length].hand.toLowerCase();
 
                   // Always record data during recording, regardless of hand detection issues
+// Always record data during recording, regardless of hand detection issues
                 if (recording) {
                     const currentTime = Date.now() - startTime;
                     if (currentTime < recordingDuration) {
                         processFingerTapAdvanced(landmarks, results.image.width, results.image.height);
                     }
+                } else if (readyToStart && window.handPositionCorrect) {
+                    // Detect taps to auto-start when ready
+                    detectPreStartTaps(landmarks, results.image.width, results.image.height);
                 }
                 
                 // Only show hand warnings when not recording
@@ -2048,6 +2056,44 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 }
                 
                 canvasCtx.restore();
+        }
+
+
+        function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
+            const thumbTip = landmarks[THUMB_TIP];
+            const indexTip = landmarks[INDEX_TIP];
+            const wrist = landmarks[WRIST];
+            const middleMcp = landmarks[MIDDLE_MCP];
+            
+            const handSize = Math.sqrt(
+                Math.pow((wrist.x - middleMcp.x) * imageWidth, 2) +
+                Math.pow((wrist.y - middleMcp.y) * imageHeight, 2)
+            );
+            
+            const distance = Math.sqrt(
+                Math.pow((thumbTip.x - indexTip.x) * imageWidth, 2) +
+                Math.pow((thumbTip.y - indexTip.y) * imageHeight, 2) +
+                Math.pow((thumbTip.z - indexTip.z) * imageWidth * 0.5, 2)
+            );
+            
+            const normalizedDistance = (distance / handSize) * 100;
+            const currentTime = Date.now();
+            
+            // Simple tap detection - fingers close together indicates a tap
+            if (normalizedDistance < 30) {
+                if (currentTime - lastPreStartTapTime > 200) { // Minimum 200ms between taps
+                    preStartTapCount++;
+                    lastPreStartTapTime = currentTime;
+                    
+                    // Start recording after first tap
+                    if (preStartTapCount >= 1) {
+                        console.log("Auto-starting from tap detection");
+                        readyToStart = false;
+                        preStartTapCount = 0;
+                        startActualRecording();
+                    }
+                }
+            }
         }
 
          // REPLACE your updateHandPositionFeedback function with this version:
@@ -2093,30 +2139,15 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 positionStatus.className = 'position-status error';
                 handOutline.classList.remove('hand-outline-ready');
                 handOutline.classList.add('hand-outline-not-ready');
-            } else if (goodDistance && fingersOpen) {
-    // FIXED: Different ready messages for mobile/iPad vs desktop
-                if (window.innerWidth <= 768 || isIPadOrTablet()) {
-                    positionStatus.innerHTML = '✓ Tap here when ready<br>then tap as FAST as you can!';
-                } else {
-                    positionStatus.innerHTML = '✓ Press SPACE when ready<br>then tap as FAST as you can!';
-                }
-                positionStatus.className = 'position-status ready';
-                handOutline.classList.remove('hand-outline-not-ready');
-                handOutline.classList.add('hand-outline-ready');
-                
-                // FIXED: Make position status clickable on mobile
-                // FIXED: Make position status clickable on mobile and iPad
-                if (window.innerWidth <= 768 || isIPad()) {
-                    positionStatus.style.cursor = 'pointer';
-                    positionStatus.onclick = () => {
-                        if (window.handPositionCorrect && !recording) {
-                            startRecording();
-                        }
-                    };
-                } else {
+                } else if (goodDistance && fingersOpen) {
+                    positionStatus.innerHTML = '✓ Ready! Start tapping<br>as FAST as you can!';
+                    positionStatus.className = 'position-status ready';
+                    handOutline.classList.remove('hand-outline-not-ready');
+                    handOutline.classList.add('hand-outline-ready');
+                    
+                    // Remove any click handlers since we're using tap detection
                     positionStatus.style.cursor = '';
                     positionStatus.onclick = null;
-                }
             } else {
                 handOutline.classList.remove('hand-outline-ready');
                 handOutline.classList.add('hand-outline-not-ready');
@@ -2894,6 +2925,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const positionStatus = document.getElementById('position-status');
             positionStatus.textContent = 'Position hand in view';
             positionStatus.className = 'position-status';
+            readyToStart = true; // Enable auto-start detection
             
             // Force initial feedback update
             setTimeout(() => {
@@ -3123,13 +3155,10 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     document.getElementById('trial-instructions-text').innerHTML = instructionHTML;
     document.getElementById('trial-instructions-overlay').style.display = 'flex';
     
+        // Update begin instruction text based on device
     // Update begin instruction text based on device
     const beginInstruction = document.getElementById('begin-instruction');
-    if (window.innerWidth <= 768 || isIPad()) {
-        beginInstruction.textContent = 'Tap here to begin';
-    } else {
-        beginInstruction.textContent = 'Press SPACEBAR to begin';
-    }
+    beginInstruction.textContent = 'Position hand correctly and start tapping';
 
     // Update elegant trial display
     document.getElementById('trial-number').textContent = `Trial ${trialNum} of ${total}`;
@@ -3415,37 +3444,25 @@ function showFinalResults() {
             return sign * y;
         }
         let overlayJustDismissed = false;
-
         document.addEventListener('keydown', function(e) {
             if (e.code === 'Space' || e.key === ' ') {
                 e.preventDefault();
-
+        
                 const overlay = document.getElementById('trial-instructions-overlay');
-                const countdownEl = document.getElementById('countdown');
-                const isCountdownActive = countdownEl && countdownEl.style.display === 'block';
-
+        
                 if (overlay.style.display === 'flex') {
                     overlay.style.display = 'none';
                     overlayJustDismissed = true;
                     return;
                 }
-
+        
                 if (overlayJustDismissed) {
                     overlayJustDismissed = false;
-                    if (!handDetected) {
-                        alert('Please position your hand in view of the camera before starting.');
-                        return;
-                    }
-                    if (trialIndex >= totalTrials) {
-                        alert('All trials complete!');
-                        return;
-                    }
-                    startRecording();
                     return;
                 }
-
-                if (recording || isCountdownActive) return;
-
+        
+                if (recording) return;
+        
                 if (trialIndex < totalTrials) {
                     updateConditionUI();
                 }
@@ -3475,30 +3492,13 @@ function showFinalResults() {
             // Add mobile tap functionality
             const beginInstruction = document.getElementById('begin-instruction');
             if (beginInstruction) {
-                 beginInstruction.addEventListener('click', async function(e) {
-                if (window.innerWidth <= 768 || isIPadOrTablet()) { // Only on mobile and iPad
+                beginInstruction.addEventListener('click', function(e) {
                     e.preventDefault();
                     const overlay = document.getElementById('trial-instructions-overlay');
                     if (overlay.style.display === 'flex') {
                         overlay.style.display = 'none';
-                        
-                        // Wait longer for iPad to stabilize
-                        setTimeout(() => {
-                            // Ensure video is playing before starting
-                            const videoElement = document.getElementById('inputVideo');
-                            if (videoElement.paused) {
-                                videoElement.play().then(() => {
-                                    startRecording();
-                                }).catch(() => {
-                                    startRecording(); // Try anyway
-                                });
-                            } else {
-                                startRecording();
-                            }
-                        }, 200); // Increased delay for iPad
                     }
-                }
-            });
+                });
             }
             
         });
