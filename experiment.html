@@ -1766,13 +1766,13 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 });
         
                 // iPad-specific MediaPipe optimizations
+// iPad-specific MediaPipe optimizations
                 if (isIPadOrTablet()) {
                     hands.setOptions({
                         maxNumHands: 1,
                         modelComplexity: 0,  // Reduced from 1 to 0 for iPad only
                         minDetectionConfidence: 0.6,  // Slightly reduced for better performance
-                        minTrackingConfidence: 0.6,   // Slightly reduced for better performance
-                        selfieMode: true  // This can improve performance on some devices
+                        minTrackingConfidence: 0.6   // Slightly reduced for better performance
                     });
                 } else {
                     // Desktop and mobile settings (unchanged)
@@ -1887,9 +1887,10 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                         try {
                             if (videoElement.readyState >= 2 && !videoElement.paused) {
                                 // iPad-specific frame rate limiting
+// iPad-specific frame rate limiting
                                 if (isIPadOrTablet()) {
                                     const now = Date.now();
-                                    if (now - iPadLastProcessedFrame < 33) { // Limit to ~30fps max
+                                    if (now - iPadLastProcessedFrame < 25) { // Limit to ~40fps max instead of 30fps
                                         requestAnimationFrame(processFrame);
                                         return;
                                     }
@@ -2375,7 +2376,8 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
             timeSignal.push(currentTime);
         
             // Optimized feedback for iPad - reduce DOM updates
-            if (recording && frameCount % 6 === 0) { // Update feedback less frequently
+            // Optimized feedback for iPad - reduce DOM updates
+            if (recording && frameCount % 3 === 0) { // Update feedback less frequentlyUpdate feedback less frequently
                 const tapWidthFeedback = document.getElementById('tapWidthFeedback');
                 const tapWidthMessage = document.getElementById('tapWidthMessage');
                 
@@ -2397,8 +2399,7 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
                 }
             }
             
-            // Signal processing - maintain full accuracy but optimize execution
-            if (frameCount % 2 === 0 && distanceSignal.length > SMOOTHING_WINDOW) {
+            if (distanceSignal.length > SMOOTHING_WINDOW) {
                 smoothedSignal = movingAverage(distanceSignal, SMOOTHING_WINDOW);
                 
                 if (smoothedSignal.length > 1) {
