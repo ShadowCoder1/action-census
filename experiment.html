@@ -2815,36 +2815,39 @@ function startActualRecording() {
     
     recording = true;
     
-    lastHandSeenTime = 0;
+    // CRITICAL FIX: Reset ALL timing variables to ensure clean slate
+    startTime = Date.now();
+    lastHandSeenTime = Date.now(); // Initialize to current time, not 0
     lastTapTime = 0;
     
-    startTime = Date.now();
+    // CRITICAL FIX: Clear all data arrays completely
     distanceSignal = [];
     timeSignal = [];
     smoothedSignal = [];
     velocitySignal = [];
     tapEvents = [];
     frameCount = 0;
+    frameData = []; // Add this line - it was missing
     
-    // Rest of the function remains the same...
+    // Clear any existing timer to prevent conflicts
+    if (mainTimerInterval) {
+        clearInterval(mainTimerInterval);
+        mainTimerInterval = null;
+    }
+    
     mainTimerInterval = setInterval(() => {
         const currentTime = Date.now() - startTime;
         const remaining = Math.max(0, (recordingDuration - currentTime) / 1000);
         
         if (!handDetected) {
-            if (lastHandSeenTime === 0) {
-                const timeSinceRecordingStart = Date.now() - startTime;
-                if (timeSinceRecordingStart > MAX_ALLOWED_HAND_LOSS) {
-                    restartTrialDueToHandLoss();
-                    return;
-                }
-            } else {
-                const timeSinceLastSeen = Date.now() - lastHandSeenTime;
-                if (timeSinceLastSeen > MAX_ALLOWED_HAND_LOSS) {
-                    restartTrialDueToHandLoss();
-                    return;
-                }
+            const timeSinceLastSeen = Date.now() - lastHandSeenTime;
+            if (timeSinceLastSeen > MAX_ALLOWED_HAND_LOSS) {
+                restartTrialDueToHandLoss();
+                return;
             }
+        } else {
+            // Update lastHandSeenTime when hand is detected
+            lastHandSeenTime = Date.now();
         }
         
         const minutes = Math.floor(remaining / 60);
@@ -2891,7 +2894,6 @@ function startActualRecording() {
         }
     }, recordingDuration);
 }
-
 // Replace your existing stopRecording function with this fixed version
 function stopRecording() {
     if (!recording) return; // Prevent multiple calls
@@ -3230,10 +3232,26 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             if (!recording) return;
             
             recording = false;
-            clearInterval(mainTimerInterval);
             
-            // Reset tracking variab
-            lastHandDetectionTime = 0;
+            // CRITICAL FIX: Clear all intervals and reset timing
+            if (mainTimerInterval) {
+                clearInterval(mainTimerInterval);
+                mainTimerInterval = null;
+            }
+            
+            // Reset ALL tracking variables completely
+            lastHandSeenTime = 0;
+            lastTapTime = 0;
+            startTime = null;
+            
+            // Clear all data arrays
+            distanceSignal = [];
+            timeSignal = [];
+            smoothedSignal = [];
+            velocitySignal = [];
+            tapEvents = [];
+            frameCount = 0;
+            frameData = [];
             
             // Reset UI
             document.getElementById('hand-guide-overlay').style.display = 'block';
@@ -3246,10 +3264,10 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const instructionText = document.getElementById('trial-instructions-text');
             
             instructionText.innerHTML = `
-                <div style="color: #f59e0b; font-size: 2.8rem; margin-bottom: 1rem;">Too Few Taps</div>
-                <div style="color: #1a1a1a; font-size: 1.8rem; font-weight: 400;">Please tap more frequently during the test</div>
+                <div style="color: #f59e0b; font-size: 2.8rem; margin-bottom: 1rem;">Hand Lost</div>
+                <div style="color: #1a1a1a; font-size: 1.8rem; font-weight: 400;">Please keep your hand clearly visible</div>
             `;
-                        
+                                
             document.querySelector('.trial-overlay-instruction').innerHTML = 
                 'Please keep your hand <strong>clearly visible</strong> throughout the test';
             
@@ -3259,13 +3277,14 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             document.getElementById('timer-display').textContent = '00:15';
             document.getElementById('taps-display').textContent = '0';
             
-                        // Reset position status
+            // Reset position status
             const positionStatus = document.getElementById('position-status');
             positionStatus.textContent = 'Position hand in view';
             positionStatus.className = 'position-status';
             readyToStart = true;
             preStartTapCount = 0;
             lastPreStartTapTime = 0;
+            
             // Force initial feedback update
             setTimeout(() => {
                 if (!handDetected) {
@@ -3273,11 +3292,30 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 }
             }, 100);
         }
-
         function restartTrialDueToInactivity() {
             if (!recording) return;
             
             recording = false;
+            
+            // CRITICAL FIX: Clear all intervals and reset timing
+            if (mainTimerInterval) {
+                clearInterval(mainTimerInterval);
+                mainTimerInterval = null;
+            }
+            
+            // Reset ALL tracking variables completely
+            lastHandSeenTime = 0;
+            lastTapTime = 0;
+            startTime = null;
+            
+            // Clear all data arrays
+            distanceSignal = [];
+            timeSignal = [];
+            smoothedSignal = [];
+            velocitySignal = [];
+            tapEvents = [];
+            frameCount = 0;
+            frameData = [];
             clearInterval(mainTimerInterval);
             
             // Reset tracking variables
@@ -3471,9 +3509,30 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         }
 
 
-        function showInsufficientTapsRestart() {
+       function showInsufficientTapsRestart() {
             recording = false;
-            clearInterval(mainTimerInterval);
+            
+            // CRITICAL FIX: Clear all intervals and reset timing
+            if (mainTimerInterval) {
+                clearInterval(mainTimerInterval);
+                mainTimerInterval = null;
+            }
+            
+            // Reset ALL tracking variables completely
+            lastHandSeenTime = 0;
+            lastTapTime = 0;
+            startTime = null;
+            
+            // Clear all data arrays
+            distanceSignal = [];
+            timeSignal = [];
+            smoothedSignal = [];
+            velocitySignal = [];
+            tapEvents = [];
+            frameCount = 0;
+            frameData = [];
+            
+
             
             // Reset UI
             document.getElementById('hand-guide-overlay').style.display = 'block';
