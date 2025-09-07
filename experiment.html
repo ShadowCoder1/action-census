@@ -2445,166 +2445,158 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
 
 
                         // iPad-specific tap detection with more aggressive thresholds
-                  // iPad-specific tap detection with instantaneous detection
-       function detectTapsMultiMethodIPad() {
-        const rawEvents = [];
-        const added = new Set();
-    
-        // STATE MACHINE: track closing/opening with stricter validation
-        let lastState = 'unknown';
-        let stateChangeIndices = [];
-        let lastValidTapTime = -1000;
-    
-        for (let i = 1; i < distanceSignal.length; i++) {
-            const current = distanceSignal[i];
-            const prev = distanceSignal[i - 1];
-            const delta = current - prev;
-    
-            let currentState = 'stable';
-            if (delta < -5) currentState = 'closing'; // More restrictive threshold
-            else if (delta > 5) currentState = 'opening'; // More restrictive threshold
-    
-            if (currentState !== lastState && currentState === 'closing') {
-                stateChangeIndices.push({
-                    index: i,
-                    type: 'close_start',
-                    distance: current
-                });
-            }
-            lastState = currentState;
-        }
-    
-        // Strategy 1: Validated closing movements with reopening requirement
-        for (const change of stateChangeIndices) {
-            if (change.type === 'close_start' && change.distance < 45) { // Must be genuinely close
-                const time = timeSignal[change.index];
-                
-                // CRITICAL FIX: Enforce minimum time between taps
-                if (time - lastValidTapTime < 80) continue; // Minimum 80ms between taps
-                
-                // CRITICAL FIX: Must have reopened since last tap
-                let hasReopenedSinceLastTap = true;
-                if (rawEvents.length > 0) {
-                    const lastTapIndex = rawEvents[rawEvents.length - 1].index;
-                    let maxDistanceSinceLastTap = 0;
-                    for (let j = lastTapIndex; j < change.index; j++) {
-                        maxDistanceSinceLastTap = Math.max(maxDistanceSinceLastTap, distanceSignal[j]);
-                    }
-                    hasReopenedSinceLastTap = maxDistanceSinceLastTap > 55; // Must open significantly
-                }
-                
-                if (hasReopenedSinceLastTap) {
-                    rawEvents.push({
-                        index: change.index,
-                        time,
-                        amplitude: change.distance,
-                        type: 'state_change'
-                    });
-                    added.add(change.index);
-                    lastValidTapTime = time;
-                }
-            }
-        }
-    
-        // Strategy 2: Local minima with stricter validation
-        for (let i = 3; i < distanceSignal.length - 3; i++) { // Larger window
-            const current = distanceSignal[i];
-            const isLocalMin = current < distanceSignal[i - 1] &&
-                               current < distanceSignal[i - 2] &&
-                               current < distanceSignal[i - 3] && // Extended validation
-                               current <= distanceSignal[i + 1] &&
-                               current <= distanceSignal[i + 2] &&
-                               current <= distanceSignal[i + 3]; // Extended validation
-    
-            if (isLocalMin && current < 40 && !added.has(i)) { // Stricter threshold
-                const time = timeSignal[i];
-                
-                // CRITICAL FIX: Same validation as above
-                if (time - lastValidTapTime < 80) continue;
-                
-                let hasReopenedSinceLastTap = true;
-                if (rawEvents.length > 0) {
-                    const lastTapIndex = rawEvents[rawEvents.length - 1].index;
-                    let maxDistanceSinceLastTap = 0;
-                    for (let j = lastTapIndex; j < i; j++) {
-                        maxDistanceSinceLastTap = Math.max(maxDistanceSinceLastTap, distanceSignal[j]);
-                    }
-                    hasReopenedSinceLastTap = maxDistanceSinceLastTap > 55;
-                }
-                
-                if (hasReopenedSinceLastTap) {
-                    rawEvents.push({
+              // iPad-specific tap detection with instantaneous detection
+        function detectTapsMultiMethodIPad() {
+            const rawEvents = [];
+            const added = new Set();
+        
+            // STATE MACHINE: track closing/opening
+            let lastState = 'unknown';
+            let stateChangeIndices = [];
+        
+            for (let i = 1; i < distanceSignal.length; i++) {
+                const current = distanceSignal[i];
+                const prev = distanceSignal[i - 1];
+                const delta = current - prev;
+        
+                let currentState = 'stable';
+                if (delta < -3) currentState = 'closing';
+                else if (delta > 3) currentState = 'opening';
+        
+                if (currentState !== lastState && currentState === 'closing') {
+                    stateChangeIndices.push({
                         index: i,
-                        time,
-                        amplitude: current,
-                        type: 'local_min'
+                        type: 'close_start',
+                        distance: current
                     });
-                    added.add(i);
-                    lastValidTapTime = time;
+                }
+                lastState = currentState;
+            }
+        
+            // Strategy 1: any significant closing movement
+            for (const change of stateChangeIndices) {
+                if (change.type === 'close_start') {
+                    const time = timeSignal[change.index];
+                    const lastEventTime = rawEvents.length > 0 ? rawEvents[rawEvents.length - 1].time : -1000;
+                    if (time - lastEventTime > 30) {
+                        rawEvents.push({
+                            index: change.index,
+                            time,
+                            amplitude: change.distance,
+                            type: 'state_change'
+                        });
+                        added.add(change.index);
+                    }
                 }
             }
-        }
-    
-        // Strategy 3: Velocity zero-crossing with validation
-        if (velocitySignal.length > 2) {
-            for (let i = 1; i < velocitySignal.length - 1; i++) {
-                const prevVel = velocitySignal[i - 1];
-                const currVel = velocitySignal[i];
-                const crossingPoint = prevVel < -1.0 && currVel >= -0.5 && currVel <= 0.5; // Stricter velocity
-                const atMinimum = distanceSignal[i] < 45; // Stricter distance
-    
-                if (crossingPoint && atMinimum && !added.has(i)) {
+        
+            // Strategy 2: local minima (closest positions)
+            for (let i = 2; i < distanceSignal.length - 2; i++) {
+                const current = distanceSignal[i];
+                const isLocalMin = current < distanceSignal[i - 1] &&
+                                   current < distanceSignal[i - 2] &&
+                                   current <= distanceSignal[i + 1] &&
+                                   current <= distanceSignal[i + 2];
+        
+                if (isLocalMin && current < 50 && !added.has(i)) {
                     const time = timeSignal[i];
-                    
-                    // CRITICAL FIX: Same validation
-                    if (time - lastValidTapTime < 80) continue;
-                    
-                    let hasReopenedSinceLastTap = true;
-                    if (rawEvents.length > 0) {
-                        const lastTapIndex = rawEvents[rawEvents.length - 1].index;
-                        let maxDistanceSinceLastTap = 0;
-                        for (let j = lastTapIndex; j < i; j++) {
-                            maxDistanceSinceLastTap = Math.max(maxDistanceSinceLastTap, distanceSignal[j]);
-                        }
-                        hasReopenedSinceLastTap = maxDistanceSinceLastTap > 55;
-                    }
-                    
-                    if (hasReopenedSinceLastTap) {
+                    const lastEventTime = rawEvents.length > 0 ? rawEvents[rawEvents.length - 1].time : -1000;
+                    if (time - lastEventTime > 30) {
                         rawEvents.push({
                             index: i,
                             time,
-                            amplitude: distanceSignal[i],
-                            type: 'velocity_cross'
+                            amplitude: current,
+                            type: 'local_min'
                         });
                         added.add(i);
-                        lastValidTapTime = time;
                     }
                 }
             }
-        }
-    
-        // Remove the rhythmic prediction strategy entirely - it was causing false positives
-    
-        // Sort and enforce minimal spacing (increased from 30ms to 100ms)
-        rawEvents.sort((a, b) => a.time - b.time);
-        tapEvents = [];
-        for (const ev of rawEvents) {
-            if (tapEvents.length === 0 || ev.time - tapEvents[tapEvents.length - 1].time >= 100) {
-                tapEvents.push(ev);
+        
+            // Strategy 3: velocity zero-crossing (neg -> ~0/+)
+            if (velocitySignal.length > 2) {
+                for (let i = 1; i < velocitySignal.length - 1; i++) {
+                    const prevVel = velocitySignal[i - 1];
+                    const currVel = velocitySignal[i];
+                    const crossingPoint = prevVel < -0.5 && currVel >= -0.5 && currVel <= 0.5;
+                    const atMinimum = distanceSignal[i] < 55;
+        
+                    if (crossingPoint && atMinimum && !added.has(i)) {
+                        const time = timeSignal[i];
+                        const lastEventTime = rawEvents.length > 0 ? rawEvents[rawEvents.length - 1].time : -1000;
+                        if (time - lastEventTime > 30) {
+                            rawEvents.push({
+                                index: i,
+                                time,
+                                amplitude: distanceSignal[i],
+                                type: 'velocity_cross'
+                            });
+                            added.add(i);
+                        }
+                    }
+                }
+            }
+        
+            // Strategy 4: rhythmic prediction (if taps are periodic)
+            if (distanceSignal.length > 10 && rawEvents.length > 2) {
+                const recentEvents = rawEvents.slice(-5);
+                const intervals = [];
+                for (let i = 1; i < recentEvents.length; i++) {
+                    intervals.push(recentEvents[i].time - recentEvents[i - 1].time);
+                }
+                const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+                const lastEvent = rawEvents[rawEvents.length - 1];
+                const predictedTime = lastEvent.time + avgInterval;
+        
+                for (let i = lastEvent.index + 1; i < distanceSignal.length; i++) {
+                    const time = timeSignal[i];
+                    const timeDiff = Math.abs(time - predictedTime);
+        
+                    if (timeDiff < avgInterval * 0.3 && distanceSignal[i] < 50 && !added.has(i)) {
+                        // validate as local min in small window
+                        const windowStart = Math.max(0, i - 2);
+                        const windowEnd = Math.min(distanceSignal.length - 1, i + 2);
+                        let isLocalMinInWindow = true;
+                        for (let j = windowStart; j <= windowEnd; j++) {
+                            if (j !== i && distanceSignal[j] < distanceSignal[i]) {
+                                isLocalMinInWindow = false;
+                                break;
+                            }
+                        }
+                        if (isLocalMinInWindow) {
+                            rawEvents.push({
+                                index: i,
+                                time,
+                                amplitude: distanceSignal[i],
+                                type: 'predicted'
+                            });
+                            added.add(i);
+                            break;
+                        }
+                    }
+                }
+            }
+        
+            // Sort and enforce minimal spacing (30 ms)
+            rawEvents.sort((a, b) => a.time - b.time);
+            tapEvents = [];
+            for (const ev of rawEvents) {
+                if (tapEvents.length === 0 || ev.time - tapEvents[tapEvents.length - 1].time >= 30) {
+                    tapEvents.push(ev);
+                }
+            }
+        
+            // Live update
+            if (recording) {
+                document.getElementById('taps-display').textContent = `${tapEvents.length}`;
+            }
+        
+            // Optional debug
+            if (frameCount % 30 === 0 && tapEvents.length > 0) {
+                const tapsPerSecond = tapEvents.length / ((timeSignal[timeSignal.length - 1] || 1000) / 1000);
+                console.log(`iPad Detection: ${tapEvents.length} taps, ${tapsPerSecond.toFixed(1)} taps/sec`);
             }
         }
-    
-        // Live update
-        if (recording) {
-            document.getElementById('taps-display').textContent = `${tapEvents.length}`;
-        }
-    
-        // Optional debug
-        if (frameCount % 60 === 0 && tapEvents.length > 0) { // Less frequent logging
-            const tapsPerSecond = tapEvents.length / ((timeSignal[timeSignal.length - 1] || 1000) / 1000);
-            console.log(`iPad Detection: ${tapEvents.length} taps, ${tapsPerSecond.toFixed(1)} taps/sec`);
-        }
-       }
         
         // iPad-optimized visualization - maintains visual quality but improves performance
         function drawHandVisualizationIPad(landmarks, canvasElement) {
@@ -2823,39 +2815,36 @@ function startActualRecording() {
     
     recording = true;
     
-    // CRITICAL FIX: Reset ALL timing variables to ensure clean slate
-    startTime = Date.now();
-    lastHandSeenTime = Date.now(); // Initialize to current time, not 0
+    lastHandSeenTime = 0;
     lastTapTime = 0;
     
-    // CRITICAL FIX: Clear all data arrays completely
+    startTime = Date.now();
     distanceSignal = [];
     timeSignal = [];
     smoothedSignal = [];
     velocitySignal = [];
     tapEvents = [];
     frameCount = 0;
-    frameData = []; // Add this line - it was missing
     
-    // Clear any existing timer to prevent conflicts
-    if (mainTimerInterval) {
-        clearInterval(mainTimerInterval);
-        mainTimerInterval = null;
-    }
-    
+    // Rest of the function remains the same...
     mainTimerInterval = setInterval(() => {
         const currentTime = Date.now() - startTime;
         const remaining = Math.max(0, (recordingDuration - currentTime) / 1000);
         
         if (!handDetected) {
-            const timeSinceLastSeen = Date.now() - lastHandSeenTime;
-            if (timeSinceLastSeen > MAX_ALLOWED_HAND_LOSS) {
-                restartTrialDueToHandLoss();
-                return;
+            if (lastHandSeenTime === 0) {
+                const timeSinceRecordingStart = Date.now() - startTime;
+                if (timeSinceRecordingStart > MAX_ALLOWED_HAND_LOSS) {
+                    restartTrialDueToHandLoss();
+                    return;
+                }
+            } else {
+                const timeSinceLastSeen = Date.now() - lastHandSeenTime;
+                if (timeSinceLastSeen > MAX_ALLOWED_HAND_LOSS) {
+                    restartTrialDueToHandLoss();
+                    return;
+                }
             }
-        } else {
-            // Update lastHandSeenTime when hand is detected
-            lastHandSeenTime = Date.now();
         }
         
         const minutes = Math.floor(remaining / 60);
@@ -2902,6 +2891,7 @@ function startActualRecording() {
         }
     }, recordingDuration);
 }
+
 // Replace your existing stopRecording function with this fixed version
 function stopRecording() {
     if (!recording) return; // Prevent multiple calls
@@ -3240,26 +3230,10 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             if (!recording) return;
             
             recording = false;
+            clearInterval(mainTimerInterval);
             
-            // CRITICAL FIX: Clear all intervals and reset timing
-            if (mainTimerInterval) {
-                clearInterval(mainTimerInterval);
-                mainTimerInterval = null;
-            }
-            
-            // Reset ALL tracking variables completely
-            lastHandSeenTime = 0;
-            lastTapTime = 0;
-            startTime = null;
-            
-            // Clear all data arrays
-            distanceSignal = [];
-            timeSignal = [];
-            smoothedSignal = [];
-            velocitySignal = [];
-            tapEvents = [];
-            frameCount = 0;
-            frameData = [];
+            // Reset tracking variab
+            lastHandDetectionTime = 0;
             
             // Reset UI
             document.getElementById('hand-guide-overlay').style.display = 'block';
@@ -3272,10 +3246,10 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const instructionText = document.getElementById('trial-instructions-text');
             
             instructionText.innerHTML = `
-                <div style="color: #f59e0b; font-size: 2.8rem; margin-bottom: 1rem;">Hand Lost</div>
-                <div style="color: #1a1a1a; font-size: 1.8rem; font-weight: 400;">Please keep your hand clearly visible</div>
+                <div style="color: #f59e0b; font-size: 2.8rem; margin-bottom: 1rem;">Too Few Taps</div>
+                <div style="color: #1a1a1a; font-size: 1.8rem; font-weight: 400;">Please tap more frequently during the test</div>
             `;
-                                
+                        
             document.querySelector('.trial-overlay-instruction').innerHTML = 
                 'Please keep your hand <strong>clearly visible</strong> throughout the test';
             
@@ -3285,14 +3259,13 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             document.getElementById('timer-display').textContent = '00:15';
             document.getElementById('taps-display').textContent = '0';
             
-            // Reset position status
+                        // Reset position status
             const positionStatus = document.getElementById('position-status');
             positionStatus.textContent = 'Position hand in view';
             positionStatus.className = 'position-status';
             readyToStart = true;
             preStartTapCount = 0;
             lastPreStartTapTime = 0;
-            
             // Force initial feedback update
             setTimeout(() => {
                 if (!handDetected) {
@@ -3300,30 +3273,11 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 }
             }, 100);
         }
+
         function restartTrialDueToInactivity() {
             if (!recording) return;
             
             recording = false;
-            
-            // CRITICAL FIX: Clear all intervals and reset timing
-            if (mainTimerInterval) {
-                clearInterval(mainTimerInterval);
-                mainTimerInterval = null;
-            }
-            
-            // Reset ALL tracking variables completely
-            lastHandSeenTime = 0;
-            lastTapTime = 0;
-            startTime = null;
-            
-            // Clear all data arrays
-            distanceSignal = [];
-            timeSignal = [];
-            smoothedSignal = [];
-            velocitySignal = [];
-            tapEvents = [];
-            frameCount = 0;
-            frameData = [];
             clearInterval(mainTimerInterval);
             
             // Reset tracking variables
@@ -3517,30 +3471,9 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         }
 
 
-       function showInsufficientTapsRestart() {
+        function showInsufficientTapsRestart() {
             recording = false;
-            
-            // CRITICAL FIX: Clear all intervals and reset timing
-            if (mainTimerInterval) {
-                clearInterval(mainTimerInterval);
-                mainTimerInterval = null;
-            }
-            
-            // Reset ALL tracking variables completely
-            lastHandSeenTime = 0;
-            lastTapTime = 0;
-            startTime = null;
-            
-            // Clear all data arrays
-            distanceSignal = [];
-            timeSignal = [];
-            smoothedSignal = [];
-            velocitySignal = [];
-            tapEvents = [];
-            frameCount = 0;
-            frameData = [];
-            
-
+            clearInterval(mainTimerInterval);
             
             // Reset UI
             document.getElementById('hand-guide-overlay').style.display = 'block';
