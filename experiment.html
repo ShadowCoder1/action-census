@@ -2335,8 +2335,9 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
                     velocitySignal = calculateDerivative(smoothedSignal, timeSignal);
                 }
                 
-                // Run detection every frame for instant response
-                detectTapsMultiMethodIPad();
+                detectTapsMultiMethod();
+
+
             }
   
 
