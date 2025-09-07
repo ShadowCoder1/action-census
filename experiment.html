@@ -1226,6 +1226,8 @@ button, input[type="submit"], .btn {
         let frameCount = 0;
         let mainTimerInterval;
         // Tap detection for auto-start
+        let iPadLastProcessedFrame = 0;
+        // Tap detection for auto-start
         let readyToStart = false;
         let preStartTapCount = 0;
         let lastPreStartTapTime = 0;
@@ -1763,12 +1765,24 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     }
                 });
         
-                hands.setOptions({
-                    maxNumHands: 1,
-                    modelComplexity: 1,
-                    minDetectionConfidence: 0.7,
-                    minTrackingConfidence: 0.7
-                });
+                // iPad-specific MediaPipe optimizations
+                if (isIPadOrTablet()) {
+                    hands.setOptions({
+                        maxNumHands: 1,
+                        modelComplexity: 0,  // Reduced from 1 to 0 for iPad only
+                        minDetectionConfidence: 0.6,  // Slightly reduced for better performance
+                        minTrackingConfidence: 0.6,   // Slightly reduced for better performance
+                        selfieMode: true  // This can improve performance on some devices
+                    });
+                } else {
+                    // Desktop and mobile settings (unchanged)
+                    hands.setOptions({
+                        maxNumHands: 1,
+                        modelComplexity: 1,
+                        minDetectionConfidence: 0.7,
+                        minTrackingConfidence: 0.7
+                    });
+                }
         
                 hands.onResults(onHandsResults);
                 
@@ -1780,9 +1794,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     
                     hands.onResults = function(results) {
                         frameSkipCounter++;
-                        if (frameSkipCounter % 2 === 0) { // Process every other frame on iPad
-                            originalOnResults.call(this, results);
-                        }
+                        originalOnResults.call(this, results);
                     };
                 }
                 
@@ -1792,8 +1804,6 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 document.getElementById('position-status').textContent = 'Failed to load hand tracking. Please refresh the page.';
             }
         }
-
-                // iPad-specific optimizations
 
         // Mobile loading overlay functions
         function showMobileLoading() {
@@ -1829,13 +1839,23 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const canvasElement = document.getElementById('outputCanvas');
             canvasCtx = canvasElement.getContext('2d');
         
-            navigator.mediaDevices.getUserMedia({
+        // iPad-specific video constraints
+            const videoConstraints = isIPadOrTablet() ? {
+                video: {
+                    width: { ideal: 1280 },  // Reduced resolution for iPad
+                    height: { ideal: 720 },  // Reduced resolution for iPad
+                    facingMode: "user",
+                    frameRate: { ideal: 24, max: 30 }  // Limit frame rate on iPad
+                }
+            } : {
                 video: {
                     width: { ideal: 1920 },
                     height: { ideal: 1080 },
                     facingMode: "user"
                 }
-            }).then(async (stream) => {
+            };
+        
+            navigator.mediaDevices.getUserMedia(videoConstraints).then(async (stream) => {
                 videoElement.srcObject = stream;
             
                 // FIXED: Proper mobile video setup
@@ -1866,6 +1886,16 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     const processFrame = async () => {
                         try {
                             if (videoElement.readyState >= 2 && !videoElement.paused) {
+                                // iPad-specific frame rate limiting
+                                if (isIPadOrTablet()) {
+                                    const now = Date.now();
+                                    if (now - iPadLastProcessedFrame < 33) { // Limit to ~30fps max
+                                        requestAnimationFrame(processFrame);
+                                        return;
+                                    }
+                                    iPadLastProcessedFrame = now;
+                                }
+                                
                                 await hands.send({ image: videoElement });
                                 lastFrameTime = Date.now();
                             }
@@ -2035,8 +2065,13 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const currentTime = Date.now() - startTime;
             if (currentTime < recordingDuration) {
                 // Check if correct hand is being used
-                if (isCorrectHandDetectedForCurrentTrial()) {
-                    processFingerTapAdvanced(landmarks, results.image.width, results.image.height);
+                    if (isCorrectHandDetectedForCurrentTrial()) {
+                    // iPad-specific processing optimization
+                        if (isIPadOrTablet()) {
+                            processFingerTapAdvancedIPad(landmarks, results.image.width, results.image.height);
+                        } else {
+                            processFingerTapAdvanced(landmarks, results.image.width, results.image.height);
+                        }
                 } else {
                     // Wrong hand detected during recording - restart trial
                     console.log("Wrong hand detected during recording, restarting trial");
@@ -2046,8 +2081,12 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             }
         }
         
-        // Draw visualization
-        drawHandVisualization(landmarks, canvasElement);
+        // Draw visualization with iPad optimization
+        if (isIPadOrTablet()) {
+            drawHandVisualizationIPad(landmarks, canvasElement);
+        } else {
+            drawHandVisualization(landmarks, canvasElement);
+        }
         
     } else {
         handDetected = false;
@@ -2306,6 +2345,143 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
                 wrist: { x: wrist.x, y: wrist.y, z: wrist.z },
                 middleMcp: { x: middleMcp.x, y: middleMcp.y, z: middleMcp.z },
                 rawLandmarks: landmarks.map(lm => ({ x: lm.x, y: lm.y, z: lm.z }))
+            });
+        }
+
+                // iPad-optimized finger tap processing - maintains full accuracy
+        function processFingerTapAdvancedIPad(landmarks, imageWidth, imageHeight) {
+            const currentTime = Date.now() - startTime;
+            
+            const thumbTip = landmarks[THUMB_TIP];
+            const indexTip = landmarks[INDEX_TIP];
+            const wrist = landmarks[WRIST];
+            const middleMcp = landmarks[MIDDLE_MCP];
+            
+            const handSize = Math.sqrt(
+                Math.pow((wrist.x - middleMcp.x) * imageWidth, 2) +
+                Math.pow((wrist.y - middleMcp.y) * imageHeight, 2)
+            );
+            
+            const distance = Math.sqrt(
+                Math.pow((thumbTip.x - indexTip.x) * imageWidth, 2) +
+                Math.pow((thumbTip.y - indexTip.y) * imageHeight, 2) +
+                Math.pow((thumbTip.z - indexTip.z) * imageWidth * 0.5, 2)
+            );
+            
+            const normalizedDistance = (distance / handSize) * 100;
+            
+            // Always maintain full signal accuracy
+            distanceSignal.push(normalizedDistance);
+            timeSignal.push(currentTime);
+        
+            // Optimized feedback for iPad - reduce DOM updates
+            if (recording && frameCount % 6 === 0) { // Update feedback less frequently
+                const tapWidthFeedback = document.getElementById('tapWidthFeedback');
+                const tapWidthMessage = document.getElementById('tapWidthMessage');
+                
+                const recentSamples = distanceSignal.slice(-30);
+                const maxRecentAmplitude = Math.max(...recentSamples);
+                
+                if (!window.tapFeedbackTimer) {
+                    window.tapFeedbackTimer = 0;
+                }
+                
+                if (maxRecentAmplitude < 45) {
+                    tapWidthFeedback.style.display = 'block';
+                    tapWidthMessage.textContent = 'Open fingers wider';
+                    window.tapFeedbackTimer = 45;
+                } else if (window.tapFeedbackTimer > 0) {
+                    window.tapFeedbackTimer--;
+                } else {
+                    tapWidthFeedback.style.display = 'none';
+                }
+            }
+            
+            // Signal processing - maintain full accuracy but optimize execution
+            if (frameCount % 2 === 0 && distanceSignal.length > SMOOTHING_WINDOW) {
+                smoothedSignal = movingAverage(distanceSignal, SMOOTHING_WINDOW);
+                
+                if (smoothedSignal.length > 1) {
+                    velocitySignal = calculateDerivative(smoothedSignal, timeSignal);
+                    detectTapsMultiMethod();
+                }
+            }
+        
+            // Optimized frame data storage for iPad - store essential data only during recording
+            const essentialFrameData = {
+                timestamp: currentTime,
+                normalizedDistance: normalizedDistance,
+                thumbIndexAngle: Math.atan2(
+                    (indexTip.y - thumbTip.y),
+                    (indexTip.x - thumbTip.x)
+                ) * 180 / Math.PI,
+                handSize: handSize,
+                // Store only essential landmarks for iPad
+                thumbTip: { x: thumbTip.x, y: thumbTip.y, z: thumbTip.z },
+                indexTip: { x: indexTip.x, y: indexTip.y, z: indexTip.z },
+                wrist: { x: wrist.x, y: wrist.y, z: wrist.z },
+                middleMcp: { x: middleMcp.x, y: middleMcp.y, z: middleMcp.z },
+                // Only store essential landmarks to reduce memory pressure
+                rawLandmarks: [
+                    landmarks[WRIST], landmarks[THUMB_TIP], 
+                    landmarks[INDEX_TIP], landmarks[MIDDLE_MCP]
+                ].map(lm => ({ x: lm.x, y: lm.y, z: lm.z }))
+            };
+            
+            frameData = frameData || [];
+            frameData.push(essentialFrameData);
+        }
+        
+        // iPad-optimized visualization - maintains visual quality but improves performance
+        function drawHandVisualizationIPad(landmarks, canvasElement) {
+            const thumbTip = landmarks[THUMB_TIP];
+            const indexTip = landmarks[INDEX_TIP];
+            const distance = Math.sqrt(
+                Math.pow((thumbTip.x - indexTip.x) * canvasElement.width, 2) +
+                Math.pow((thumbTip.y - indexTip.y) * canvasElement.height, 2)
+            );
+            
+            const isTapping = recording && distance < 30;
+            
+            let justTapped = false;
+            if (recording && tapEvents.length > 0) {
+                const currentTime = Date.now() - startTime;
+                const lastTap = tapEvents[tapEvents.length - 1];
+                justTapped = (currentTime - lastTap.time) < 150;
+            }
+            
+            // Simplified colors for iPad - no expensive effects
+            let dotColor = '#ffffff';
+            let lineColor = 'rgba(255, 255, 255, 0.5)';
+            let dotSize = 10;
+            
+            if (justTapped) {
+                dotColor = '#22c55e';
+                lineColor = 'rgba(34, 197, 94, 1)';
+                dotSize = 14;
+                // Skip expensive shadow effects on iPad
+            } else if (isTapping) {
+                dotColor = '#16a34a';
+                lineColor = 'rgba(22, 163, 74, 0.8)';
+                dotSize = 12;
+            }
+            
+            // Draw connection line
+            canvasCtx.strokeStyle = lineColor;
+            canvasCtx.lineWidth = 2;
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(thumbTip.x * canvasElement.width, thumbTip.y * canvasElement.height);
+            canvasCtx.lineTo(indexTip.x * canvasElement.width, indexTip.y * canvasElement.height);
+            canvasCtx.stroke();
+            
+            // Draw finger dots - simplified for iPad
+            [thumbTip, indexTip].forEach(tip => {
+                // Skip outer glow on iPad for performance
+                canvasCtx.globalAlpha = 1;
+                canvasCtx.fillStyle = dotColor;
+                canvasCtx.beginPath();
+                canvasCtx.arc(tip.x * canvasElement.width, tip.y * canvasElement.height, dotSize, 0, 2 * Math.PI);
+                canvasCtx.fill();
             });
         }
 
@@ -3224,6 +3400,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
  function analyzeAllTrials() {
             showQuestionnaire();
 }
+
 
 function showFinalResults() {
     document.getElementById('finalResults').style.display = 'block';
