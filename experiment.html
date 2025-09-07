@@ -2327,27 +2327,19 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
                 }
             }
                         
-// Signal processing - maintain full accuracy and frequency
-            if (frameCount % 2 === 0 && distanceSignal.length > SMOOTHING_WINDOW) {
+// SigPROCESS EVERY FRAME for maximum accuracy on iPad
+            if (distanceSignal.length > SMOOTHING_WINDOW) {
                 smoothedSignal = movingAverage(distanceSignal, SMOOTHING_WINDOW);
                 
                 if (smoothedSignal.length > 1) {
                     velocitySignal = calculateDerivative(smoothedSignal, timeSignal);
-                    detectTapsMultiMethod();
                 }
+                
+                // Run detection every frame for instant response
+                detectTapsMultiMethodIPad();
             }
+  
 
-            // BACKUP: Also process every 3rd frame to catch any missed taps
-            if (frameCount % 3 === 0 && distanceSignal.length > SMOOTHING_WINDOW) {
-                if (!smoothedSignal.length) {
-                    smoothedSignal = movingAverage(distanceSignal, SMOOTHING_WINDOW);
-                }
-                if (smoothedSignal.length > 1 && !velocitySignal.length) {
-                    velocitySignal = calculateDerivative(smoothedSignal, timeSignal);
-     
-                    detectTapsMultiMethodIPad();
-                }
-            }
             // Ensure frameData is always an array
             frameData = frameData || [];
             frameData.push({
@@ -2452,49 +2444,75 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
         }
 
 
-                // iPad-specific tap detection with more aggressive thresholds
+                        // iPad-specific tap detection with more aggressive thresholds
+              // iPad-specific tap detection with instantaneous detection
         function detectTapsMultiMethodIPad() {
             const rawEvents = [];
             const added = new Set();
-        
-            // More aggressive velocity detection for iPad
-            detectTapsFromVelocity(velocitySignal, smoothedSignal).forEach(ev => {
-                if (!added.has(ev.index)) { rawEvents.push(ev); added.add(ev.index); }
-            });
-        
-            // Lower threshold for iPad to catch faster taps
-            const inverted = smoothedSignal.map(d => 100 - d);
-            findPeaks(inverted, 0.3).forEach(idx => { // Reduced from 0.5 to 0.3
-                if (smoothedSignal[idx] < 35 && !added.has(idx)) { // Increased threshold from 30 to 35
-                    rawEvents.push({ index: idx, time: timeSignal[idx], amplitude: smoothedSignal[idx] });
-                    added.add(idx);
-                }
-            });
-        
-            rawEvents.sort((a, b) => a.time - b.time);
-            tapEvents = [];
-        
-            for (const ev of rawEvents) {
-                if (tapEvents.length === 0) {
-                    tapEvents.push(ev);
-                    continue;
-                }
-        
-                const last = tapEvents[tapEvents.length - 1];
-        
-                // Reduced minimum distance for faster tapping
-                if (ev.time - last.time < 80) continue; // Reduced from 100ms to 80ms
-        
-                let reopened = false;
-                for (let i = last.index + 1; i < ev.index; i++) {
-                    if (smoothedSignal[i] > 30) { // Reduced from 35 to 30
-                        reopened = true; 
-                        break; 
+            
+            // INSTANT DETECTION: Look for any sudden drop in distance
+            for (let i = 2; i < distanceSignal.length; i++) {
+                const current = distanceSignal[i];
+                const prev = distanceSignal[i-1];
+                const prevPrev = distanceSignal[i-2];
+                
+                // Detect rapid closure (fast tap down)
+                const rapidDrop = (prevPrev - current) > 15 && (prev - current) > 8;
+                const isLowEnough = current < 45; // More lenient threshold
+                
+                if (rapidDrop && isLowEnough && !added.has(i)) {
+                    // Check minimum time between taps (50ms = 20 taps/second max)
+                    const currentTime = timeSignal[i];
+                    const lastEventTime = rawEvents.length > 0 ? rawEvents[rawEvents.length - 1].time : 0;
+                    
+                    if (currentTime - lastEventTime > 50) {
+                        rawEvents.push({
+                            index: i,
+                            time: currentTime,
+                            amplitude: current,
+                            type: 'instant'
+                        });
+                        added.add(i);
                     }
                 }
-                if (!reopened) continue;
-        
-                tapEvents.push(ev);
+            }
+            
+            // BACKUP: Traditional velocity-based detection
+            detectTapsFromVelocity(velocitySignal, smoothedSignal).forEach(ev => {
+                if (!added.has(ev.index)) { 
+                    rawEvents.push({...ev, type: 'velocity'}); 
+                    added.add(ev.index); 
+                }
+            });
+            
+            // BACKUP: Peak detection with very low threshold
+            if (smoothedSignal.length > 0) {
+                const inverted = smoothedSignal.map(d => 100 - d);
+                findPeaks(inverted, 0.2).forEach(idx => {
+                    if (smoothedSignal[idx] < 40 && !added.has(idx)) {
+                        rawEvents.push({ 
+                            index: idx, 
+                            time: timeSignal[idx], 
+                            amplitude: smoothedSignal[idx],
+                            type: 'peak'
+                        });
+                        added.add(idx);
+                    }
+                });
+            }
+            
+            // Sort and clean up events
+            rawEvents.sort((a, b) => a.time - b.time);
+            
+            // NO REOPENING REQUIREMENT - Accept all valid events
+            tapEvents = rawEvents.filter((event, index) => {
+                if (index === 0) return true;
+                return event.time - rawEvents[index - 1].time > 50; // Only 50ms minimum gap
+            });
+            
+            // Debug logging for iPad
+            if (frameCount % 60 === 0 && rawEvents.length > 0) {
+                console.log(`iPad Instant Detection - Frame ${frameCount}: Found ${rawEvents.length} raw events, ${tapEvents.length} final taps`);
             }
         }
         // iPad-optimized visualization - maintains visual quality but improves performance
