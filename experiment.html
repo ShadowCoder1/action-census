@@ -2361,42 +2361,41 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
                 // iPad-optimized finger tap processing - maintains full accuracy
         function processFingerTapAdvancedIPad(landmarks, imageWidth, imageHeight) {
             const currentTime = Date.now() - startTime;
-            
+        
             const thumbTip = landmarks[THUMB_TIP];
             const indexTip = landmarks[INDEX_TIP];
             const wrist = landmarks[WRIST];
             const middleMcp = landmarks[MIDDLE_MCP];
-            
+        
             const handSize = Math.sqrt(
                 Math.pow((wrist.x - middleMcp.x) * imageWidth, 2) +
                 Math.pow((wrist.y - middleMcp.y) * imageHeight, 2)
             );
-            
+        
             const distance = Math.sqrt(
                 Math.pow((thumbTip.x - indexTip.x) * imageWidth, 2) +
                 Math.pow((thumbTip.y - indexTip.y) * imageHeight, 2) +
                 Math.pow((thumbTip.z - indexTip.z) * imageWidth * 0.5, 2)
             );
-            
+        
             const normalizedDistance = (distance / handSize) * 100;
-            
+        
             // Always maintain full signal accuracy
             distanceSignal.push(normalizedDistance);
             timeSignal.push(currentTime);
         
             // Optimized feedback for iPad - reduce DOM updates
-            // Optimized feedback for iPad - reduce DOM updates
-            if (recording && frameCount % 3 === 0) { // Update feedback less frequentlyUpdate feedback less frequently
+            if (recording && frameCount % 3 === 0) {
                 const tapWidthFeedback = document.getElementById('tapWidthFeedback');
                 const tapWidthMessage = document.getElementById('tapWidthMessage');
-                
-                const recentSamples = distanceSignal.slice(-30); 
+        
+                const recentSamples = distanceSignal.slice(-30);
                 const maxRecentAmplitude = Math.max(...recentSamples);
-                
+        
                 if (!window.tapFeedbackTimer) {
                     window.tapFeedbackTimer = 0;
                 }
-                
+        
                 if (maxRecentAmplitude < 45) {
                     tapWidthFeedback.style.display = 'block';
                     tapWidthMessage.textContent = 'Open fingers wider';
@@ -2407,21 +2406,19 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
                     tapWidthFeedback.style.display = 'none';
                 }
             }
-            
-     
-
-
-                        // Process EVERY frame for iPad - no skipping
+        
+            // Process EVERY frame for iPad - no skipping
             if (distanceSignal.length > SMOOTHING_WINDOW) {
                 smoothedSignal = movingAverage(distanceSignal, SMOOTHING_WINDOW);
-                
+        
                 if (smoothedSignal.length > 1) {
                     velocitySignal = calculateDerivative(smoothedSignal, timeSignal);
-                    detectTapsMultiMethodIPad(); // Use iPad-specific function
+                    // IMPORTANT: use the iPad-specific detector
+                    detectTapsMultiMethodIPad();
                 }
             }
-                    
-            // Optimized frame data storage for iPad - store essential data only during recording
+        
+            // Store essential frame data only (iPad optimization)
             const essentialFrameData = {
                 timestamp: currentTime,
                 normalizedDistance: normalizedDistance,
@@ -2430,171 +2427,145 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
                     (indexTip.x - thumbTip.x)
                 ) * 180 / Math.PI,
                 handSize: handSize,
-                // Store only essential landmarks for iPad
                 thumbTip: { x: thumbTip.x, y: thumbTip.y, z: thumbTip.z },
                 indexTip: { x: indexTip.x, y: indexTip.y, z: indexTip.z },
                 wrist: { x: wrist.x, y: wrist.y, z: wrist.z },
                 middleMcp: { x: middleMcp.x, y: middleMcp.y, z: middleMcp.z },
-                // Only store essential landmarks to reduce memory pressure
                 rawLandmarks: [
-                    landmarks[WRIST], landmarks[THUMB_TIP], 
+                    landmarks[WRIST], landmarks[THUMB_TIP],
                     landmarks[INDEX_TIP], landmarks[MIDDLE_MCP]
                 ].map(lm => ({ x: lm.x, y: lm.y, z: lm.z }))
             };
-            
+        
             frameData = frameData || [];
             frameData.push(essentialFrameData);
         }
+        
 
 
-                                // iPad-specific tap detection with more aggressive thresholds
-                      // iPad-specific tap detection with instantaneous detection
-       function detectTapsMultiMethodIPad() {
-        const rawEvents = [];
-        const added = new Set();
+                        // iPad-specific tap detection with more aggressive thresholds
+              // iPad-specific tap detection with instantaneous detection
+        function detectTapsMultiMethodIPad() {
+            const rawEvents = [];
+            const added = new Set();
         
-        // STATE MACHINE APPROACH - Track finger movement state
-        let lastState = 'unknown';
-        let stateChangeIndices = [];
+            // STATE MACHINE: track closing/opening
+            let lastState = 'unknown';
+            let stateChangeIndices = [];
         
-        // First pass: Identify state changes (opening/closing movements)
-        for (let i = 1; i < distanceSignal.length; i++) {
-            const current = distanceSignal[i];
-            const prev = distanceSignal[i-1];
-            const delta = current - prev;
-            
-            // Determine current state based on movement direction
-            let currentState = 'stable';
-            if (delta < -3) { // Closing (moving together)
-                currentState = 'closing';
-            } else if (delta > 3) { // Opening (moving apart)
-                currentState = 'opening';
-            }
-            
-            // Record state transitions
-            if (currentState !== lastState && currentState === 'closing') {
-                stateChangeIndices.push({
-                    index: i,
-                    type: 'close_start',
-                    distance: current
-                });
-            }
-            lastState = currentState;
-        }
+            for (let i = 1; i < distanceSignal.length; i++) {
+                const current = distanceSignal[i];
+                const prev = distanceSignal[i - 1];
+                const delta = current - prev;
         
-        // AGGRESSIVE TAP DETECTION - Multiple strategies combined
+                let currentState = 'stable';
+                if (delta < -3) currentState = 'closing';
+                else if (delta > 3) currentState = 'opening';
         
-        // Strategy 1: Detect ANY significant closing movement
-        for (let i = 0; i < stateChangeIndices.length; i++) {
-            const change = stateChangeIndices[i];
-            if (change.type === 'close_start') {
-                const time = timeSignal[change.index];
-                
-                // Check if enough time has passed since last tap (30ms minimum for iPad)
-                const lastEventTime = rawEvents.length > 0 ? rawEvents[rawEvents.length - 1].time : -1000;
-                if (time - lastEventTime > 30) {
-                    rawEvents.push({
-                        index: change.index,
-                        time: time,
-                        amplitude: change.distance,
-                        type: 'state_change'
-                    });
-                    added.add(change.index);
-                }
-            }
-        }
-        
-        // Strategy 2: Detect local minima (closest finger positions)
-        for (let i = 2; i < distanceSignal.length - 2; i++) {
-            const current = distanceSignal[i];
-            
-            // Check if this is a local minimum
-            const isLocalMin = current < distanceSignal[i-1] && 
-                              current < distanceSignal[i-2] &&
-                              current <= distanceSignal[i+1] &&
-                              current <= distanceSignal[i+2];
-            
-            if (isLocalMin && current < 50 && !added.has(i)) {
-                const time = timeSignal[i];
-                const lastEventTime = rawEvents.length > 0 ? rawEvents[rawEvents.length - 1].time : -1000;
-                
-                if (time - lastEventTime > 30) {
-                    rawEvents.push({
+                if (currentState !== lastState && currentState === 'closing') {
+                    stateChangeIndices.push({
                         index: i,
-                        time: time,
-                        amplitude: current,
-                        type: 'local_min'
+                        type: 'close_start',
+                        distance: current
                     });
-                    added.add(i);
+                }
+                lastState = currentState;
+            }
+        
+            // Strategy 1: any significant closing movement
+            for (const change of stateChangeIndices) {
+                if (change.type === 'close_start') {
+                    const time = timeSignal[change.index];
+                    const lastEventTime = rawEvents.length > 0 ? rawEvents[rawEvents.length - 1].time : -1000;
+                    if (time - lastEventTime > 30) {
+                        rawEvents.push({
+                            index: change.index,
+                            time,
+                            amplitude: change.distance,
+                            type: 'state_change'
+                        });
+                        added.add(change.index);
+                    }
                 }
             }
-        }
         
-        // Strategy 3: Velocity zero-crossing detection (very sensitive)
-        if (velocitySignal.length > 2) {
-            for (let i = 1; i < velocitySignal.length - 1; i++) {
-                const prevVel = velocitySignal[i-1];
-                const currVel = velocitySignal[i];
-                const nextVel = velocitySignal[i+1];
-                
-                // Detect velocity sign change from negative to positive (closing to opening)
-                const crossingPoint = prevVel < -0.5 && currVel >= -0.5 && currVel <= 0.5;
-                const atMinimum = distanceSignal[i] < 55;
-                
-                if (crossingPoint && atMinimum && !added.has(i)) {
+            // Strategy 2: local minima (closest positions)
+            for (let i = 2; i < distanceSignal.length - 2; i++) {
+                const current = distanceSignal[i];
+                const isLocalMin = current < distanceSignal[i - 1] &&
+                                   current < distanceSignal[i - 2] &&
+                                   current <= distanceSignal[i + 1] &&
+                                   current <= distanceSignal[i + 2];
+        
+                if (isLocalMin && current < 50 && !added.has(i)) {
                     const time = timeSignal[i];
                     const lastEventTime = rawEvents.length > 0 ? rawEvents[rawEvents.length - 1].time : -1000;
-                    
                     if (time - lastEventTime > 30) {
                         rawEvents.push({
                             index: i,
-                            time: time,
-                            amplitude: distanceSignal[i],
-                            type: 'velocity_cross'
+                            time,
+                            amplitude: current,
+                            type: 'local_min'
                         });
                         added.add(i);
                     }
                 }
             }
-        }
         
-        // Strategy 4: Pattern-based detection for rhythmic tapping
-        if (distanceSignal.length > 10) {
-            // Calculate average tap interval from detected events so far
-            if (rawEvents.length > 2) {
+            // Strategy 3: velocity zero-crossing (neg -> ~0/+)
+            if (velocitySignal.length > 2) {
+                for (let i = 1; i < velocitySignal.length - 1; i++) {
+                    const prevVel = velocitySignal[i - 1];
+                    const currVel = velocitySignal[i];
+                    const crossingPoint = prevVel < -0.5 && currVel >= -0.5 && currVel <= 0.5;
+                    const atMinimum = distanceSignal[i] < 55;
+        
+                    if (crossingPoint && atMinimum && !added.has(i)) {
+                        const time = timeSignal[i];
+                        const lastEventTime = rawEvents.length > 0 ? rawEvents[rawEvents.length - 1].time : -1000;
+                        if (time - lastEventTime > 30) {
+                            rawEvents.push({
+                                index: i,
+                                time,
+                                amplitude: distanceSignal[i],
+                                type: 'velocity_cross'
+                            });
+                            added.add(i);
+                        }
+                    }
+                }
+            }
+        
+            // Strategy 4: rhythmic prediction (if taps are periodic)
+            if (distanceSignal.length > 10 && rawEvents.length > 2) {
                 const recentEvents = rawEvents.slice(-5);
                 const intervals = [];
                 for (let i = 1; i < recentEvents.length; i++) {
-                    intervals.push(recentEvents[i].time - recentEvents[i-1].time);
+                    intervals.push(recentEvents[i].time - recentEvents[i - 1].time);
                 }
                 const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
-                
-                // Predict next tap location
                 const lastEvent = rawEvents[rawEvents.length - 1];
                 const predictedTime = lastEvent.time + avgInterval;
-                
-                // Look for tap near predicted time
+        
                 for (let i = lastEvent.index + 1; i < distanceSignal.length; i++) {
                     const time = timeSignal[i];
                     const timeDiff = Math.abs(time - predictedTime);
-                    
+        
                     if (timeDiff < avgInterval * 0.3 && distanceSignal[i] < 50 && !added.has(i)) {
-                        // Check if it's a local minimum in this region
+                        // validate as local min in small window
                         const windowStart = Math.max(0, i - 2);
                         const windowEnd = Math.min(distanceSignal.length - 1, i + 2);
                         let isLocalMinInWindow = true;
-                        
                         for (let j = windowStart; j <= windowEnd; j++) {
                             if (j !== i && distanceSignal[j] < distanceSignal[i]) {
                                 isLocalMinInWindow = false;
                                 break;
                             }
                         }
-                        
                         if (isLocalMinInWindow) {
                             rawEvents.push({
                                 index: i,
-                                time: time,
+                                time,
                                 amplitude: distanceSignal[i],
                                 type: 'predicted'
                             });
@@ -2604,35 +2575,28 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
                     }
                 }
             }
-        }
         
-        // Sort events by time
-        rawEvents.sort((a, b) => a.time - b.time);
-        
-        // Final filtering with minimal constraints
-        tapEvents = [];
-        for (let i = 0; i < rawEvents.length; i++) {
-            if (i === 0) {
-                tapEvents.push(rawEvents[i]);
-            } else {
-                // Only require 30ms minimum between taps (allows up to 33 taps/second)
-                if (rawEvents[i].time - tapEvents[tapEvents.length - 1].time >= 30) {
-                    tapEvents.push(rawEvents[i]);
+            // Sort and enforce minimal spacing (30 ms)
+            rawEvents.sort((a, b) => a.time - b.time);
+            tapEvents = [];
+            for (const ev of rawEvents) {
+                if (tapEvents.length === 0 || ev.time - tapEvents[tapEvents.length - 1].time >= 30) {
+                    tapEvents.push(ev);
                 }
+            }
+        
+            // Live update
+            if (recording) {
+                document.getElementById('taps-display').textContent = `${tapEvents.length}`;
+            }
+        
+            // Optional debug
+            if (frameCount % 30 === 0 && tapEvents.length > 0) {
+                const tapsPerSecond = tapEvents.length / ((timeSignal[timeSignal.length - 1] || 1000) / 1000);
+                console.log(`iPad Detection: ${tapEvents.length} taps, ${tapsPerSecond.toFixed(1)} taps/sec`);
             }
         }
         
-        // Update live display immediately
-        if (recording) {
-            document.getElementById('taps-display').textContent = `${tapEvents.length}`;
-        }
-        
-        // Debug logging
-        if (frameCount % 30 === 0 && tapEvents.length > 0) {
-            const tapsPerSecond = tapEvents.length / ((timeSignal[timeSignal.length - 1] || 1000) / 1000);
-            console.log(`iPad Detection: ${tapEvents.length} taps, ${tapsPerSecond.toFixed(1)} taps/sec`);
-        }
-       }
         // iPad-optimized visualization - maintains visual quality but improves performance
         function drawHandVisualizationIPad(landmarks, canvasElement) {
             const thumbTip = landmarks[THUMB_TIP];
