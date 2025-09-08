@@ -257,6 +257,11 @@
       display: none;
     }
 
+        /* Utility */
+    .hidden { display: none; }
+    
+
+
     /* MOBILE-ONLY STYLES - These will ONLY affect mobile devices */
     @media (max-width: 768px) {
       body {
@@ -553,6 +558,32 @@
       <option value="multiple">Multiple</option>
     </select>
   </div>
+
+     <!-- Device used (REQUIRED) -->
+  <div class="form-group">
+    <label for="device">
+      Device Used <span class="required">*</span>
+    </label>
+    <select id="device" required>
+      <option value="">Select your device</option>
+      <option value="desktop_windows">Desktop / Laptop – Windows</option>
+      <option value="desktop_macos">Desktop / Laptop – macOS</option>
+      <option value="desktop_other">Desktop / Laptop – Other (Linux, Chromebook, etc.)</option>
+      <option value="tablet_ipad">Tablet – iPad (iOS / iPadOS)</option>
+      <option value="tablet_android">Tablet – Android Tablet</option>
+      <option value="phone_iphone">Phone – iPhone (iOS)</option>
+      <option value="phone_android">Phone – Android Phone</option>
+      <option value="other">Other (please specify)</option>
+    </select>
+  </div>
+
+  <!-- Only shown if "Other (please specify)" is chosen -->
+  <div class="form-group hidden" id="deviceOtherGroup">
+    <label for="deviceOther">Please specify your device</label>
+    <input type="text" id="deviceOther" placeholder="Describe your device" />
+  </div>
+
+
 
   <div class="form-group">
     <label for="prolificID">
