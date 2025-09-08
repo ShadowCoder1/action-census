@@ -573,7 +573,20 @@
     </select>
   </div>
 
-  <div class="form-group full-width" style="max-width: 50%; margin: 0 auto;">
+  <div class="form-group">
+    <label for="vision">
+      Vision Correction
+    </label>
+    <select id="vision">
+      <option value="">Select vision correction</option>
+      <option value="none">None</option>
+      <option value="glasses">Glasses</option>
+      <option value="contacts">Contact Lenses</option>
+      <option value="both">Both (Glasses & Contacts)</option>
+    </select>
+  </div>
+
+  <div class="form-group">
     <label for="prolificID">
       Prolific ID (if applicable)
     </label>
@@ -684,6 +697,19 @@
             this.style.borderColor = '#e5e7eb';
           }
         });
+      });
+
+      // Show/hide device other field based on device selection
+      const deviceSelect = document.getElementById('device');
+      const deviceOtherGroup = document.getElementById('deviceOtherGroup');
+      
+      deviceSelect.addEventListener('change', function() {
+        if (this.value === 'other') {
+          deviceOtherGroup.style.display = 'flex';
+        } else {
+          deviceOtherGroup.style.display = 'none';
+          document.getElementById('deviceOther').value = ''; // Clear the field when hidden
+        }
       });
     });
   </script>
