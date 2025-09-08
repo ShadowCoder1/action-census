@@ -2044,14 +2044,18 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             lastHandSeenTime = Date.now();
         }
         
-        // Get hand label
+        // Get hand label (use MediaPipe label directly; do NOT flip)
         if (results.multiHandedness && results.multiHandedness.length > 0) {
-            let rawLabel = results.multiHandedness[0].label;
-            currentDetectedHand = (rawLabel === "Right") ? "Left" : "Right";
+            // Pick the top-scoring hand classification and normalize to lowercase
+            const best = results.multiHandedness
+                .slice()
+                .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))[0];
+            const rawLabel = best?.label || null;          // "Left" or "Right"
+            currentDetectedHand = rawLabel ? rawLabel.toLowerCase() : null; // "left" | "right"
         } else {
             currentDetectedHand = null;
         }
-
+        
         // Always update hand position feedback when not recording
         if (!recording) {
             updateHandPositionFeedback(landmarks);
