@@ -114,6 +114,68 @@
     .progress-fill{height:100%;background:linear-gradient(90deg,#22c55e 0%,#16a34a 100%);width:0%;transition:width .3s;border-radius:3px;}
     .progress-text{text-align:center;font-size:.8rem;color:#6b7280;font-weight:500;}
 
+    /* Play button overlay */
+    .video-play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      z-index: 10;
+    }
+
+    .video-play-overlay:hover {
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .play-button {
+      width: 80px;
+      height: 80px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease;
+    }
+
+    .video-play-overlay:hover .play-button {
+      transform: scale(1.1);
+    }
+
+    .play-icon {
+      width: 0;
+      height: 0;
+      border-left: 30px solid #1a1a1a;
+      border-top: 18px solid transparent;
+      border-bottom: 18px solid transparent;
+      margin-left: 8px;
+    }
+
+    .video-play-overlay.hidden {
+      display: none;
+    }
+
+    .instruction-text {
+      text-align: center;
+      padding: 1rem;
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+      border: 1px solid #bbf7d0;
+    }
+
+    .instruction-text p {
+      font-size: 1.1rem;
+      color: #166534;
+      font-weight: 500;
+    }
+
     .video-container{
       position: relative;
       width: 100%;
@@ -170,8 +232,6 @@
       position:relative;z-index:2;box-shadow:0 4px 12px rgba(34,197,94,.4),0 2px 6px rgba(34,197,94,.2),inset 0 1px 0 rgba(255,255,255,.2);
       transition:all .3s ease;
     }
-
-
     
     .step:hover::before{transform:scale(1.05);box-shadow:0 6px 20px rgba(34,197,94,.5),0 3px 10px rgba(34,197,94,.3),inset 0 1px 0 rgba(255,255,255,.3);}
     .step-content{font-size:1.3rem;line-height:1.8;}
@@ -193,8 +253,7 @@
     .continue-button:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 12px 35px rgba(34,197,94,.5),0 6px 20px rgba(34,197,94,.3),inset 0 1px 0 rgba(255,255,255,.3),0 0 0 1px rgba(34,197,94,.2);}
     .continue-button:active{transform:translateY(-2px) scale(1.01);}
 
-    /* ===== MOBILE (no scroll to button) ===== */
-  /* ===== MOBILE (refined, polished) ===== */
+    /* ===== MOBILE (refined, polished) ===== */
 @media (max-width: 768px) {
   :root {
     --space-xs: 0.5rem;
@@ -212,10 +271,9 @@
     background-size: 30px 30px;
   }
 
-  /* Page grid fits exactly in the viewport */
   .container {
     height: 100dvh;
-    grid-template-rows: auto 1fr auto; /* header / content / button */
+    grid-template-rows: auto 1fr auto;
     gap: var(--space-sm);
     padding:
       calc(var(--space-sm) + env(safe-area-inset-top))
@@ -224,7 +282,6 @@
       calc(var(--space-sm) + env(safe-area-inset-left));
   }
 
-  /* Header — compact and balanced */
   .header {
     padding: var(--space-sm);
     border-radius: var(--card-radius);
@@ -232,12 +289,11 @@
   }
 
   h1 {
-    /* scales smoothly from small phones up to big ones */
     font-size: clamp(1.1rem, 4.6vw, 1.5rem);
     line-height: 1.15;
     margin-bottom: 0.25rem;
     letter-spacing: -0.01em;
-    font-weight: 600; /* a touch bolder for legibility */
+    font-weight: 600;
   }
 
   .subtitle {
@@ -248,7 +304,6 @@
     font-weight: 450;
   }
 
-  /* Main card uses all remaining height without inner overflow */
   .main-content {
     padding: var(--space-sm);
     border-radius: var(--card-radius);
@@ -257,7 +312,6 @@
     overflow: hidden;
   }
 
-  /* Video section uses a clean 16:9 box with a height cap */
   .video-section {
     gap: var(--space-sm);
     flex: 1 1 auto;
@@ -268,30 +322,47 @@
   .progress-text { font-size: 0.82rem; margin-bottom: 0.35rem; }
   .progress-bar { height: 5px; margin-bottom: 0.5rem; }
 
+  .instruction-text {
+    margin-bottom: 0.4rem;
+    padding: 0.6rem;
+  }
+
+  .instruction-text p {
+    font-size: 0.9rem;
+  }
+
   .video-container {
-    /* Remove padding-bottom trick; use true aspect-ratio */
     padding-bottom: 0;
     height: auto;
-    aspect-ratio: 16 / 9;       /* ✅ prevents “smooshing” */
-    max-height: 38dvh;          /* won’t crowd the button */
+    aspect-ratio: 16 / 9;
+    max-height: 38dvh;
     border-radius: 10px;
     flex: 0 0 auto;
     box-shadow: var(--shadow-medium);
   }
+  
   .video-container #player {
     position: absolute; inset: 0; width: 100%; height: 100%;
   }
 
-  /* Steps pane can scroll internally if needed, page itself will not scroll */
-  
-  /* WITH: */
+  .play-button {
+    width: 60px;
+    height: 60px;
+  }
+
+  .play-icon {
+    border-left: 22px solid #1a1a1a;
+    border-top: 14px solid transparent;
+    border-bottom: 14px solid transparent;
+    margin-left: 6px;
+  }
+
   .steps-content {
     align-items: flex-start;
     justify-content: flex-start;
     padding: var(--space-xs) 0;
-    flex: 1;  /* Let it use available space */
+    flex: 1;
   }
-  
 
   .steps { width: 100%; padding: 0; }
   .steps::before { left: 1.1rem; width: 2px; top: 1rem; height: calc(100% - 2rem); }
@@ -303,16 +374,17 @@
     border-radius: 10px;
     box-shadow: var(--shadow-soft);
   }
+  
   .step::before {
     width: 1.9rem; height: 1.9rem; font-size: 0.85rem;
     left: 0.2rem; top: 0.75rem; margin-right: 0;
   }
+  
   .step-content {
     font-size: clamp(0.9rem, 3.6vw, 1rem);
     line-height: 1.45;
   }
 
-  /* Bottom button always visible; translucent top edge for depth */
   .button-area {
     position: fixed; left: 0; right: 0; bottom: 0;
     padding:
@@ -323,6 +395,7 @@
     background: linear-gradient(to top, rgba(255,255,255,0.98), rgba(255,255,255,0.7), transparent);
     z-index: 5;
   }
+  
   .continue-button {
     width: 100%;
     padding: 0.9rem 1.25rem;
@@ -330,160 +403,11 @@
     border-radius: 12px;
     box-shadow: 0 6px 16px rgba(34,197,94,.42);
   }
+  
   .continue-button:hover { transform: none; box-shadow: 0 6px 16px rgba(34,197,94,.55); }
 
-
-  /* Tone down decoration on small screens */
   .grid-light { width: 5px; height: 5px; opacity: 0.45; }
 }
-
-        /* === FINAL MOBILE OVERRIDES (high specificity, last in file) === */
-    html.is-mobile, html.is-mobile body {
-      height: 100dvh !important;
-      overflow: hidden !important;
-      padding: 0 !important;
-      -webkit-text-size-adjust: 100%;
-    }
-    
-    html.is-mobile .container {
-      height: 100dvh !important;
-      display: grid !important;
-      grid-template-rows: auto 1fr auto !important; /* header / content / button */
-      gap: 0.75rem !important;
-      padding:
-        calc(0.75rem + env(safe-area-inset-top))
-        calc(0.75rem + env(safe-area-inset-right))
-        calc(0.75rem + env(safe-area-inset-bottom))
-        calc(0.75rem + env(safe-area-inset-left)) !important;
-    }
-    
-    /* Header */
-    html.is-mobile .header {
-      padding: 0.9rem !important;
-      border-radius: 12px !important;
-      box-shadow: 0 4px 12px rgba(0,0,0,.08) !important;
-    }
-    html.is-mobile h1 {
-      font-size: clamp(1.2rem, 5.2vw, 1.6rem) !important;
-      line-height: 1.15 !important;
-      margin: 0 0 .25rem 0 !important;
-      letter-spacing: -0.01em !important;
-      font-weight: 600 !important;
-    }
-    html.is-mobile .subtitle {
-      font-size: clamp(.9rem, 3.7vw, 1rem) !important;
-      line-height: 1.3 !important;
-      color: #6b7280 !important;
-      margin: 0 !important;
-      font-weight: 450 !important;
-    }
-    
-    /* Main card */
-    html.is-mobile .main-content {
-      padding: 0.75rem !important;
-      border-radius: 12px !important;
-      min-height: 0 !important;
-      overflow: hidden !important;
-      box-shadow: 0 4px 12px rgba(0,0,0,.08) !important;
-    }
-    
-    /* Progress */
-    html.is-mobile .progress-text {
-      font-size: .9rem !important;
-      margin-bottom: .35rem !important;
-    }
-    html.is-mobile .progress-bar {
-      height: 5px !important;
-      margin-bottom: .5rem !important;
-    }
-    
-    /* Video: true 16:9, never squished */
-    html.is-mobile .video-container {
-      height: auto !important;
-      padding-bottom: 0 !important; /* kill desktop padding hack */
-      aspect-ratio: 16 / 9 !important;
-      max-height: 36dvh !important;
-      border-radius: 10px !important;
-      flex: 0 0 auto !important;
-      box-shadow: 0 8px 16px rgba(0,0,0,.12) !important;
-      overflow: hidden !important;
-      position: relative !important;
-    }
-    html.is-mobile .video-container #player {
-      position: absolute !important;
-      inset: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      border: 0 !important;
-    }
-    
-    html.is-mobile .steps-content {
-      align-items: flex-start !important;
-      justify-content: flex-start !important;
-      padding: .5rem 0 !important;
-      flex: 1 !important;  /* Let it use available space naturally */
-    }
-    html.is-mobile .step {
-      padding: .6rem .6rem .6rem 2.2rem !important;  /* More compact padding */
-      margin-bottom: .6rem !important;                /* Less space between steps */
-      border-radius: 10px !important;
-      box-shadow: 0 4px 12px rgba(0,0,0,.08) !important;
-    }
-
-    html.is-mobile .step::before {
-      width: 1.7rem !important; 
-      height: 1.7rem !important;
-      font-size: .8rem !important;
-      left: .15rem !important; 
-      top: .6rem !important;
-      margin-right: 0 !important;
-      transform: translateX(-10px) !important;
-    }
-
-        /* ADD these new rules - they adjust the vertical connecting line and glow dot for mobile */
-    html.is-mobile .steps::before { 
-      left: 1rem !important;
-      width: 2px !important; 
-      top: .8rem !important; 
-      height: calc(100% - 1.6rem) !important; 
-    }
-    
-    html.is-mobile .steps::after { 
-      left: 1rem !important; 
-      width: 8px !important; 
-      height: 8px !important; 
-      top: .8rem !important; 
-    }
-    html.is-mobile .step-content {
-      font-size: clamp(.95rem, 3.8vw, 1.05rem) !important;
-      line-height: 1.45 !important;
-    }
-    
-    /* CTA fixed & always visible */
-    html.is-mobile .button-area {
-      position: fixed !important;
-      left: 0 !important; right: 0 !important; bottom: 0 !important;
-      padding:
-        .75rem
-        calc(.75rem + env(safe-area-inset-right))
-        calc(.75rem + env(safe-area-inset-bottom))
-        calc(.75rem + env(safe-area-inset-left)) !important;
-      background: linear-gradient(to top, rgba(255,255,255,.98), rgba(255,255,255,.7), transparent) !important;
-      z-index: 5 !important;
-    }
-    html.is-mobile .continue-button {
-      width: 100% !important;
-      padding: .95rem 1.25rem !important;
-      font-size: clamp(1rem, 4vw, 1.1rem) !important;
-      border-radius: 12px !important;
-      box-shadow: 0 6px 16px rgba(34,197,94,.42) !important;
-    }
-    /* Reserve space for CTA so content never hides behind it */
-
-    
-    /* Softer decoration on mobile */
-    html.is-mobile .grid-light { width: 5px !important; height: 5px !important; opacity: .45 !important; }
-    
 
   </style>
 
@@ -495,8 +419,6 @@
     setMobileClass();
     window.addEventListener('resize', setMobileClass);
   </script>
-</head>
-  
 </head>
 <body>
   <!-- Animated grid lights -->
@@ -520,10 +442,20 @@
             <div class="progress-bar">
               <div class="progress-fill" id="progressFill"></div>
             </div>
-            <div class="progress-text" id="progressText">Please watch the video: 0% completed.</div>
+            <div class="progress-text" id="progressText">Video ready - click play to begin</div>
           </div>
+          
+          <div class="instruction-text">
+            <p>📺 Click the play button below when you're ready to watch the demonstration</p>
+          </div>
+          
           <div class="video-container">
             <div id="player"></div>
+            <div class="video-play-overlay" id="playOverlay" onclick="playVideo()">
+              <div class="play-button">
+                <div class="play-icon"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -574,9 +506,18 @@
   <script>
     let player;
     let progressInterval;
+    let hasStartedPlaying = false;
+
+    function playVideo() {
+      if (player && player.playVideo) {
+        player.playVideo();
+        document.getElementById('playOverlay').classList.add('hidden');
+        hasStartedPlaying = true;
+      }
+    }
 
     function showStepsTab() {
-      // Hide header when switching to steps (unchanged)
+      // Hide header when switching to steps
       document.querySelector('.header').style.display = 'none';
       document.querySelector('.container').style.gridTemplateRows = '1fr auto';
       switchTab('steps');
@@ -602,20 +543,40 @@
           height: '100%',
           width: '100%',
           videoId: '1V2lw9vSOw0',
-          playerVars: { 'playsinline': 1, 'rel': 0, 'modestbranding': 1 },
+          playerVars: { 
+            'playsinline': 1, 
+            'rel': 0, 
+            'modestbranding': 1,
+            'autoplay': 0  // Prevent auto-play
+          },
           events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
         });
       }, 100);
     }
 
-    function onPlayerReady(_) {}
-    function onPlayerStateChange(event) {
-      if (event.data == YT.PlayerState.PLAYING) startProgressTracking();
-      else stopProgressTracking();
+    function onPlayerReady(event) {
+      // Video is ready but won't auto-play
+      document.getElementById('progressText').textContent = 'Video ready - click play to begin';
     }
-    function startProgressTracking(){ progressInterval = setInterval(updateProgress, 500); }
-    function stopProgressTracking(){ if (progressInterval) clearInterval(progressInterval); }
-    function updateProgress(){
+    
+    function onPlayerStateChange(event) {
+      if (event.data == YT.PlayerState.PLAYING) {
+        document.getElementById('playOverlay').classList.add('hidden');
+        startProgressTracking();
+      } else {
+        stopProgressTracking();
+      }
+    }
+    
+    function startProgressTracking() { 
+      progressInterval = setInterval(updateProgress, 500); 
+    }
+    
+    function stopProgressTracking() { 
+      if (progressInterval) clearInterval(progressInterval); 
+    }
+    
+    function updateProgress() {
       if (player && player.getCurrentTime && player.getDuration) {
         const currentTime = player.getCurrentTime();
         const duration = player.getDuration();
