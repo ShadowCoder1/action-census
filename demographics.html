@@ -203,6 +203,16 @@
       color: #1a1a1a;
       background-color: #ffffff;
     }
+    /* Compact dropdowns */
+    select.short-select {
+      padding: 0.7rem 1rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      background-size: 1em 1em;
+      padding-right: 2rem;
+    }
+
+
 
     button {
       background-color: #1a1a1a;
@@ -564,7 +574,7 @@
     <label for="device">
       Device Used <span class="required">*</span>
     </label>
-    <select id="device" required>
+    <select id="device" class="short-select" required>
       <option value="">Select your device</option>
       <option value="desktop_windows">Desktop / Laptop – Windows</option>
       <option value="desktop_macos">Desktop / Laptop – macOS</option>
