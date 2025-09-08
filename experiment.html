@@ -1254,6 +1254,27 @@ button, input[type="submit"], .btn {
 
         let currentDetectedHand = null;
 
+                // Because video and canvas are mirrored with scaleX(-1)
+        const VIDEO_MIRRORED = true;
+        
+        // Hand label smoothing to avoid frame-to-frame flips
+        const HAND_LABEL_WINDOW = 7;
+        let handLabelBuffer = [];
+        function pushHandLabel(lbl) {
+          if (!lbl) return;
+          handLabelBuffer.push(lbl);
+          if (handLabelBuffer.length > HAND_LABEL_WINDOW) handLabelBuffer.shift();
+        }
+        function getStableHandLabel() {
+          if (handLabelBuffer.length === 0) return null;
+          const counts = {};
+          for (const l of handLabelBuffer) counts[l] = (counts[l] ?? 0) + 1;
+          // mode
+          return Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
+        }
+
+
+
         // Helper: check if the correct hand for this trial is visible
         function isCorrectHandDetectedForCurrentTrial() {
             const requiredHand = trialConditions[trialIndex % trialConditions.length].hand.toLowerCase();
@@ -2044,17 +2065,30 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             lastHandSeenTime = Date.now();
         }
         
-        // Get hand label (use MediaPipe label directly; do NOT flip)
+        // Get hand label (flip because the video/canvas are mirrored)
         if (results.multiHandedness && results.multiHandedness.length > 0) {
-            // Pick the top-scoring hand classification and normalize to lowercase
-            const best = results.multiHandedness
-                .slice()
-                .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))[0];
-            const rawLabel = best?.label || null;          // "Left" or "Right"
-            currentDetectedHand = rawLabel ? rawLabel.toLowerCase() : null; // "left" | "right"
-        } else {
+          // pick highest-score hand classification
+          const best = results.multiHandedness
+            .slice()
+            .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))[0];
+        
+          let raw = best?.label?.toLowerCase() || null; // "left" | "right"
+          if (raw) {
+            // Flip only because we draw with scaleX(-1)
+            const logical = VIDEO_MIRRORED ? (raw === "right" ? "left" : "right") : raw;
+            pushHandLabel(logical);
+            // Use a stable (mode) label to avoid jitter; once recording, keep first stable value
+            const stable = getStableHandLabel();
+            currentDetectedHand = recording ? (currentDetectedHand || stable) : stable;
+          } else {
             currentDetectedHand = null;
+            handLabelBuffer = [];
+          }
+        } else {
+          currentDetectedHand = null;
+          handLabelBuffer = [];
         }
+        
         
         // Always update hand position feedback when not recording
         if (!recording) {
@@ -3581,6 +3615,11 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     // Initialize pre-start detection arrays
     window.preStartDistanceSignal = [];
     window.preStartTimeSignal = [];
+      // Reset hand label smoothing each trial
+    handLabelBuffer = [];
+    currentDetectedHand = null;
+
+
     
     // Update layout based on hand
     if (condition.hand === 'left') {
