@@ -486,9 +486,10 @@
 
   <div class="form-group">
     <label for="gender">
-      Gender
+      Gender <span class="required">*</span>
     </label>
-    <select id="gender">
+    <select id="gender" required>
+      
       <option value="">Select gender</option>
       <option value="male">Male</option>
       <option value="female">Female</option>
@@ -498,9 +499,10 @@
 
   <div class="form-group">
     <label for="handedness">
-      Handedness
-    </label>
-    <select id="handedness">
+    Handedness <span class="required">*</span>
+  </label>
+    
+  <select id="handedness" required>
       <option value="">Select handedness</option>
       <option value="right">Right-handed</option>
       <option value="left">Left-handed</option>
@@ -576,8 +578,12 @@
       const ethnicity = document.getElementById('ethnicity').value;
       const race = document.getElementById('race').value;
     
-      if (!age) {
-        alert('Please fill in the required field: Age.');
+      if (!age || !sex || !handedness) {
+        let missingFields = [];
+        if (!age) missingFields.push('Age');
+        if (!sex) missingFields.push('Gender');
+        if (!handedness) missingFields.push('Handedness');
+        alert(`Please fill in the required fields: ${missingFields.join(', ')}.`);
         return;
       }
       
@@ -645,7 +651,7 @@
 
     // Add some basic form validation feedback
     document.addEventListener('DOMContentLoaded', function() {
-      const requiredFields = document.querySelectorAll('input[required]');
+      const requiredFields = document.querySelectorAll('input[required], select[required]');
       
       requiredFields.forEach(field => {
         field.addEventListener('blur', function() {
