@@ -2231,7 +2231,7 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
                 handOutline.classList.remove('hand-outline-ready');
                 handOutline.classList.add('hand-outline-not-ready');
                 } else if (goodDistance && fingersOpen) {
-                    positionStatus.innerHTML = '✓ Ready! Tap to start';
+                    positionStatus.innerHTML = 'The timer starts once you begin tapping as fast as you can for 10 seconds.';
                     positionStatus.className = 'position-status ready';
                     handOutline.classList.remove('hand-outline-not-ready');
                     handOutline.classList.add('hand-outline-ready');
