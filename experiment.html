@@ -3712,11 +3712,15 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     
     // Update begin instruction text based on device
     const beginInstruction = document.getElementById('begin-instruction');
+
+
     if (window.innerWidth <= 768 || isIPad()) {
         beginInstruction.textContent = 'Tap here to begin';
     } else {
-        beginInstruction.textContent = 'Press SPACEBAR to begin';
+        beginInstruction.textContent = 'Click to begin';
     }
+
+      
     
     // Update elegant trial display
     document.getElementById('trial-number').textContent = `Trial ${trialNum} of ${total}`;
@@ -4006,27 +4010,11 @@ function showFinalResults() {
         document.addEventListener('keydown', function(e) {
             if (e.code === 'Space' || e.key === ' ') {
                 e.preventDefault();
-        
-                const overlay = document.getElementById('trial-instructions-overlay');
-        
-                if (overlay.style.display === 'flex') {
-                    overlay.style.display = 'none';
-                    overlayJustDismissed = true;
-                    return;
-                }
-        
-                if (overlayJustDismissed) {
-                    overlayJustDismissed = false;
-                    return;
-                }
-        
-                if (recording) return;
-        
-                if (trialIndex < totalTrials) {
-                    updateConditionUI();
-                }
+                return; // Spacebar intentionally does nothing
             }
+            // no other keyboard shortcuts right now
         });
+        
 
         document.addEventListener('DOMContentLoaded', function() {
                     console.log('DOM loaded, initializing...');
