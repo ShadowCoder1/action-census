@@ -1223,6 +1223,9 @@ button, input[type="submit"], .btn {
         let startTime, handDetected = false;
         let distanceChart, velocityChart;
         let recordingDuration = 15000;
+        let recordingDuration = 10000;
+
+
         let countdownInterval;
         let frameCount = 0;
         let mainTimerInterval;
@@ -3313,7 +3316,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             overlay.style.display = 'flex';
             
             // Reset displays
-            document.getElementById('timer-display').textContent = '00:15';
+            document.getElementById('timer-display').textContent = '00:10';
             document.getElementById('taps-display').textContent = '0';
             
             // Reset position status
@@ -3378,7 +3381,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             overlay.style.display = 'flex';
             
             // Reset displays
-            document.getElementById('timer-display').textContent = '00:15';
+            document.getElementById('timer-display').textContent = '00:10';
             document.getElementById('taps-display').textContent = '0';
             
             const positionStatus = document.getElementById('position-status');
@@ -3416,7 +3419,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             overlay.style.display = 'flex';
             
             // Reset displays
-            document.getElementById('timer-display').textContent = '00:15';
+            document.getElementById('timer-display').textContent = '00:10';
             document.getElementById('taps-display').textContent = '0';
             
             // Reset position status
@@ -3588,7 +3591,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             overlay.style.display = 'flex';
             
             // Reset displays
-            document.getElementById('timer-display').textContent = '00:15';
+            document.getElementById('timer-display').textContent = '00:10';
             document.getElementById('taps-display').textContent = '0';
             
             // Reset position status
@@ -3653,7 +3656,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     document.getElementById('hand-instruction').textContent = `${handText} Hand`;
     
     // Reset displays
-    document.getElementById('timer-display').textContent = '00:15';
+    document.getElementById('timer-display').textContent = '00:10';
     document.getElementById('taps-display').textContent = '0';
     
     const positionStatus = document.getElementById('position-status');
@@ -4062,7 +4065,7 @@ function showFinalResults() {
             }
             
             // Reset displays
-            document.getElementById('timer-display').textContent = '00:15';
+            document.getElementById('timer-display').textContent = '00:10';
             document.getElementById('taps-display').textContent = '0';
         }
             
