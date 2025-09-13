@@ -3797,16 +3797,14 @@ function showFinalResults() {
     }
             
     html += `
-            <div class="${isMobile ? 'mobile-button-container' : ''}" style="${isMobile ? '' : 'display: flex; gap: 2rem; justify-content: center;'}">
-                <button onclick="location.reload()" style="background-color: #000000; color: white; border: none; padding: ${isMobile ? '1.25rem 2rem' : '1.5rem 3rem'}; font-size: ${isMobile ? '1.2rem' : '1.3rem'}; font-weight: 500; border-radius: ${isMobile ? '12px' : '60px'}; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; ${isMobile ? 'width: 100%;' : ''}">
-                    Take Test Again
-                </button>
-                <button onclick="shareResults()" style="background-color: transparent; color: #000000; border: 2px solid #000000; padding: ${isMobile ? '1.25rem 2rem' : '1.5rem 3rem'}; font-size: ${isMobile ? '1.2rem' : '1.3rem'}; font-weight: 500; border-radius: ${isMobile ? '12px' : '60px'}; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; ${isMobile ? 'width: 100%;' : ''}">
-                    Share Results
-                </button>
+                <div class="${isMobile ? 'mobile-button-container' : ''}" style="${isMobile ? '' : 'display: flex; gap: 2rem; justify-content: center;'}">
+                    <button onclick="shareResults()" style="background-color: transparent; color: #000000; border: 2px solid #000000; padding: ${isMobile ? '1.25rem 2rem' : '1.5rem 3rem'}; font-size: ${isMobile ? '1.2rem' : '1.3rem'}; font-weight: 500; border-radius: ${isMobile ? '12px' : '60px'}; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; ${isMobile ? 'width: 100%;' : ''}">
+                        Share Results
+                    </button>
+                </div>
             </div>
-        </div>
-    `;
+        `;
+    
                     
     document.getElementById('finalResults').innerHTML = html;
 
