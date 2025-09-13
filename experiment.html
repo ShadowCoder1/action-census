@@ -1230,6 +1230,15 @@ button, input[type="submit"], .btn {
         let countdownInterval;
         let frameCount = 0;
         let mainTimerInterval;
+        
+        // NEW: global handles to prevent “leftover” timers from previous trials
+        let inactivityInterval = null;
+        let stopTimeoutId = null;
+        
+        // NEW: token to invalidate late callbacks from old trials
+        let currentTrialToken = 0;
+        let activeTrialToken = 0;
+        
         // Tap detection for auto-start
         let iPadLastProcessedFrame = 0;
         // Tap detection for auto-start
@@ -2798,7 +2807,15 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
             tapEvents = [];
             frameCount = 0;
             frameData = [];
-        
+
+                        // Ensure any previous countdown is cleared
+            if (countdownInterval) {
+              clearInterval(countdownInterval);
+              countdownInterval = null;
+            }
+            
+            
+                    
             // Start countdown
             let countdown = 3;
             const countdownEl = document.getElementById('countdown');
@@ -2843,134 +2860,151 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
         }
 
 
-        // Start actual recording
-function startActualRecording() {
+ function startActualRecording() {
+    // Invalidate any older trial’s callbacks
+    currentTrialToken++;
+    const myToken = currentTrialToken;
+    activeTrialToken = myToken;
+
     readyToStart = false;
     preStartTapCount = 0;
     lastPreStartTapTime = 0;
-    
+
     // Clear pre-start detection arrays
     window.preStartDistanceSignal = [];
     window.preStartTimeSignal = [];
-    
+
     document.getElementById('hand-guide-overlay').style.display = 'none';
     document.getElementById('hand-outline').style.display = 'none';
-    
+
     recording = true;
-    
-    // CRITICAL FIX: Reset ALL timing variables to ensure clean slate
+
+    // Reset ALL timing/data for a clean slate
     startTime = Date.now();
-    lastHandSeenTime = Date.now(); // Initialize to current time, not 0
+    lastHandSeenTime = Date.now();
     lastTapTime = 0;
-    
-    // CRITICAL FIX: Clear all data arrays completely
+
     distanceSignal = [];
     timeSignal = [];
     smoothedSignal = [];
     velocitySignal = [];
     tapEvents = [];
     frameCount = 0;
-    frameData = []; // Add this line - it was missing
-    
-    // Clear any existing timer to prevent conflicts
-    if (mainTimerInterval) {
-        clearInterval(mainTimerInterval);
-        mainTimerInterval = null;
-    }
-    
+    frameData = [];
+
+    // Kill any previous timers from prior trials
+    if (mainTimerInterval) { clearInterval(mainTimerInterval); mainTimerInterval = null; }
+    if (inactivityInterval) { clearInterval(inactivityInterval); inactivityInterval = null; }
+    if (stopTimeoutId) { clearTimeout(stopTimeoutId); stopTimeoutId = null; }
+    if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+
+    // Main UI timer (checks token so only this trial can update/stop)
     mainTimerInterval = setInterval(() => {
+        // If this callback belongs to an old trial, stop it
+        if (myToken !== activeTrialToken) {
+            clearInterval(mainTimerInterval);
+            mainTimerInterval = null;
+            return;
+        }
+
         const currentTime = Date.now() - startTime;
         const remaining = Math.max(0, (recordingDuration - currentTime) / 1000);
-        
+
+        // Hand-loss window
         if (!handDetected) {
             const timeSinceLastSeen = Date.now() - lastHandSeenTime;
             if (timeSinceLastSeen > MAX_ALLOWED_HAND_LOSS) {
+                // This will clear timers and invalidate tokens
                 restartTrialDueToHandLoss();
                 return;
             }
         } else {
-            // Update lastHandSeenTime when hand is detected
             lastHandSeenTime = Date.now();
         }
-        
+
         const minutes = Math.floor(remaining / 60);
         const seconds = Math.max(1, Math.ceil(remaining % 60));
         const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         document.getElementById('timer-display').textContent = timerText;
         document.getElementById('taps-display').textContent = `${tapEvents.length}`;
-        
+
         if (currentTime >= recordingDuration) {
-            console.log("⏰ Timer ended - calling stopRecording with", tapEvents.length, "taps");
-            stopRecording();
+            stopRecording(); // stopRecording() guards against token drift + recording flag
         }
     }, 100);
 
-    let inactivityChecker = setInterval(() => {
-        if (!recording) {
-            clearInterval(inactivityChecker);
+    // Single inactivity checker for this trial
+    inactivityInterval = setInterval(() => {
+        // If this callback belongs to an old trial, clean up and exit
+        if (myToken !== activeTrialToken || !recording) {
+            clearInterval(inactivityInterval);
+            inactivityInterval = null;
             return;
         }
-        
-        const currentTime = Date.now() - startTime;
-        
-        if (currentTime > MAX_ALLOWED_NO_TAPS && tapEvents.length === 0) {
-            clearInterval(inactivityChecker);
+
+        const nowMs = Date.now() - startTime;
+
+        // No taps at all for the first window
+        if (nowMs > MAX_ALLOWED_NO_TAPS && tapEvents.length === 0) {
+            clearInterval(inactivityInterval);
+            inactivityInterval = null;
             restartTrialDueToInactivity();
             return;
         }
-        
+
         if (tapEvents.length > 0) {
             const lastTapTimestamp = tapEvents[tapEvents.length - 1].time;
-            const timeSinceLastTap = currentTime - lastTapTimestamp;
+            const timeSinceLastTap = nowMs - lastTapTimestamp;
             if (timeSinceLastTap > MAX_ALLOWED_NO_TAPS) {
-                console.log("💤 Inactivity detected - calling restart");
-                clearInterval(inactivityChecker);
+                clearInterval(inactivityInterval);
+                inactivityInterval = null;
                 restartTrialDueToInactivity();
                 return;
             }
         }
     }, 500);
-    
-    setTimeout(() => {
-        if (recording) {
+
+    // Single definitive stop timeout for this trial (guards by token)
+    stopTimeoutId = setTimeout(() => {
+        if (recording && myToken === activeTrialToken) {
             stopRecording();
         }
     }, recordingDuration);
 }
-// Replace your existing stopRecording function with this fixed version
+
+
 function stopRecording() {
-    if (!recording) return; // Prevent multiple calls
+    // If already not recording, ignore
+    if (!recording) return;
 
-    console.log("🛑 stopRecording() called with", tapEvents.length, "taps");
-    
-    recording = false; // Set this immediately to prevent race conditions
+    recording = false;
 
-    clearInterval(mainTimerInterval);
+    // Clear ALL timers/handles that could still be alive
+    if (mainTimerInterval) { clearInterval(mainTimerInterval); mainTimerInterval = null; }
+    if (inactivityInterval) { clearInterval(inactivityInterval); inactivityInterval = null; }
+    if (stopTimeoutId) { clearTimeout(stopTimeoutId); stopTimeoutId = null; }
+    if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+
     document.getElementById('tapWidthFeedback').style.display = 'none';
-
     window.tapFeedbackTimer = 0;
     window.handPositionCorrect = false;
 
     document.getElementById('countdown').style.display = 'none';
-    
+
     // Show position status again
     document.getElementById('hand-guide-overlay').style.display = 'block';
     document.getElementById('hand-outline').style.display = 'block';
-    
+
     const positionStatus = document.getElementById('position-status');
     positionStatus.textContent = 'Analyzing results...';
     positionStatus.className = 'position-status warning';
 
     // Check if minimum taps were achieved
     if (tapEvents.length < MIN_REQUIRED_TAPS) {
-        console.log("❌ Too few taps:", tapEvents.length, "< minimum:", MIN_REQUIRED_TAPS);
         showInsufficientTapsRestart();
         return;
-    } else {
-        console.log("✅ Sufficient taps:", tapEvents.length, ">= minimum:", MIN_REQUIRED_TAPS);
     }
 
-    // Process results immediately without delay
     const result = calculateClinicalAssessment();
     const trialDocName = `trial_${trialIndex + 1}`;
 
@@ -2980,32 +3014,30 @@ function stopRecording() {
         normDist: f.normalizedDistance,
         angle: f.thumbIndexAngle,
         handSize: f.handSize,
-        // Only key landmarks to stay under 1MB limit
         thumb: f.thumbTip,
         index: f.indexTip,
         wrist: f.wrist
     }));
 
-    // Save essential data to Participants collection (reduced size)
     db.collection("Participants")
-    .doc(participantID)
-    .collection("Trials")
-    .doc(trialDocName)
-    .set({
-        trialNumber: trialIndex + 1,
-        condition: trialConditions[trialIndex % trialConditions.length],
-        timestamp: new Date().toISOString(),
-        rawFrames: essentialFrameData, // Reduced data
-        totalFramesRecorded: frameData.length
-    })
-    .then(() => console.log(`✅ Essential trial data saved for ${participantID} / ${trialDocName}`))
-    .catch(err => console.error("❌ Error saving essential trial data:", err));
+      .doc(participantID)
+      .collection("Trials")
+      .doc(trialDocName)
+      .set({
+          trialNumber: trialIndex + 1,
+          condition: trialConditions[trialIndex % trialConditions.length],
+          timestamp: new Date().toISOString(),
+          rawFrames: essentialFrameData,
+          totalFramesRecorded: frameData.length
+      })
+      .then(() => console.log(`✅ Essential trial data saved for ${participantID} / ${trialDocName}`))
+      .catch(err => console.error("❌ Error saving essential trial data:", err));
 
     // Save detailed landmarks separately (non-blocking)
     saveLandmarkDataAsync(participantID, trialIndex + 1, trialConditions[trialIndex % trialConditions.length], frameData);
-    
+
     totalTapsAcrossAllTrials += tapEvents.length;
-    
+
     allTrialResults.push({
         condition: trialConditions[trialIndex % trialConditions.length],
         repetition: Math.floor(trialIndex / trialConditions.length) + 1,
@@ -3013,20 +3045,22 @@ function stopRecording() {
     });
 
     trialIndex++;
-    
+
     if (trialIndex < totalTrials) {
         positionStatus.textContent = 'Ready for next trial';
         positionStatus.className = 'position-status ready';
-        // CRITICAL: Reset a
-                // CRITICAL: Reset auto-start detection between trials
-        readyToStart = true;  // Enable for next trial
+
+        // Prepare auto-start for next trial
+        readyToStart = true;
         preStartTapCount = 0;
         lastPreStartTapTime = 0;
+
         updateConditionUI();
     } else {
         analyzeAllTrials();
     }
 }
+
 
 // FIXED: Optimized batch saving with fewer landmarks and grouped frames
 async function saveLandmarkDataAsync(participantID, trialNumber, condition, frameData) {
