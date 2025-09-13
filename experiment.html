@@ -3306,6 +3306,14 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         });
 });
         function restartTrialDueToHandLoss() {
+                        // Invalidate any old callbacks and clear all timers
+            activeTrialToken++; // any late timer from the previous trial becomes a no-op
+            if (mainTimerInterval) { clearInterval(mainTimerInterval); mainTimerInterval = null; }
+            if (inactivityInterval) { clearInterval(inactivityInterval); inactivityInterval = null; }
+            if (stopTimeoutId) { clearTimeout(stopTimeoutId); stopTimeoutId = null; }
+            if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+
+
             if (!recording) return;
             
             recording = false;
@@ -3371,6 +3379,14 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         }
 
         function restartTrialDueToInactivity() {
+            // Invalidate any old callbacks and clear all timers
+            activeTrialToken++; // any late timer from the previous trial becomes a no-op
+            if (mainTimerInterval) { clearInterval(mainTimerInterval); mainTimerInterval = null; }
+            if (inactivityInterval) { clearInterval(inactivityInterval); inactivityInterval = null; }
+            if (stopTimeoutId) { clearTimeout(stopTimeoutId); stopTimeoutId = null; }
+            if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+            
+
             if (!recording) return;
             
             recording = false;
@@ -3427,6 +3443,14 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         }
 
         function restartTrialDueToWrongHand() {
+                        // Invalidate any old callbacks and clear all timers
+            activeTrialToken++; // any late timer from the previous trial becomes a no-op
+            if (mainTimerInterval) { clearInterval(mainTimerInterval); mainTimerInterval = null; }
+            if (inactivityInterval) { clearInterval(inactivityInterval); inactivityInterval = null; }
+            if (stopTimeoutId) { clearTimeout(stopTimeoutId); stopTimeoutId = null; }
+            if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+            
+
             if (!recording) return;
             
             recording = false;
@@ -3582,6 +3606,14 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         }
         
         function showInsufficientTapsRestart() {
+            // Invalidate any old callbacks and clear all timers
+            activeTrialToken++; // any late timer from the previous trial becomes a no-op
+            if (mainTimerInterval) { clearInterval(mainTimerInterval); mainTimerInterval = null; }
+            if (inactivityInterval) { clearInterval(inactivityInterval); inactivityInterval = null; }
+            if (stopTimeoutId) { clearTimeout(stopTimeoutId); stopTimeoutId = null; }
+            if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+
+
             recording = false;
             
             // CRITICAL FIX: Clear all intervals and reset timing
@@ -4030,6 +4062,14 @@ function showFinalResults() {
             
         });
         function restartTrialMobileSafe(reason) {
+            // Invalidate any old callbacks and clear all timers
+            activeTrialToken++; // any late timer from the previous trial becomes a no-op
+            if (mainTimerInterval) { clearInterval(mainTimerInterval); mainTimerInterval = null; }
+            if (inactivityInterval) { clearInterval(inactivityInterval); inactivityInterval = null; }
+            if (stopTimeoutId) { clearTimeout(stopTimeoutId); stopTimeoutId = null; }
+            if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+
+
             if (!recording) return;
             
             recording = false;
