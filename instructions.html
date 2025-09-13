@@ -55,8 +55,12 @@
 
     .container {
       max-width: 1200px;
-      height: auto;
+      min-height: 100dvh;         /* fills the viewport but never squashes content */
 
+      
+      
+      align-content: start;       /* prevents weird distribution on tall screens */
+      gap: 0.75rem;               /* a bit more breathing room between rows */
 
       margin: 0 auto;
       position: relative;
@@ -103,6 +107,7 @@
       overflow: hidden;
       display: flex; flex-direction: column;
       position: relative;
+      gap: 0.75rem;   /* ✅ add this line directly after position: relative */
     }
     .main-content::after{
       content:'';position:absolute;top:0;left:0;right:0;height:1px;
@@ -184,8 +189,11 @@
     .highlight{background:linear-gradient(120deg,#a7f3d0 0%,#6ee7b7 100%);padding:.15em .3em;border-radius:3px;font-weight:600;color:#065f46;}
 
     .button-area{
-      text-align:center;padding:.5rem 0;
+      text-align: center;
+      padding: 0.75rem 0 1rem;  /* small top, a touch more bottom so it never hugs the edge */
     }
+
+
     .continue-button{
       background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%);
       color:#fff;border:none;padding:.9rem 2.8rem;font-size:1.9rem;font-weight:600;border-radius:3rem;cursor:pointer;transition:.3s;font-family:inherit;
