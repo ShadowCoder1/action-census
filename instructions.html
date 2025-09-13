@@ -26,9 +26,7 @@
 
       height: auto;
       overflow: auto;
-
-
-      overflow: hidden;
+      
       position: relative;
     }
 
@@ -130,21 +128,10 @@
       box-shadow: 0 8px 30px rgba(0,0,0,.2), 0 4px 15px rgba(0,0,0,.1), 0 0 0 1px rgba(255,255,255,.1);
       border: 1px solid rgba(0,0,0,.1);
       flex-shrink: 0;
-   
-      .video-container{
-        position: relative;
-        width: 100%;
-        overflow: hidden;
-        border-radius: 10px;
-        box-shadow: 0 8px 30px rgba(0,0,0,.2), 0 4px 15px rgba(0,0,0,.1), 0 0 0 1px rgba(255,255,255,.1);
-        border: 1px solid rgba(0,0,0,.1);
-        flex-shrink: 0;
-        aspect-ratio: 16 / 9;          /* ✅ stable proportions on all screens */
-        max-height: min(70vh, 720px);  /* prevents it from growing too tall */
-      }
-
-
+      aspect-ratio: 16 / 9;          /* keep a true 16:9 */
+      max-height: min(70vh, 720px);  /* don’t grow too tall */
     }
+    
     .video-container::before{
       content:'';position:absolute;inset:-2px;
       background:linear-gradient(135deg,rgba(34,197,94,.3),rgba(16,163,74,.3));
@@ -514,8 +501,6 @@
     setMobileClass();
     window.addEventListener('resize', setMobileClass);
   </script>
-</head>
-  
 </head>
 <body>
   <!-- Animated grid lights -->
