@@ -527,13 +527,22 @@
     </select>
   </div>
 
-  <div class="form-group">
+<div class="form-group">
     <label for="education">
-      Education (Years)
+      Education
     </label>
-    <input type="number" min="0" max="40" id="education" placeholder="Years of education" />
-  </div>
-
+    <select id="education">
+      <option value="">Select education level</option>
+      <option value="less_than_hs">Less than high school</option>
+      <option value="hs">High school diploma or equivalent (GED)</option>
+      <option value="some_college">Some college, no degree</option>
+      <option value="associate">Associate degree</option>
+      <option value="bachelor">Bachelor's degree</option>
+      <option value="master">Master's degree</option>
+      <option value="professional">Professional degree (JD, MD, etc.)</option>
+      <option value="doctorate">Doctorate (PhD, EdD, etc.)</option>
+    </select>
+</div>
   <div class="form-group">
     <label for="sleep">
       Sleep Last Night
