@@ -3360,6 +3360,9 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             if (!recording) return;
             
             recording = false;
+            document.getElementById('center-timer').style.display = 'none';
+
+
             
             // CRITICAL FIX: Clear all intervals and reset timing
             if (mainTimerInterval) {
@@ -3433,7 +3436,9 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             if (!recording) return;
             
             recording = false;
+            document.getElementById('center-timer').style.display = 'none';
             
+                        
             // CRITICAL FIX: Clear all intervals and reset timing
             if (mainTimerInterval) {
                 clearInterval(mainTimerInterval);
@@ -3497,6 +3502,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             if (!recording) return;
             
             recording = false;
+            document.getElementById('center-timer').style.display = 'none';
+
             clearInterval(mainTimerInterval);
             
             // Reset UI
@@ -3658,6 +3665,9 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
 
 
             recording = false;
+            document.getElementById('center-timer').style.display = 'none';
+            
+
             
             // CRITICAL FIX: Clear all intervals and reset timing
             if (mainTimerInterval) {
