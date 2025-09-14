@@ -2747,7 +2747,8 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
             const centerTimer = document.getElementById('center-timer');
             centerTimer.textContent = timerText;
             centerTimer.setAttribute('data-taps', tapEvents.length);
-            // Update taps count (just the number)
+            
+            // Update taps count in sidebar
             document.getElementById('taps-display').textContent = `${tapEvents.length}`;
         }
 
