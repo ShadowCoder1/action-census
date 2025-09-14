@@ -394,27 +394,6 @@ button, input[type="submit"], .btn {
             100% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
         }
 
-        /* Centered recording timer (replaces left-column timer) */
-        .center-timer {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          font-size: 6.5rem;
-          font-weight: 200;
-          color: #ffffff;
-          text-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
-          z-index: 210; /* above video and outline, below overlays if needed */
-          letter-spacing: -0.02em;
-          line-height: 1;
-          display: none; /* shown only while recording */
-        }
-        
-        @media (max-width: 768px) {
-          .center-timer { font-size: 4.5rem; }
-        }
-
-
 
         /* Trial overlay - Clean modal */
         .trial-overlay {
