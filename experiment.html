@@ -2666,11 +2666,7 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
                 }
             }
         
-            // Live update
-            if (recording) {
-                document.getElementById('taps-display').textContent = `${tapEvents.length}`;
-            }
-        
+            
             // Optional debug
             if (frameCount % 30 === 0 && tapEvents.length > 0) {
                 const tapsPerSecond = tapEvents.length / ((timeSignal[timeSignal.length - 1] || 1000) / 1000);
@@ -2961,7 +2957,6 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
         const centerTimer = document.getElementById('center-timer');
         centerTimer.textContent = timerText;
         centerTimer.setAttribute('data-taps', tapEvents.length);
-        document.getElementById('taps-display').textContent = `${tapEvents.length}`;
         if (currentTime >= recordingDuration) {
             stopRecording(); // stopRecording() guards against token drift + recording flag
         }
@@ -3401,7 +3396,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             
             // Reset displays
             document.getElementById('center-timer').textContent = '00:10';
-            document.getElementById('taps-display').textContent = '0';
+      
             
             // Reset position status
             const positionStatus = document.getElementById('position-status');
@@ -3476,7 +3471,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             
             // Reset displays
             document.getElementById('center-timer').textContent = '00:10';
-            document.getElementById('taps-display').textContent = '0';
+ 
             
             const positionStatus = document.getElementById('position-status');
             positionStatus.textContent = 'Position hand in view';
@@ -3524,7 +3519,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             
             // Reset displays
             document.getElementById('center-timer').textContent = '00:10';
-            document.getElementById('taps-display').textContent = '0';
+     
             
             // Reset position status
             const positionStatus = document.getElementById('position-status');
@@ -3707,7 +3702,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             
             // Reset displays
             document.getElementById('center-timer').textContent = '00:10';
-            document.getElementById('taps-display').textContent = '0';
+
             
             // Reset position status
             const positionStatus = document.getElementById('position-status');
@@ -3776,7 +3771,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     
     // Reset displays
     document.getElementById('center-timer').textContent = '00:10';
-    document.getElementById('taps-display').textContent = '0';
+ 
     
     const positionStatus = document.getElementById('position-status');
     positionStatus.textContent = 'Position hand in view';
@@ -4172,7 +4167,7 @@ function showFinalResults() {
             
             // Reset displays
             document.getElementById('center-timer').textContent = '00:10';
-            document.getElementById('taps-display').textContent = '0';
+
         }
             
     </script>
