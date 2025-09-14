@@ -3969,8 +3969,7 @@ function showFinalResults() {
                 if (e.target === modal) closeShareModal();
             });
         }
-        
-        function shareToTwitter(text) {
+           function shareToTwitter(text) {
             const targetUrl = 'https://shadowcoder1.github.io/pd-video-analyzer';
             const fullText = text + '\n\n' + targetUrl;
             const encodedText = encodeURIComponent(fullText);
@@ -3979,10 +3978,10 @@ function showFinalResults() {
         }
         
         function shareToFacebook(text) {
+            // Facebook blocks custom text, so just share the URL
             const targetUrl = 'https://shadowcoder1.github.io/pd-video-analyzer';
-            const encodedText = encodeURIComponent(text);
             const encodedUrl = encodeURIComponent(targetUrl);
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`, '_blank');
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`, '_blank');
             closeShareModal();
         }
         
@@ -3990,18 +3989,17 @@ function showFinalResults() {
             const targetUrl = 'https://shadowcoder1.github.io/pd-video-analyzer';
             const fullText = text + '\n\n' + targetUrl;
             const encodedText = encodeURIComponent(fullText);
-            // Try the new Bluesky share format
             window.open(`https://bsky.app/intent/compose?text=${encodedText}`, '_blank');
             closeShareModal();
         }
         
         function shareToLinkedIn(text) {
             const targetUrl = 'https://shadowcoder1.github.io/pd-video-analyzer';
-            const encodedText = encodeURIComponent(text);
-            const encodedUrl = encodeURIComponent(targetUrl);
-            const encodedTitle = encodeURIComponent('Motor Speed Assessment Results');
-            // LinkedIn's sharing format includes the text in the summary
-            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&title=${encodedTitle}&summary=${encodedText}`, '_blank');
+            const title = 'Motor Speed Assessment Results';
+            const summary = text.replace(/\n/g, ' ').replace(/👆|⚡|🧠/g, ''); // Remove emojis and line breaks for LinkedIn
+            
+            const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(targetUrl)}&title=${encodeURIComponent(title)}&summary=${encodeURIComponent(summary)}`;
+            window.open(linkedInUrl, '_blank');
             closeShareModal();
         }
         
@@ -4021,7 +4019,6 @@ function showFinalResults() {
                 alert('Results copied to clipboard!');
             });
         }
-                
         function closeShareModal() {
             if (window.currentShareModal) {
                 document.body.removeChild(window.currentShareModal);
