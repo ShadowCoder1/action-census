@@ -388,13 +388,16 @@ button, input[type="submit"], .btn {
           top: 120%;
           left: 50%;
           transform: translateX(-50%);
-          font-size: 0.3em;
-          font-weight: 300;
-          color: rgba(255,255,255,0.8);
-          text-shadow: 0 0 15px rgba(34, 197, 94, 0.7);
+          font-size: 0.5em;
+          font-weight: 400;
+          color: rgba(34, 197, 94, 0.9);
+          text-shadow: 0 0 25px rgba(34, 197, 94, 0.8), 0 0 50px rgba(34, 197, 94, 0.4);
           white-space: nowrap;
+          background: rgba(0, 0, 0, 0.3);
+          padding: 0.2em 0.6em;
+          border-radius: 0.3em;
+          backdrop-filter: blur(10px);
         }
-        
         @media (max-width: 768px) {
           .center-timer { font-size: 10rem; } /* still large on phones */
         }
@@ -582,13 +585,9 @@ button, input[type="submit"], .btn {
                 object-fit: cover !important;
             }
             
-            .metrics-section {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 0.75rem;
-                gap: 1rem;
-            }
+             .metrics-section {
+                display: none; /* Hide metrics section completely */
+             }
             
             .timer-display {
                 font-size: 2.5rem;
@@ -1193,11 +1192,6 @@ button, input[type="submit"], .btn {
                 <div class="metrics-section">
                     
 
-
-                    <div class="taps-counter">
-                        <div class="taps-display" id="taps-display">0</div>
-                        <div class="taps-subtitle" id="taps-subtitle">TAPS</div>
-                    </div>
                 </div>
                 
                 <!-- Trial Information -->
@@ -2749,7 +2743,6 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
             centerTimer.setAttribute('data-taps', tapEvents.length);
             
             // Update taps count in sidebar
-            document.getElementById('taps-display').textContent = `${tapEvents.length}`;
         }
 
         // Multi-method tap detection
