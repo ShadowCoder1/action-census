@@ -2965,9 +2965,10 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
         const minutes = Math.floor(remaining / 60);
         const seconds = Math.max(1, Math.ceil(remaining % 60));
         const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        document.getElementById('center-timer').textContent = timerText;
+        const centerTimer = document.getElementById('center-timer');
+        centerTimer.textContent = timerText;
+        centerTimer.setAttribute('data-taps', tapEvents.length);
         document.getElementById('taps-display').textContent = `${tapEvents.length}`;
-
         if (currentTime >= recordingDuration) {
             stopRecording(); // stopRecording() guards against token drift + recording flag
         }
