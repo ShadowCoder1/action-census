@@ -387,6 +387,28 @@ button, input[type="submit"], .btn {
             100% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
         }
 
+        /* Centered recording timer (replaces left-column timer) */
+        .center-timer {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 6.5rem;
+          font-weight: 200;
+          color: #ffffff;
+          text-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
+          z-index: 210; /* above video and outline, below overlays if needed */
+          letter-spacing: -0.02em;
+          line-height: 1;
+          display: none; /* shown only while recording */
+        }
+        
+        @media (max-width: 768px) {
+          .center-timer { font-size: 4.5rem; }
+        }
+
+
+
         /* Trial overlay - Clean modal */
         .trial-overlay {
             display: none;
@@ -1170,7 +1192,7 @@ button, input[type="submit"], .btn {
             <div class="left-panel">
                 <!-- Metrics Section -->
                 <div class="metrics-section">
-                    <div class="timer-display" id="timer-display">00:10</div>
+                    
 
 
                     <div class="taps-counter">
@@ -1218,6 +1240,9 @@ button, input[type="submit"], .btn {
                     </div>
 
                     <div id="countdown" class="countdown" style="display: none;"></div>
+                    <div id="center-timer" class="center-timer">00:10</div>
+
+
                 </div>
             </div>
         </div>
@@ -2720,7 +2745,7 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
             const seconds = Math.floor(remaining % 60) + 1;
             const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             
-            document.getElementById('timer-display').textContent = timerText;
+            document.getElementById('center-timer').textContent = timerText;
             
             // Update taps count (just the number)
             document.getElementById('taps-display').textContent = `${tapEvents.length}`;
@@ -2888,6 +2913,10 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
     document.getElementById('hand-outline').style.display = 'none';
 
     recording = true;
+    const centerTimer = document.getElementById('center-timer');
+    if (centerTimer) { centerTimer.style.display = 'block'; }
+
+
 
     // Reset ALL timing/data for a clean slate
     startTime = Date.now();
@@ -2935,7 +2964,7 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
         const minutes = Math.floor(remaining / 60);
         const seconds = Math.max(1, Math.ceil(remaining % 60));
         const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        document.getElementById('timer-display').textContent = timerText;
+        document.getElementById('center-timer').textContent = timerText;
         document.getElementById('taps-display').textContent = `${tapEvents.length}`;
 
         if (currentTime >= recordingDuration) {
@@ -2988,6 +3017,10 @@ function stopRecording() {
     if (!recording) return;
 
     recording = false;
+    const centerTimer = document.getElementById('center-timer');
+    if (centerTimer) { centerTimer.style.display = 'none'; }
+
+
 
     // Clear ALL timers/handles that could still be alive
     if (mainTimerInterval) { clearInterval(mainTimerInterval); mainTimerInterval = null; }
@@ -3369,7 +3402,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             overlay.style.display = 'flex';
             
             // Reset displays
-            document.getElementById('timer-display').textContent = '00:10';
+            document.getElementById('center-timer').textContent = '00:10';
             document.getElementById('taps-display').textContent = '0';
             
             // Reset position status
@@ -3442,7 +3475,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             overlay.style.display = 'flex';
             
             // Reset displays
-            document.getElementById('timer-display').textContent = '00:10';
+            document.getElementById('center-timer').textContent = '00:10';
             document.getElementById('taps-display').textContent = '0';
             
             const positionStatus = document.getElementById('position-status');
@@ -3488,7 +3521,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             overlay.style.display = 'flex';
             
             // Reset displays
-            document.getElementById('timer-display').textContent = '00:10';
+            document.getElementById('center-timer').textContent = '00:10';
             document.getElementById('taps-display').textContent = '0';
             
             // Reset position status
@@ -3668,7 +3701,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             overlay.style.display = 'flex';
             
             // Reset displays
-            document.getElementById('timer-display').textContent = '00:10';
+            document.getElementById('center-timer').textContent = '00:10';
             document.getElementById('taps-display').textContent = '0';
             
             // Reset position status
@@ -3737,7 +3770,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     document.getElementById('hand-instruction').textContent = `${handText} Hand`;
     
     // Reset displays
-    document.getElementById('timer-display').textContent = '00:10';
+    document.getElementById('center-timer').textContent = '00:10';
     document.getElementById('taps-display').textContent = '0';
     
     const positionStatus = document.getElementById('position-status');
@@ -4136,7 +4169,7 @@ function showFinalResults() {
             }
             
             // Reset displays
-            document.getElementById('timer-display').textContent = '00:10';
+            document.getElementById('center-timer').textContent = '00:10';
             document.getElementById('taps-display').textContent = '0';
         }
             
