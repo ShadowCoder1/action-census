@@ -367,19 +367,26 @@ button, input[type="submit"], .btn {
             filter: invert(1) drop-shadow(0 0 20px #ef4444);
         }
 
-        /* Countdown - Clean and modern */
-        .countdown {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 14rem;
-            font-weight: 100;
-            color: #ffffff;
-            text-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
-            z-index: 200;
-            animation: countdownPulse 1s ease-in-out;
+        .center-timer {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 12rem; /* much bigger */
+          font-weight: 200;
+          color: rgba(255,255,255,0.8); /* transparent white */
+          text-shadow: 0 0 60px rgba(59, 130, 246, 1), 
+                       0 0 20px rgba(255,255,255,0.6); /* stronger glow */
+          z-index: 210;
+          letter-spacing: -0.02em;
+          line-height: 1;
+          display: none; /* shown only while recording */
         }
+        
+        @media (max-width: 768px) {
+          .center-timer { font-size: 8rem; }
+        }
+        
 
         @keyframes countdownPulse {
             0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
