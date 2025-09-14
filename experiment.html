@@ -369,17 +369,30 @@ button, input[type="submit"], .btn {
 
         .center-timer {
           position: absolute;
-          top: 50%;
+          top: 40%;
           left: 50%;
           transform: translate(-50%, -50%);
-          font-size: 16rem; /* increased size */
+          font-size: 16rem;
           font-weight: 200;
-          color: rgba(255,255,255,0.6); /* semi-transparent */
-          text-shadow: 0 0 25px rgba(59, 130, 246, 0.7); /* subtle glow */
+          color: rgba(255,255,255,0.6);
+          text-shadow: 0 0 25px rgba(59, 130, 246, 0.7);
           z-index: 210;
           letter-spacing: -0.02em;
           line-height: 1;
-          display: none; /* shown only while recording */
+          display: none;
+        }
+        
+        .center-timer::after {
+          content: attr(data-taps) " taps";
+          position: absolute;
+          top: 120%;
+          left: 50%;
+          transform: translateX(-50%);
+          font-size: 0.3em;
+          font-weight: 300;
+          color: rgba(255,255,255,0.8);
+          text-shadow: 0 0 15px rgba(34, 197, 94, 0.7);
+          white-space: nowrap;
         }
         
         @media (max-width: 768px) {
@@ -2731,8 +2744,9 @@ function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
             const seconds = Math.floor(remaining % 60) + 1;
             const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             
-            document.getElementById('center-timer').textContent = timerText;
-            
+            const centerTimer = document.getElementById('center-timer');
+            centerTimer.textContent = timerText;
+            centerTimer.setAttribute('data-taps', tapEvents.length);
             // Update taps count (just the number)
             document.getElementById('taps-display').textContent = `${tapEvents.length}`;
         }
