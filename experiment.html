@@ -372,10 +372,10 @@ button, input[type="submit"], .btn {
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          font-size: 12rem; /* much bigger */
+          font-size: 16rem; /* increased size */
           font-weight: 200;
-          color: rgba(255,255,255,0.6); /* more transparent */
-          text-shadow: 0 0 25px rgba(59, 130, 246, 0.7); /* softer glow only */
+          color: rgba(255,255,255,0.6); /* semi-transparent */
+          text-shadow: 0 0 25px rgba(59, 130, 246, 0.7); /* subtle glow */
           z-index: 210;
           letter-spacing: -0.02em;
           line-height: 1;
@@ -383,13 +383,9 @@ button, input[type="submit"], .btn {
         }
         
         @media (max-width: 768px) {
-          .center-timer { font-size: 8rem; }
+          .center-timer { font-size: 10rem; } /* still large on phones */
         }
         
-        
-        @media (max-width: 768px) {
-          .center-timer { font-size: 8rem; }
-        }
         
 
         @keyframes countdownPulse {
