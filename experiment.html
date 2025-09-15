@@ -3910,8 +3910,7 @@ function showFinalResults() {
         }
         
         function showShareOptions(rightTaps, leftTaps) {
-            const shareText = `🧠 Just completed a motor speed assessment!\n\n⚡ Right hand: ${rightTaps} taps (10s)\n⚡ Left hand: ${leftTaps} taps (10s)\n\nTry it yourself! 👆`;
-            
+           const shareText = `Test your tapping speed\n\nactioncensus.org\n\nMy results:\nRight: ${rightTapsPerSec} taps/sec\nLeft: ${leftTapsPerSec} taps/sec`;
             // Create share modal
             const modal = document.createElement('div');
             modal.style.cssText = `
