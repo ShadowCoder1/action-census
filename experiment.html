@@ -2182,37 +2182,43 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
  }
 
 
-function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
-    const currentTime = Date.now();
-    
-    const thumbTip = landmarks[THUMB_TIP];
-    const indexTip = landmarks[INDEX_TIP];
-    const wrist = landmarks[WRIST];
-    const middleMcp = landmarks[MIDDLE_MCP];
-    
-    const handSize = Math.sqrt(
-        Math.pow((wrist.x - middleMcp.x) * imageWidth, 2) +
-        Math.pow((wrist.y - middleMcp.y) * imageHeight, 2)
-    );
-    
-    const distance = Math.sqrt(
-        Math.pow((thumbTip.x - indexTip.x) * imageWidth, 2) +
-        Math.pow((thumbTip.y - indexTip.y) * imageHeight, 2) +
-        Math.pow((thumbTip.z - indexTip.z) * imageWidth * 0.5, 2)
-    );
-    
-    const normalizedDistance = (distance / handSize) * 100;
-    
-    // MUCH MORE AGGRESSIVE: Start immediately on any finger movement that looks like a tap
-    if (normalizedDistance < 40) { // More lenient threshold
-        if (currentTime - lastPreStartTapTime > 100) { // Faster detection
-            console.log("🚀 TAP DETECTED - STARTING NOW! Distance:", normalizedDistance);
-            lastPreStartTapTime = currentTime;
-            startActualRecording();
-            return;
+        function detectPreStartTaps(landmarks, imageWidth, imageHeight) {
+            // CRITICAL FIX: Only detect taps when overlay is dismissed
+            const overlay = document.getElementById('trial-instructions-overlay');
+            if (overlay && overlay.style.display === 'flex') {
+                return; // Don't detect taps while overlay is showing
+            }
+            
+            const currentTime = Date.now();
+            
+            const thumbTip = landmarks[THUMB_TIP];
+            const indexTip = landmarks[INDEX_TIP];
+            const wrist = landmarks[WRIST];
+            const middleMcp = landmarks[MIDDLE_MCP];
+            
+            const handSize = Math.sqrt(
+                Math.pow((wrist.x - middleMcp.x) * imageWidth, 2) +
+                Math.pow((wrist.y - middleMcp.y) * imageHeight, 2)
+            );
+            
+            const distance = Math.sqrt(
+                Math.pow((thumbTip.x - indexTip.x) * imageWidth, 2) +
+                Math.pow((thumbTip.y - indexTip.y) * imageHeight, 2) +
+                Math.pow((thumbTip.z - indexTip.z) * imageWidth * 0.5, 2)
+            );
+            
+            const normalizedDistance = (distance / handSize) * 100;
+            
+            // Only detect taps after overlay is dismissed
+            if (normalizedDistance < 40) { // More lenient threshold
+                if (currentTime - lastPreStartTapTime > 100) { // Faster detection
+                    console.log("🚀 TAP DETECTED - STARTING NOW! Distance:", normalizedDistance);
+                    lastPreStartTapTime = currentTime;
+                    startActualRecording();
+                    return;
+                }
+            }
         }
-    }
-}
          // REPLACE your updateHandPositionFeedback function with this version:
         function updateHandPositionFeedback(landmarks) {
             const positionStatus = document.getElementById('position-status');
