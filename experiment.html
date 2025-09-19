@@ -3937,6 +3937,9 @@ function showFinalResults() {
             const leftTapsPerRound = Math.round(calculateAverage(leftTrials, 'tapCount'));
             const rightFastFreq = calculateAverage(rightTrials, 'avgFrequency');
             const leftFastFreq = calculateAverage(leftTrials, 'avgFrequency');
+
+            const rightFastFreq = calculateAverage(rightTrials, 'avgFrequency');
+            const leftFastFreq = calculateAverage(leftTrials, 'avgFrequency');
             const avgFastFreq = (rightFastFreq + leftFastFreq) / 2;
             const avgTapsPerTenSec = avgFastFreq * 10;
             
@@ -3960,8 +3963,10 @@ function showFinalResults() {
             }
             const percentile = Math.round(normalCDF(zScore) * 100);
             
-            const shareText = `Test your finger tapping speed at actioncensus.org\n\nMy results:\nRight: ${rightTapsPerRound} taps/10sec\nLeft: ${leftTapsPerRound} taps/10sec\nSpeed: ${userTapsPerSec.toFixed(1)} taps/sec (${percentile}th percentile)`;reate share modal
-                        const modal = document.createElement('div');
+            const shareText = `Test your finger tapping speed at actioncensus.org\n\nMy results:\nRight: ${rightTaps} taps/10sec\nLeft: ${leftTaps} taps/10sec\nSpeed: ${userTapsPerSec.toFixed(1)} taps/sec (${percentile}th percentile)`;
+
+// Create share modal
+            const modal = document.createElement('div');
             modal.style.cssText = `
                 position: fixed;
                 top: 0;
