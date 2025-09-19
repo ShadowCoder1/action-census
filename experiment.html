@@ -3811,6 +3811,26 @@ function showFinalResults() {
     const avgFastFreq = (rightFastFreq + leftFastFreq) / 2;
 
     const avgTapsPerTenSec = avgFastFreq * 10;
+        // Calculate percentile ranking
+    const populationMean = 5.14; // taps per second
+    const populationSD = 1.31;   // standard deviation
+    const userTapsPerSec = avgFastFreq; // already calculated as taps per second
+    const zScore = (userTapsPerSec - populationMean) / populationSD;
+    
+    // Convert z-score to percentile using normal distribution
+    function normalCDF(z) {
+        return 0.5 * (1 + erf(z / Math.sqrt(2)));
+    }
+    const percentile = Math.round(normalCDF(zScore) * 100);
+    
+    // Create descriptive text
+    let percentileText;
+    if (percentile >= 95) percentileText = "exceptional";
+    else if (percentile >= 85) percentileText = "well above average";
+    else if (percentile >= 70) percentileText = "above average";
+    else if (percentile >= 30) percentileText = "average range";
+    else if (percentile >= 15) percentileText = "below average";
+    else percentileText = "well below average";
     const rightTapsPerRound = Math.round(calculateAverage(rightTrials, 'tapCount'));
     const leftTapsPerRound = Math.round(calculateAverage(leftTrials, 'tapCount'));
     
@@ -3830,6 +3850,14 @@ function showFinalResults() {
                     <strong style="font-weight: 700; ${isMobile ? 'color: #22c55e; font-size: 1.1em;' : ''}">${leftTapsPerRound}</strong> times per round with your <strong style="font-weight: 700;">left hand</strong>.
                 </p>
             </div>`;
+
+
+    html += `
+    <div style="background: rgba(59, 130, 246, 0.08); border-radius: 16px; padding: ${isMobile ? '1.5rem' : '2rem'}; margin-bottom: ${isMobile ? '2rem' : '3rem'}; border: 1px solid rgba(59, 130, 246, 0.15);">
+        <p style="font-size: ${isMobile ? '1.2rem' : '1.6rem'}; color: #1a1a1a; margin-bottom: 0.5rem; font-weight: 500;">Population Comparison</p>
+        <p style="font-size: ${isMobile ? '1.8rem' : '2.2rem'}; color: #3b82f6; font-weight: 700; margin-bottom: 0.5rem;">${percentile}th percentile</p>
+        <p style="font-size: ${isMobile ? '1rem' : '1.2rem'}; color: #666666; margin: 0;">Your speed is ${percentileText} (${userTapsPerSec.toFixed(1)} taps/sec vs ${populationMean} average)</p>
+    </div>`;
     
     // Only show Prolific code if participant came from Prolific
     if (isFromProlific) {
@@ -3922,9 +3950,18 @@ function showFinalResults() {
         }
         
         function showShareOptions(rightTaps, leftTaps) {
-           const shareText = `Test your tapping speed\n\nactioncensus.org\n\nMy results:\nRight: ${rightTapsPerSec} taps/sec\nLeft: ${leftTapsPerSec} taps/sec`;
-            // Create share modal
-            const modal = document.createElement('div');
+            const avgFastFreq = (rightFastFreq + leftFastFreq) / 2;
+            const populationMean = 5.14;
+            const populationSD = 1.31;
+            const userTapsPerSec = avgFastFreq;
+            const zScore = (userTapsPerSec - populationMean) / populationSD;
+            function normalCDF(z) {
+                return 0.5 * (1 + erf(z / Math.sqrt(2)));
+            }
+            const percentile = Math.round(normalCDF(zScore) * 100);
+            
+            const shareText = `Test your finger tapping speed at actioncensus.org\n\nMy results:\nRight: ${rightTapsPerRound} taps/10sec\nLeft: ${leftTapsPerRound} taps/10sec\nSpeed: ${userTapsPerSec.toFixed(1)} taps/sec (${percentile}th percentile)`;reate share modal
+                        const modal = document.createElement('div');
             modal.style.cssText = `
                 position: fixed;
                 top: 0;
