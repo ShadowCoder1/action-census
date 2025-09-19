@@ -3013,6 +3013,12 @@ function stopRecording() {
     if (!recording) return;
 
     recording = false;
+    // Clear memory to prevent crashes
+    frameData = [];
+    distanceSignal = [];
+    timeSignal = [];
+    smoothedSignal = [];
+    velocitySignal = [];
     const centerTimer = document.getElementById('center-timer');
     if (centerTimer) { centerTimer.style.display = 'none'; }
 
