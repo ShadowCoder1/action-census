@@ -3938,21 +3938,20 @@ function showFinalResults() {
             const rightFastFreq = calculateAverage(rightTrials, 'avgFrequency');
             const leftFastFreq = calculateAverage(leftTrials, 'avgFrequency');
 
-            const rightFastFreq = calculateAverage(rightTrials, 'avgFrequency');
-            const leftFastFreq = calculateAverage(leftTrials, 'avgFrequency');
-            const avgFastFreq = (rightFastFreq + leftFastFreq) / 2;
-            const avgTapsPerTenSec = avgFastFreq * 10;
-            
-            const demographicNorms = getDemographicAdjustedNorms();
-            const normMean = demographicNorms.mean;
-            const normSD = demographicNorms.sd;
-            const zScore = (avgTapsPerTenSec - normMean) / normSD;
 
             
             showShareOptions(rightTapsPerRound, leftTapsPerRound);
         }
         
         function showShareOptions(rightTaps, leftTaps) {
+            const rightTrials = allTrialResults.filter(t => t.condition.hand === 'right');
+            const leftTrials = allTrialResults.filter(t => t.condition.hand === 'left');
+            const calculateAverage = (trials, metric) => {
+                const values = trials.map(t => t.result.metrics[metric]);
+                return values.reduce((a, b) => a + b, 0) / values.length;
+            };
+            const rightFastFreq = calculateAverage(rightTrials, 'avgFrequency');
+            const leftFastFreq = calculateAverage(leftTrials, 'avgFrequency');
             const avgFastFreq = (rightFastFreq + leftFastFreq) / 2;
             const populationMean = 5.14;
             const populationSD = 1.31;
