@@ -2597,6 +2597,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                 
                 const delta = current - prev;
                 const trend = (current - prevPrev) / 2;
+
+                const sensitivity = isIPhone16Pro ? 0.8 : 1.0;
                 const threshold = isIPhone16Pro ? -1.0 : -2.0;
         
                 let currentState = 'stable';
