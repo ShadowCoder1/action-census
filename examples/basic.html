@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ActionCensus - Basic Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        #video-container {
+            margin: 2rem 0;
+        }
+        canvas {
+            max-width: 100%;
+            border: 2px solid #333;
+            border-radius: 8px;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        #results {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>ActionCensus - Basic Example</h1>
+    
+    <div>
+        <button onclick="startAssessment('right')">Start Right Hand</button>
+        <button onclick="startAssessment('left')">Start Left Hand</button>
+        <button onclick="stopAssessment()">Stop</button>
+    </div>
+    
+    <div id="video-container"></div>
+    <div id="results"></div>
+
+    <!-- Include dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    
+    <!-- Include ActionCensus (use your built version or CDN) -->
+    <script src="../dist/actioncensus.min.js"></script>
+    
+    <script>
+        let assessment;
+        
+        async function init() {
+            assessment = new ActionCensus({
+                onComplete: (results) => {
+                    displayResults(results);
+                },
+                onTapDetected: (tap) => {
+                    console.log('Tap at:', tap.time);
+                }
+            });
+            
+            await assessment.init();
+            
+            const { canvas } = assessment.getElements();
+            document.getElementById('video-container').appendChild(canvas);
+        }
+        
+        async function startAssessment(hand) {
+            await assessment.startTrial(hand);
+        }
+        
+        function stopAssessment() {
+            const results = assessment.stopTrial();
+            displayResults(results);
+        }
+        
+        function displayResults(results) {
+            const html = `
+                <h2>Results</h2>
+                <p><strong>Hand:</strong> ${results.hand}</p>
+                <p><strong>Taps:</strong> ${results.tapCount}</p>
+                <p><strong>Frequency:</strong> ${results.frequency.toFixed(2)} Hz</p>
+                <p><strong>Rhythm Variability:</strong> ${results.rhythmVariability.toFixed(2)}%</p>
+                <p><strong>Amplitude Decrement:</strong> ${results.amplitudeDecrement.toFixed(2)}%</p>
+            `;
+            document.getElementById('results').innerHTML = html;
+        }
+        
+        // Initialize on page load
+        init();
+    </script>
+</body>
+</html>
