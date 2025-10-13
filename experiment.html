@@ -2044,6 +2044,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             alert("Some data may not have been saved, but your results are ready.");
             document.getElementById('questionnaire-overlay').style.display = 'none';
             showFinalResults();
+
+        });
         });
 
         const SMOOTHING_WINDOW = 3;
@@ -2051,15 +2053,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
         const MIN_PEAK_DISTANCE = 100;
         const CLOSED_THRESHOLD_PCT = 30;
         const OPEN_THRESHOLD_PCT = 35;
-        const HAND_TOO_FAR_THRESHOLD = 0.28; 
-        const HAND_TOO_CLOSE_THRESHOLD = 0.84; 
-        const VELOCITY_THRESHOLD_PERCENTILE = 70;
-        const MIN_REQUIRED_TAPS = 15;
-
-        const WRIST = 0;
-        const THUMB_TIP = 4;
-        const INDEX_TIP = 8;
-        const MIDDLE_MCP = 9;
+  });
 
         const POPULATION_NORMS = {
             frequency: {
