@@ -1017,110 +1017,6 @@ button, input[type="submit"], .btn {
         participantID = `anon_${Date.now()}`;
         sessionStorage.setItem('prolificID', participantID);
     }
-    
-    // Device Detection - Priority #1
-    function detectDeviceInfo() {
-        const ua = navigator.userAgent;
-        const platform = navigator.platform;
-        const maxTouchPoints = navigator.maxTouchPoints || 0;
-        
-        let deviceType = 'Desktop';
-        let deviceModel = 'Unknown';
-        let osVersion = 'Unknown';
-        let browserName = 'Unknown';
-        let browserVersion = 'Unknown';
-        
-        // Detect OS and Device Model
-        if (/iPad/.test(ua) || (platform === 'MacIntel' && maxTouchPoints > 1)) {
-            deviceType = 'iPad';
-            const match = ua.match(/iPad.*?OS (\d+)_(\d+)/);
-            osVersion = match ? `iOS ${match[1]}.${match[2]}` : 'iOS Unknown';
-        } else if (/iPhone/.test(ua)) {
-            deviceType = 'iPhone';
-            
-            // Detect specific iPhone models
-            if (ua.includes('iPhone16,1') || ua.includes('iPhone16,2')) {
-                deviceModel = 'iPhone 15 Pro';
-            } else if (ua.includes('iPhone15,4') || ua.includes('iPhone15,5')) {
-                deviceModel = 'iPhone 16 Pro';
-            } else if (screen.width === 375 && screen.height === 667) {
-                deviceModel = 'iPhone SE/6/7/8';
-            } else if (screen.width === 414 && screen.height === 896) {
-                deviceModel = 'iPhone XR/11';
-            } else if (screen.width === 390 && screen.height === 844) {
-                deviceModel = 'iPhone 12/13/14';
-            } else {
-                deviceModel = 'iPhone (Generic)';
-            }
-            
-            const match = ua.match(/iPhone OS (\d+)_(\d+)/);
-            osVersion = match ? `iOS ${match[1]}.${match[2]}` : 'iOS Unknown';
-        } else if (/Android/.test(ua)) {
-            deviceType = 'Android';
-            
-            // Detect Android device model
-            if (ua.includes('Pixel')) {
-                const pixelMatch = ua.match(/Pixel (\d+[a-zA-Z]*)/);
-                deviceModel = pixelMatch ? `Google Pixel ${pixelMatch[1]}` : 'Google Pixel';
-            } else if (ua.includes('SM-')) {
-                const samsungMatch = ua.match(/SM-([A-Z0-9]+)/);
-                deviceModel = samsungMatch ? `Samsung ${samsungMatch[1]}` : 'Samsung';
-            } else {
-                deviceModel = 'Android (Generic)';
-            }
-            
-            const match = ua.match(/Android (\d+\.?\d*)/);
-            osVersion = match ? `Android ${match[1]}` : 'Android Unknown';
-        }
-        
-        // Detect Browser
-        if (ua.includes('Chrome') && !ua.includes('Edg')) {
-            browserName = 'Chrome';
-            const match = ua.match(/Chrome\/(\d+\.\d+)/);
-            browserVersion = match ? match[1] : 'Unknown';
-        } else if (ua.includes('Safari') && !ua.includes('Chrome')) {
-            browserName = 'Safari';
-            const match = ua.match(/Version\/(\d+\.\d+)/);
-            browserVersion = match ? match[1] : 'Unknown';
-        } else if (ua.includes('Firefox')) {
-            browserName = 'Firefox';
-            const match = ua.match(/Firefox\/(\d+\.\d+)/);
-            browserVersion = match ? match[1] : 'Unknown';
-        } else if (ua.includes('Edg')) {
-            browserName = 'Edge';
-            const match = ua.match(/Edg\/(\d+\.\d+)/);
-            browserVersion = match ? match[1] : 'Unknown';
-        }
-        
-        return {
-            deviceType: deviceType,
-            deviceModel: deviceModel,
-            osVersion: osVersion,
-            browser: browserName,
-            browserVersion: browserVersion,
-            screenWidth: window.screen.width,
-            screenHeight: window.screen.height,
-            screenPixelRatio: window.devicePixelRatio || 1,
-            viewportWidth: window.innerWidth,
-            viewportHeight: window.innerHeight,
-            maxTouchPoints: maxTouchPoints,
-            userAgent: ua,
-            timestamp: new Date().toISOString()
-        };
-    }
-    
-    // Save device info immediately
-    const deviceInfo = detectDeviceInfo();
-    console.log('📱 Device Info Detected:', deviceInfo);
-    
-    db.collection("Participants")
-        .doc(participantID)
-        .collection("DeviceInfo")
-        .doc("InitialDetection")
-        .set(deviceInfo)
-        .then(() => console.log("✅ Device info saved"))
-        .catch(err => console.error("❌ Error saving device info:", err));
-            
     </script>
 </head>
 <body>
@@ -1231,75 +1127,9 @@ button, input[type="submit"], .btn {
                     </div>
                 </div>
 
-                <!-- Task Performance Issues - Jonathan's Priority #3 -->
-                <div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 1.5rem; margin-bottom: 1.5rem;">
-                    <div style="background: rgba(239, 68, 68, 0.05); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; border-left: 3px solid #ef4444;">
-                        <p style="font-size: 0.95rem; color: #1a1a1a; margin: 0;"><strong>Technical Issues:</strong> Please help us improve the test by reporting any problems you experienced.</p>
-                    </div>
-                    
-                    <div class="question-group" style="margin-bottom: 1.5rem; background: rgba(0,0,0,0.02); padding: 1rem; border-radius: 8px;">
-                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Did you experience any of these issues? (Check all that apply)</label>
-                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.5rem; background: white; border-radius: 6px; border: 1px solid #e5e7eb;">
-                                <input type="checkbox" name="issue_tapCounter" value="yes" style="margin-right: 0.75rem; transform: scale(1.3);">
-                                The tap counter did not accurately count my taps
-                            </label>
-                            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.5rem; background: white; border-radius: 6px; border: 1px solid #e5e7eb;">
-                                <input type="checkbox" name="issue_internet" value="yes" style="margin-right: 0.75rem; transform: scale(1.3);">
-                                My internet connection was slow or unstable
-                            </label>
-                            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.5rem; background: white; border-radius: 6px; border: 1px solid #e5e7eb;">
-                                <input type="checkbox" name="issue_handDetection" value="yes" style="margin-right: 0.75rem; transform: scale(1.3);">
-                                The system had trouble detecting my hand
-                            </label>
-                            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.5rem; background: white; border-radius: 6px; border: 1px solid #e5e7eb;">
-                                <input type="checkbox" name="issue_instructionsClear" value="yes" style="margin-right: 0.75rem; transform: scale(1.3);">
-                                The instructions were unclear or hard to read
-                            </label>
-                            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.5rem; background: white; border-radius: 6px; border: 1px solid #e5e7eb;">
-                                <input type="checkbox" name="issue_videoLag" value="yes" style="margin-right: 0.75rem; transform: scale(1.3);">
-                                The video feed was laggy or slow
-                            </label>
-                            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.5rem; background: white; border-radius: 6px; border: 1px solid #e5e7eb;">
-                                <input type="checkbox" name="issue_none" value="yes" style="margin-right: 0.75rem; transform: scale(1.3);">
-                                No issues - everything worked well
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="question-group" style="margin-bottom: 1.5rem; background: rgba(0,0,0,0.02); padding: 1rem; border-radius: 8px;">
-                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">How would you rate your internet connection during this test?</label>
-                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
-                                <input type="radio" name="internetQuality" value="excellent" required style="margin-right: 0.75rem; transform: scale(1.2);">
-                                Excellent - No issues at all
-                            </label>
-                            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
-                                <input type="radio" name="internetQuality" value="good" style="margin-right: 0.75rem; transform: scale(1.2);">
-                                Good - Minor occasional slowness
-                            </label>
-                            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
-                                <input type="radio" name="internetQuality" value="fair" style="margin-right: 0.75rem; transform: scale(1.2);">
-                                Fair - Noticeable delays
-                            </label>
-                            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
-                                <input type="radio" name="internetQuality" value="poor" style="margin-right: 0.75rem; transform: scale(1.2);">
-                                Poor - Frequent problems
-                            </label>
-                            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
-                                <input type="radio" name="internetQuality" value="very-poor" style="margin-right: 0.75rem; transform: scale(1.2);">
-                                Very Poor - Constant issues
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Neurological Question -->
-
                 <!-- Neurological Question -->
                 <div class="question-group" style="margin-bottom: 1.5rem; background: rgba(0,0,0,0.02); padding: 1rem; border-radius: 8px;">
                     <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Do you have any known neurological conditions?</label>
-                    
                     <div style="display: flex; gap: 2rem;">
                         <label style="display: flex; align-items: center; font-size: 1.1rem; cursor: pointer;">
                             <input type="radio" name="neurological" value="no" required style="margin-right: 0.5rem; transform: scale(1.2);">
@@ -1473,61 +1303,6 @@ button, input[type="submit"], .btn {
 
         let countdownInterval;
         let frameCount = 0;
-        // Frame Rate Measurement - Priority #2
-        let frameRateMeasurement = {
-            timestamps: [],
-            instantaneousFPS: [],
-            averageFPS: 0,
-            minFPS: Infinity,
-            maxFPS: 0,
-            measurementStart: null,
-            measurementEnd: null
-        };
-        
-        function measureFrameRate() {
-            const now = performance.now();
-            frameRateMeasurement.timestamps.push(now);
-            
-            if (frameRateMeasurement.timestamps.length > 1) {
-                const lastTimestamp = frameRateMeasurement.timestamps[frameRateMeasurement.timestamps.length - 2];
-                const deltaTime = now - lastTimestamp;
-                const instantFPS = 1000 / deltaTime;
-                
-                frameRateMeasurement.instantaneousFPS.push(instantFPS);
-                frameRateMeasurement.minFPS = Math.min(frameRateMeasurement.minFPS, instantFPS);
-                frameRateMeasurement.maxFPS = Math.max(frameRateMeasurement.maxFPS, instantFPS);
-            }
-            
-            // Keep only last 300 frames (10 seconds at 30fps) to avoid memory issues
-            if (frameRateMeasurement.timestamps.length > 300) {
-                frameRateMeasurement.timestamps.shift();
-                frameRateMeasurement.instantaneousFPS.shift();
-            }
-        }
-        
-        function calculateAverageFrameRate() {
-            if (frameRateMeasurement.instantaneousFPS.length === 0) return 0;
-            
-            const sum = frameRateMeasurement.instantaneousFPS.reduce((a, b) => a + b, 0);
-            frameRateMeasurement.averageFPS = sum / frameRateMeasurement.instantaneousFPS.length;
-            
-            return {
-                averageFPS: frameRateMeasurement.averageFPS,
-                minFPS: frameRateMeasurement.minFPS,
-                maxFPS: frameRateMeasurement.maxFPS,
-                totalFrames: frameRateMeasurement.timestamps.length,
-                measurementDuration: frameRateMeasurement.measurementEnd - frameRateMeasurement.measurementStart,
-                fpsVariability: calculateStandardDeviation(frameRateMeasurement.instantaneousFPS)
-            };
-        }
-        
-        function calculateStandardDeviation(values) {
-            if (values.length === 0) return 0;
-            const avg = values.reduce((a, b) => a + b, 0) / values.length;
-            const squareDiffs = values.map(value => Math.pow(value - avg, 2));
-            const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / squareDiffs.length;
-            return Math.sqrt(avgSquareDiff);
-        }
         let mainTimerInterval;
         
         let inactivityInterval = null;
@@ -1901,13 +1676,109 @@ function showQuestionnaire() {
     document.getElementById('competition-scale').innerHTML = createMobileLikertScale('competition', 'Not at all', 'Very much');
     
     document.getElementById('questionnaire-overlay').style.display = 'flex';
+      
+document.getElementById('questionnaire-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const responses = {};
+    
+    for (let [key, value] of formData.entries()) {
+        responses[key] = value;
+    }
+    
+    console.log("📋 Questionnaire responses to save:", responses);
+    
+    const expectedFields = [
+        'videogame', 'musical', 'sports', 'caffeine', 
+        'mood', 'motivated', 'distracted',
+        'neurological', 'handPain', 'handInjuryHistory', 'persistence', 'attention', 'competition', 'income', 'zipcode'
+    ];
+    
+    const missingFields = expectedFields.filter(field => !responses[field]);
+    if (missingFields.length > 0) {
+        console.warn("⚠️ Missing required fields:", missingFields);
+        alert(`Please complete all required fields: ${missingFields.join(', ')}`);
+        return;
+    }
 
+    const questionnaireData = {
+        experienceRatings: {
+            videogameExperience: parseInt(responses.videogame),
+            musicalExperience: parseInt(responses.musical),
+            sportsExperience: parseInt(responses.sports),
+            caffeineIntakeToday: parseInt(responses.caffeine)
+        },
+        
+        moodPerformanceRatings: {
+            currentMood: parseInt(responses.mood),
+            taskMotivation: parseInt(responses.motivated),
+            taskDistraction: parseInt(responses.distracted),
+            expectedPerformanceVsOthers: parseInt(responses.performance)
+        },
+        
+        demographics: {
+            hasNeurologicalConditions: responses.neurological === 'yes',
+            hasHandPain: responses.handPain === 'yes',
+            hasHandInjuryHistory: responses.handInjuryHistory === 'yes',
+            householdIncome: responses.income,
+            zipCode: responses.zipcode
+        },
+        
+        feedback: responses.feedback || '',
+        
+        completedAt: new Date().toISOString(),
+        participantID: sessionStorage.getItem('prolificID') || 'anonymous'
+    };
+    
+    console.log("💾 Structured questionnaire data:", questionnaireData);
+    
+    const participantID = sessionStorage.getItem('prolificID') || 'anonymous';
+    
+    const savePromise1 = db.collection("Results")
+        .doc(participantID)
+        .collection("Questionnaire")
+        .doc("Responses")
+        .set(questionnaireData);
+    
+    const savePromise2 = db.collection("Participants")
+        .doc(participantID)
+        .collection("Questionnaire")
+        .doc("Demographics")
+        .set(questionnaireData);
+        
+    const savePromise3 = db.collection("QuestionnaireResponses")
+        .doc(participantID)
+        .set(questionnaireData);
+    
+    Promise.all([savePromise1, savePromise2, savePromise3])
+        .then(() => {
+            console.log("✅ Questionnaire data saved successfully to all locations");
+            
+            document.getElementById('questionnaire-overlay').style.display = 'none';
+            showFinalResults();
+        })
+        .catch(err => {
+            console.error("❌ Error saving questionnaire data:", err);
+            alert("There was an error saving your responses. Please try again.");
+        });
+});
+        }
 
         const SMOOTHING_WINDOW = 3;
         const MIN_PEAK_PROMINENCE = 0.3;
         const MIN_PEAK_DISTANCE = 100;
         const CLOSED_THRESHOLD_PCT = 30;
         const OPEN_THRESHOLD_PCT = 35;
+        const HAND_TOO_FAR_THRESHOLD = 0.28; 
+        const HAND_TOO_CLOSE_THRESHOLD = 0.84; 
+        const VELOCITY_THRESHOLD_PERCENTILE = 70;
+        const MIN_REQUIRED_TAPS = 15;
+
+        const WRIST = 0;
+        const THUMB_TIP = 4;
+        const INDEX_TIP = 8;
+        const MIDDLE_MCP = 9;
 
         const POPULATION_NORMS = {
             frequency: {
@@ -2298,7 +2169,6 @@ function showQuestionnaire() {
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
     
     canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-    measureFrameRate();
 
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
         handDetected = true;
@@ -3045,13 +2915,6 @@ function showQuestionnaire() {
     const myToken = currentTrialToken;
     activeTrialToken = myToken;
 
-         // Start frame rate measurement
-    frameRateMeasurement.timestamps = [];
-    frameRateMeasurement.instantaneousFPS = [];
-    frameRateMeasurement.minFPS = Infinity;
-    frameRateMeasurement.maxFPS = 0;
-    frameRateMeasurement.measurementStart = performance.now();
-
     readyToStart = false;
     preStartTapCount = 0;
     lastPreStartTapTime = 0;
@@ -3156,10 +3019,6 @@ function stopRecording() {
     if (!recording) return;
 
     recording = false;
-
-    frameRateMeasurement.measurementEnd = performance.now();
-    const frameRateStats = calculateAverageFrameRate();
-    console.log('📊 Frame Rate Stats:', frameRateStats);
     // Clear memory to prevent crashes
     frameData = [];
     distanceSignal = [];
@@ -3208,18 +3067,16 @@ function stopRecording() {
     }));
 
     db.collection("Participants")
-          .doc(participantID)
-          .collection("Trials")
-          .doc(trialDocName)
-          .set({
-              trialNumber: trialIndex + 1,
-              condition: trialConditions[trialIndex % trialConditions.length],
-              timestamp: new Date().toISOString(),
-              rawFrames: essentialFrameData,
-              totalFramesRecorded: frameData.length,
-              frameRateStats: frameRateStats,
-              deviceInfo: deviceInfo
-        })
+      .doc(participantID)
+      .collection("Trials")
+      .doc(trialDocName)
+      .set({
+          trialNumber: trialIndex + 1,
+          condition: trialConditions[trialIndex % trialConditions.length],
+          timestamp: new Date().toISOString(),
+          rawFrames: essentialFrameData,
+          totalFramesRecorded: frameData.length
+      })
       .then(() => console.log(`✅ Essential trial data saved for ${participantID} / ${trialDocName}`))
       .catch(err => console.error("❌ Error saving essential trial data:", err));
 
