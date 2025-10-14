@@ -3758,7 +3758,6 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     handGuide.style.display = 'block';
     document.getElementById('hand-outline').style.display = 'block';
     
-    const totalTapsDisplay = totalTapsAcrossAllTrials > 0 ? `<div style="font-size: 2.4rem; color: #22c55e; font-weight: 300; margin-bottom: 2rem; padding: 1.5rem; background: rgba(34, 197, 94, 0.08); border-radius: 16px; border: 1px solid rgba(34, 197, 94, 0.15); letter-spacing: -0.01em;">Total taps so far: <span style="font-weight: 700;">${totalTapsAcrossAllTrials}</span></div>` : '';
     let totalTapsDisplay = '';
     if (trialIndex > 0 && allTrialResults.length > 0) {
         const lastTrialTaps = allTrialResults[allTrialResults.length - 1].result.metrics.tapCount;
