@@ -1068,7 +1068,31 @@ button, input[type="submit"], .btn {
         participantID = `anon_${Date.now()}`;
         sessionStorage.setItem('prolificID', participantID);
     }
+    
+        // Collect device information
+    const deviceInfo = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        vendor: navigator.vendor || 'Unknown',
+        screenWidth: window.screen.width,
+        screenHeight: window.screen.height,
+        windowWidth: window.innerWidth,
+        windowHeight: window.innerHeight,
+        devicePixelRatio: window.devicePixelRatio,
+        touchPoints: navigator.maxTouchPoints || 0,
+        timestamp: new Date().toISOString()
+    };
+    
+    // Save device info to Firebase
+    db.collection("Participants")
+        .doc(participantID)
+        .collection("DeviceInfo")
+        .doc("device")
+        .set(deviceInfo)
+        .then(() => console.log("✅ Device info saved"))
+        .catch(err => console.error("❌ Error saving device info:", err));
     </script>
+
 </head>
 <body>
 
@@ -1363,6 +1387,9 @@ button, input[type="submit"], .btn {
         let activeTrialToken = 0;
         
         let iPadLastProcessedFrame = 0;
+        let fpsHistory = [];
+        let lastFpsCalcTime = 0;
+        let frameTimestamps = [];
   
         let readyToStart = false;
         let preStartTapCount = 0;
@@ -2128,7 +2155,32 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                             alert("Camera access denied. Please refresh and grant camera permissions.");
             });
         }
-        
+
+        function calculateFPS() {
+            const now = performance.now();
+            frameTimestamps.push(now);
+            
+            // Keep only last 60 frames
+            if (frameTimestamps.length > 60) {
+                frameTimestamps.shift();
+            }
+            
+            // Calculate FPS every second
+            if (now - lastFpsCalcTime > 1000 && frameTimestamps.length > 10) {
+                const timeSpan = frameTimestamps[frameTimestamps.length - 1] - frameTimestamps[0];
+                const fps = ((frameTimestamps.length - 1) / timeSpan) * 1000;
+                fpsHistory.push({
+                    timestamp: Date.now(),
+                    fps: Math.round(fps * 10) / 10
+                });
+                lastFpsCalcTime = now;
+                
+                // Keep only last 100 FPS measurements
+                if (fpsHistory.length > 100) {
+                    fpsHistory.shift();
+                }
+            }
+        }
 
         function movingAverage(data, windowSize) {
             const result = [];
@@ -2214,7 +2266,9 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             return taps;
         }
 
- function onHandsResults(results) {
+function onHandsResults(results) {
+    calculateFPS();
+    
     const canvasElement = document.getElementById('outputCanvas');
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -3117,6 +3171,10 @@ function stopRecording() {
         wrist: f.wrist
     }));
 
+    const avgFPS = fpsHistory.length > 0 
+        ? fpsHistory.reduce((a, b) => a + b.fps, 0) / fpsHistory.length 
+        : 0;
+    
     db.collection("Participants")
       .doc(participantID)
       .collection("Trials")
@@ -3126,8 +3184,16 @@ function stopRecording() {
           condition: trialConditions[trialIndex % trialConditions.length],
           timestamp: new Date().toISOString(),
           rawFrames: essentialFrameData,
-          totalFramesRecorded: frameData.length
+          totalFramesRecorded: frameData.length,
+          performanceMetrics: {
+              averageFPS: Math.round(avgFPS * 10) / 10,
+              minFPS: fpsHistory.length > 0 ? Math.min(...fpsHistory.map(f => f.fps)) : 0,
+              maxFPS: fpsHistory.length > 0 ? Math.max(...fpsHistory.map(f => f.fps)) : 0,
+              fpsHistory: fpsHistory.slice(-30)
+          }
       })
+
+        
       .then(() => console.log(`✅ Essential trial data saved for ${participantID} / ${trialDocName}`))
       .catch(err => console.error("❌ Error saving essential trial data:", err));
 
