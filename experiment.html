@@ -1743,7 +1743,13 @@ function showQuestionnaire() {
         </div>
     `;
     
-    document.getElementById('questionnaire-overlay').innerHTML = questionnaireHTML;
+const questionnaireOverlay = document.getElementById('questionnaire-overlay');
+    if (!questionnaireOverlay) {
+        console.error("❌ questionnaire-overlay element not found!");
+        showFinalResults();
+        return;
+    }
+    questionnaireOverlay.innerHTML = questionnaireHTML;
     
     function createMobileLikertScale(name, leftLabel, rightLabel) {
         if (window.innerWidth <= 768 || isIPadOrTablet()) {
@@ -1776,19 +1782,22 @@ function showQuestionnaire() {
         }
     }
     
-    document.getElementById('videogame-scale').innerHTML = createMobileLikertScale('videogame', 'Very Low', 'Very High');
-    document.getElementById('musical-scale').innerHTML = createMobileLikertScale('musical', 'Very Low', 'Very High');
-    document.getElementById('sports-scale').innerHTML = createMobileLikertScale('sports', 'Very Low', 'Very High');
-    document.getElementById('caffeine-scale').innerHTML = createMobileLikertScale('caffeine', 'None', 'Very High');
-    document.getElementById('mood-scale').innerHTML = createMobileLikertScale('mood', 'Very Poor', 'Excellent');
-    document.getElementById('motivated-scale').innerHTML = createMobileLikertScale('motivated', 'Not at all', 'Extremely');
-    document.getElementById('distracted-scale').innerHTML = createMobileLikertScale('distracted', 'Not at all', 'Extremely');
-    document.getElementById('persistence-scale').innerHTML = createMobileLikertScale('persistence', 'Give up quickly', 'Push through');
-    document.getElementById('attention-scale').innerHTML = createMobileLikertScale('attention', 'Very short', 'Very long');
-    document.getElementById('competition-scale').innerHTML = createMobileLikertScale('competition', 'Not at all', 'Very much');
-    document.getElementById('internet-scale').innerHTML = createMobileLikertScale('internet', 'Very Poor', 'Excellent');
-    
-    document.getElementById('questionnaire-overlay').style.display = 'flex';
+    questionnaireOverlay.style.display = 'flex';
+        
+    // Populate scales AFTER HTML is in the DOM
+    setTimeout(() => {
+        document.getElementById('videogame-scale').innerHTML = createMobileLikertScale('videogame', 'Very Low', 'Very High');
+        document.getElementById('musical-scale').innerHTML = createMobileLikertScale('musical', 'Very Low', 'Very High');
+        document.getElementById('sports-scale').innerHTML = createMobileLikertScale('sports', 'Very Low', 'Very High');
+        document.getElementById('caffeine-scale').innerHTML = createMobileLikertScale('caffeine', 'None', 'Very High');
+        document.getElementById('mood-scale').innerHTML = createMobileLikertScale('mood', 'Very Poor', 'Excellent');
+        document.getElementById('motivated-scale').innerHTML = createMobileLikertScale('motivated', 'Not at all', 'Extremely');
+        document.getElementById('distracted-scale').innerHTML = createMobileLikertScale('distracted', 'Not at all', 'Extremely');
+        document.getElementById('persistence-scale').innerHTML = createMobileLikertScale('persistence', 'Give up quickly', 'Push through');
+        document.getElementById('attention-scale').innerHTML = createMobileLikertScale('attention', 'Very short', 'Very long');
+        document.getElementById('competition-scale').innerHTML = createMobileLikertScale('competition', 'Not at all', 'Very much');
+        document.getElementById('internet-scale').innerHTML = createMobileLikertScale('internet', 'Very Poor', 'Excellent');
+    }, 0);
       
 document.getElementById('questionnaire-form').addEventListener('submit', function(e) {
     e.preventDefault();
