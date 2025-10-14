@@ -1200,6 +1200,11 @@ button, input[type="submit"], .btn {
                         <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Enjoyment of competition:</label>
                         <div class="likert-scale" id="competition-scale"></div>
                     </div>
+
+                    <div class="question-group">
+                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Internet connection speed during task:</label>
+                        <div class="likert-scale" id="internet-scale"></div>
+                    </div>
                 </div>
 
                 <!-- Neurological Question -->
@@ -1246,6 +1251,35 @@ button, input[type="submit"], .btn {
                         </label>
                     </div>
                 </div>
+
+                <!-- Task Issues Checkboxes -->
+<div class="question-group" style="margin-bottom: 1.5rem; background: rgba(0,0,0,0.02); padding: 1rem; border-radius: 8px;">
+    <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Did you experience any of these issues during the task? (Check all that apply)</label>
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer;">
+            <input type="checkbox" name="issue_tapCounter" value="yes" style="margin-right: 0.75rem; transform: scale(1.2);">
+            The tap counter didn't accurately count my taps
+        </label>
+        <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer;">
+            <input type="checkbox" name="issue_internet" value="yes" style="margin-right: 0.75rem; transform: scale(1.2);">
+            I experienced internet connectivity issues
+        </label>
+        <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer;">
+            <input type="checkbox" name="issue_laggy" value="yes" style="margin-right: 0.75rem; transform: scale(1.2);">
+            The camera feed was laggy or slow
+        </label>
+        <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer;">
+            <input type="checkbox" name="issue_handView" value="yes" style="margin-right: 0.75rem; transform: scale(1.2);">
+            I had trouble keeping my hand in view
+        </label>
+        <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer;">
+            <input type="checkbox" name="issue_other" value="yes" style="margin-right: 0.75rem; transform: scale(1.2);">
+            Other issues (please describe below)
+        </label>
+    </div>
+</div>
+
+<!-- Demographics Questions -->
 
 <!-- Demographics Questions -->
 <div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 1.5rem;">
@@ -1752,6 +1786,7 @@ function showQuestionnaire() {
     document.getElementById('persistence-scale').innerHTML = createMobileLikertScale('persistence', 'Give up quickly', 'Push through');
     document.getElementById('attention-scale').innerHTML = createMobileLikertScale('attention', 'Very short', 'Very long');
     document.getElementById('competition-scale').innerHTML = createMobileLikertScale('competition', 'Not at all', 'Very much');
+    document.getElementById('internet-scale').innerHTML = createMobileLikertScale('internet', 'Very Poor', 'Excellent');
     
     document.getElementById('questionnaire-overlay').style.display = 'flex';
       
@@ -1767,10 +1802,12 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     
     console.log("📋 Questionnaire responses to save:", responses);
     
+   
+
     const expectedFields = [
-        'videogame', 'musical', 'sports', 'caffeine', 
-        'mood', 'motivated', 'distracted',
-        'neurological', 'handPain', 'handInjuryHistory', 'persistence', 'attention', 'competition', 'income', 'zipcode'
+    'videogame', 'musical', 'sports', 'caffeine', 
+    'mood', 'motivated', 'distracted',
+    'neurological', 'handPain', 'handInjuryHistory', 'persistence', 'attention', 'competition', 'internet', 'income', 'zipcode'
     ];
     
     const missingFields = expectedFields.filter(field => !responses[field]);
@@ -1792,9 +1829,19 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             currentMood: parseInt(responses.mood),
             taskMotivation: parseInt(responses.motivated),
             taskDistraction: parseInt(responses.distracted),
-            expectedPerformanceVsOthers: parseInt(responses.performance)
+            internetConnectionSpeed: parseInt(responses.internet),
+            persistenceWhenFrustrated: parseInt(responses.persistence),
+            attentionSpanGeneral: parseInt(responses.attention),
+            enjoymentOfCompetition: parseInt(responses.competition)
         },
         
+        taskIssues: {
+            inaccurateTapCounter: responses.issue_tapCounter === 'yes',
+            internetConnectivityIssues: responses.issue_internet === 'yes',
+            cameraFeedLaggy: responses.issue_laggy === 'yes',
+            troubleKeepingHandInView: responses.issue_handView === 'yes',
+            otherIssues: responses.issue_other === 'yes'
+        },
         demographics: {
             hasNeurologicalConditions: responses.neurological === 'yes',
             hasHandPain: responses.handPain === 'yes',
