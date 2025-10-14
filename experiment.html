@@ -3802,6 +3802,19 @@ function showFinalResults() {
         return 0.5 * (1 + erf(z / Math.sqrt(2)));
     }
     const percentile = Math.round(normalCDF(zScore) * 100);
+
+    
+    function getOrdinalSuffix(num) {
+        if (num % 100 >= 11 && num % 100 <= 13) return num + 'th';
+        switch (num % 10) {
+            case 1: return num + 'st';
+            case 2: return num + 'nd';
+            case 3: return num + 'rd';
+            default: return num + 'th';
+        }
+    }
+
+
     
     let percentileText;
     if (percentile >= 95) percentileText = "exceptional";
@@ -3832,7 +3845,7 @@ function showFinalResults() {
     html += `
     <div style="background: rgba(59, 130, 246, 0.08); border-radius: 16px; padding: ${isMobile ? '1.5rem' : '2rem'}; margin-bottom: ${isMobile ? '2rem' : '3rem'}; border: 1px solid rgba(59, 130, 246, 0.15);">
         <p style="font-size: ${isMobile ? '1.2rem' : '1.6rem'}; color: #1a1a1a; margin-bottom: 0.5rem; font-weight: 500;">Population Comparison</p>
-        <p style="font-size: ${isMobile ? '1.8rem' : '2.2rem'}; color: #3b82f6; font-weight: 700; margin-bottom: 0.5rem;">${percentile}th percentile</p>
+        <p style="font-size: ${isMobile ? '1.8rem' : '2.2rem'}; color: #3b82f6; font-weight: 700; margin-bottom: 0.5rem;">${getOrdinalSuffix(percentile)} percentile</p>
         <p style="font-size: ${isMobile ? '1rem' : '1.2rem'}; color: #666666; margin: 0;">Your speed is ${percentileText} (${userTapsPerSec.toFixed(1)} taps/sec vs ${populationMean} average)</p>
     </div>`;
     
