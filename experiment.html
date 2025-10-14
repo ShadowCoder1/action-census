@@ -1910,9 +1910,9 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
 
         const SMOOTHING_WINDOW = 3;
         const MIN_PEAK_PROMINENCE = 0.3;
-        const MIN_PEAK_DISTANCE = 80;
-        const CLOSED_THRESHOLD_PCT = 35;
-        const OPEN_THRESHOLD_PCT = 40;
+        const MIN_PEAK_DISTANCE = 90;
+        const CLOSED_THRESHOLD_PCT = 30;
+        const OPEN_THRESHOLD_PCT = 35;
         const HAND_TOO_FAR_THRESHOLD = 0.28; 
         const HAND_TOO_CLOSE_THRESHOLD = 0.84; 
         const VELOCITY_THRESHOLD_PERCENTILE = 70;
@@ -2948,104 +2948,53 @@ function onHandsResults(results) {
         }
 
            
-        function detectTapsMultiMethod() {
-            const rawEvents = [];
-            const added = new Set();
-            
-            // Strategy 1: Enhanced velocity detection
-            if (velocitySignal.length > 2) {
-                for (let i = 1; i < velocitySignal.length - 1; i++) {
-                    const prevVel = velocitySignal[i - 1];
-                    const currVel = velocitySignal[i];
-                    const nextVel = velocitySignal[i + 1];
-                    
-                    // Detect velocity crossing with looser threshold
-                    const crossingPoint = (prevVel < -0.2 && currVel >= -0.1) || 
-                                         (prevVel < 0 && currVel >= 0);
-                    const atGoodDistance = distanceSignal[i] < 65;
-                    
-                    if (crossingPoint && atGoodDistance && !added.has(i)) {
-                        const time = timeSignal[i];
-                        const lastEventTime = rawEvents.length > 0 ? rawEvents[rawEvents.length - 1].time : -1000;
-                        if (time - lastEventTime > 80) {
-                            rawEvents.push({
-                                index: i,
-                                time,
-                                amplitude: distanceSignal[i],
-                                type: 'velocity_cross'
-                            });
-                            added.add(i);
-                        }
-                    }
-                }
-            }
-            
-            // Strategy 2: Enhanced local minima detection
-            for (let i = 2; i < distanceSignal.length - 2; i++) {
-                const window = distanceSignal.slice(i-2, i+3);
-                const minInWindow = Math.min(...window);
-                
-                if (distanceSignal[i] === minInWindow && distanceSignal[i] < 60 && !added.has(i)) {
-                    const time = timeSignal[i];
-                    const lastEventTime = rawEvents.length > 0 ? rawEvents[rawEvents.length - 1].time : -1000;
-                    if (time - lastEventTime > 80) {
-                        rawEvents.push({
-                            index: i,
-                            time,
-                            amplitude: distanceSignal[i],
-                            type: 'local_min'
-                        });
-                        added.add(i);
-                    }
-                }
-            }
-            
-            // Strategy 3: State change detection
-            let lastState = 'unknown';
-            for (let i = 2; i < distanceSignal.length; i++) {
-                const current = distanceSignal[i];
-                const prev = distanceSignal[i - 1];
-                const prevPrev = distanceSignal[i - 2];
-                
-                const delta = current - prev;
-                const trend = (current - prevPrev) / 2;
-                
-                let currentState = 'stable';
-                if (delta < -1.5 || trend < -1.5) currentState = 'closing';
-                else if (delta > 1.5 || trend > 1.5) currentState = 'opening';
-                
-                if (currentState === 'closing' && lastState !== 'closing' && current < 65 && !added.has(i)) {
-                    const time = timeSignal[i];
-                    const lastEventTime = rawEvents.length > 0 ? rawEvents[rawEvents.length - 1].time : -1000;
-                    if (time - lastEventTime > 80) {
-                        rawEvents.push({
-                            index: i,
-                            time,
-                            amplitude: current,
-                            type: 'state_change'
-                        });
-                        added.add(i);
-                    }
-                }
-                lastState = currentState;
-            }
-            
-            // Sort and enforce minimal spacing
-            rawEvents.sort((a, b) => a.time - b.time);
-            tapEvents = [];
-            const minSpacing = 80;
-            
-            for (const ev of rawEvents) {
-                if (tapEvents.length === 0 || ev.time - tapEvents[tapEvents.length - 1].time >= minSpacing) {
-                    tapEvents.push(ev);
-                }
-            }
-            
-            if (frameCount % 30 === 0 && tapEvents.length > 0) {
-                const tapsPerSecond = tapEvents.length / ((timeSignal[timeSignal.length - 1] || 1000) / 1000);
-                console.log(`Desktop Detection: ${tapEvents.length} taps, ${tapsPerSecond.toFixed(1)} taps/sec`);
+function detectTapsMultiMethod() {
+    const rawEvents = [];
+    const added = new Set();
+
+    // Strategy 1: Velocity-based detection (original)
+    detectTapsFromVelocity(velocitySignal, smoothedSignal).forEach(ev => {
+        if (!added.has(ev.index)) { rawEvents.push(ev); added.add(ev.index); }
+    });
+
+    // Strategy 2: Peak detection (original)
+    const inverted = smoothedSignal.map(d => 100 - d);
+    findPeaks(inverted, 0.5).forEach(idx => {
+        if (smoothedSignal[idx] < CLOSED_THRESHOLD_PCT && !added.has(idx)) {
+            rawEvents.push({ index: idx, time: timeSignal[idx], amplitude: smoothedSignal[idx] });
+            added.add(idx);
+        }
+    });
+
+    // Sort events
+    rawEvents.sort((a, b) => a.time - b.time);
+    tapEvents = [];
+
+    // Enforce reopening requirement (ORIGINAL LOGIC - CRITICAL!)
+    for (const ev of rawEvents) {
+        if (tapEvents.length === 0) {
+            tapEvents.push(ev);
+            continue;
+        }
+
+        const last = tapEvents[tapEvents.length - 1];
+
+        // Minimum time spacing
+        if (ev.time - last.time < MIN_PEAK_DISTANCE) continue;
+
+        // MUST reopen between taps (THIS IS THE KEY PART)
+        let reopened = false;
+        for (let i = last.index + 1; i < ev.index; i++) {
+            if (smoothedSignal[i] > OPEN_THRESHOLD_PCT) { 
+                reopened = true; 
+                break; 
             }
         }
+        if (!reopened) continue; // Skip if fingers didn't reopen
+
+        tapEvents.push(ev);
+    }
+}
 
         function startRecording() {
           
