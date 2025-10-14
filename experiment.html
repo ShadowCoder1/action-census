@@ -3759,6 +3759,19 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
     document.getElementById('hand-outline').style.display = 'block';
     
     const totalTapsDisplay = totalTapsAcrossAllTrials > 0 ? `<div style="font-size: 2.4rem; color: #22c55e; font-weight: 300; margin-bottom: 2rem; padding: 1.5rem; background: rgba(34, 197, 94, 0.08); border-radius: 16px; border: 1px solid rgba(34, 197, 94, 0.15); letter-spacing: -0.01em;">Total taps so far: <span style="font-weight: 700;">${totalTapsAcrossAllTrials}</span></div>` : '';
+    let totalTapsDisplay = '';
+    if (trialIndex > 0 && allTrialResults.length > 0) {
+        const lastTrialTaps = allTrialResults[allTrialResults.length - 1].result.metrics.tapCount;
+        const lastTrialHand = allTrialResults[allTrialResults.length - 1].condition.hand;
+        totalTapsDisplay = `
+            <div style="font-size: 2rem; color: #3b82f6; font-weight: 400; margin-bottom: 1rem; padding: 1rem; background: rgba(59, 130, 246, 0.08); border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.15);">
+                Previous trial (${lastTrialHand} hand): <span style="font-weight: 700;">${lastTrialTaps} taps</span>
+            </div>
+            <div style="font-size: 2.4rem; color: #22c55e; font-weight: 300; margin-bottom: 2rem; padding: 1.5rem; background: rgba(34, 197, 94, 0.08); border-radius: 16px; border: 1px solid rgba(34, 197, 94, 0.15); letter-spacing: -0.01em;">
+                Total so far: <span style="font-weight: 700;">${totalTapsAcrossAllTrials} taps</span>
+            </div>
+        `;
+    }
     const instructionHTML = `${totalTapsDisplay}Trial ${trialNum} of ${total}<br><span style="font-size: 1.8rem; margin-top: 1rem; display: block;">Use your <strong>${handText.toUpperCase()}</strong> hand</span>`;
     document.getElementById('trial-instructions-text').innerHTML = instructionHTML;
     document.getElementById('trial-instructions-overlay').style.display = 'flex';
