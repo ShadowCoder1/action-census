@@ -3197,6 +3197,7 @@ function stopRecording() {
     if (!recording) return;
 
     recording = false;
+    const frameDataCopy = [...frameData];
     // Clear memory to prevent crashes
     frameData = [];
     distanceSignal = [];
