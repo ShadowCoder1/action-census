@@ -3271,7 +3271,16 @@ function stopRecording() {
       .then(() => console.log(`✅ Essential trial data saved for ${participantID} / ${trialDocName}`))
       .catch(err => console.error("❌ Error saving essential trial data:", err));
 
-    saveLandmarkDataAsync(participantID, trialIndex + 1, trialConditions[trialIndex % trialConditions.length], frameData);
+    const frameDataCopy = [...frameData];  // make a copy before clearing
+    saveLandmarkDataAsync(
+      participantID,
+      trialIndex + 1,
+      trialConditions[trialIndex % trialConditions.length],
+      frameDataCopy
+    );
+    frameData = []; // clear after saving
+
+
 
     totalTapsAcrossAllTrials += tapEvents.length;
 
@@ -3304,7 +3313,6 @@ async function saveLandmarkDataAsync(participantID, trialNumber, condition, fram
     // NEW COLLECTION NAME
     const collectionName = "FourPointLandmarks";
     
-    setTimeout(async () => {
         try {
             const FRAMES_PER_BATCH = 50; // Can handle more frames since we're saving less data
             const totalFrames = frameData.length;
@@ -3391,7 +3399,6 @@ async function saveLandmarkDataAsync(participantID, trialNumber, condition, fram
         } catch (error) {
             console.error(`❌ Error in landmark saving:`, error);
         }
-    }, 100);
 }
 
         
