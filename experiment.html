@@ -3197,16 +3197,19 @@ function stopRecording() {
     if (!recording) return;
 
     recording = false;
+
+    // ✅ Make a copy before clearing frameData
     const frameDataCopy = [...frameData];
+
     // Clear memory to prevent crashes
     frameData = [];
     distanceSignal = [];
     timeSignal = [];
     smoothedSignal = [];
     velocitySignal = [];
-    const centerTimer = document.getElementById('center-timer');
-    if (centerTimer) { centerTimer.style.display = 'none'; }
 
+    const centerTimer = document.getElementById('center-timer');
+    if (centerTimer) centerTimer.style.display = 'none';
 
     if (mainTimerInterval) { clearInterval(mainTimerInterval); mainTimerInterval = null; }
     if (inactivityInterval) { clearInterval(inactivityInterval); inactivityInterval = null; }
@@ -3218,7 +3221,6 @@ function stopRecording() {
     window.handPositionCorrect = false;
 
     document.getElementById('countdown').style.display = 'none';
-
     document.getElementById('hand-guide-overlay').style.display = 'block';
     document.getElementById('hand-outline').style.display = 'block';
 
@@ -3235,7 +3237,7 @@ function stopRecording() {
     const result = calculateClinicalAssessment();
     const trialDocName = `trial_${trialIndex + 1}`;
 
-    const essentialFrameData = frameData.map(f => ({
+    const essentialFrameData = frameDataCopy.map(f => ({
         t: f.timestamp,
         normDist: f.normalizedDistance,
         angle: f.thumbIndexAngle,
@@ -3245,42 +3247,38 @@ function stopRecording() {
         wrist: f.wrist
     }));
 
-    const avgFPS = fpsHistory.length > 0 
-        ? fpsHistory.reduce((a, b) => a + b.fps, 0) / fpsHistory.length 
+    const avgFPS = fpsHistory.length > 0
+        ? fpsHistory.reduce((a, b) => a + b.fps, 0) / fpsHistory.length
         : 0;
-    
+
+    // Save essential trial data
     db.collection("Participants")
-      .doc(participantID)
-      .collection("Trials")
-      .doc(trialDocName)
-      .set({
-          trialNumber: trialIndex + 1,
-          condition: trialConditions[trialIndex % trialConditions.length],
-          timestamp: new Date().toISOString(),
-          rawFrames: essentialFrameData,
-          totalFramesRecorded: frameData.length,
-          performanceMetrics: {
-              averageFPS: Math.round(avgFPS * 10) / 10,
-              minFPS: fpsHistory.length > 0 ? Math.min(...fpsHistory.map(f => f.fps)) : 0,
-              maxFPS: fpsHistory.length > 0 ? Math.max(...fpsHistory.map(f => f.fps)) : 0,
-              fpsHistory: fpsHistory.slice(-30)
-          }
-      })
+        .doc(participantID)
+        .collection("Trials")
+        .doc(trialDocName)
+        .set({
+            trialNumber: trialIndex + 1,
+            condition: trialConditions[trialIndex % trialConditions.length],
+            timestamp: new Date().toISOString(),
+            rawFrames: essentialFrameData,
+            totalFramesRecorded: frameDataCopy.length,
+            performanceMetrics: {
+                averageFPS: Math.round(avgFPS * 10) / 10,
+                minFPS: fpsHistory.length > 0 ? Math.min(...fpsHistory.map(f => f.fps)) : 0,
+                maxFPS: fpsHistory.length > 0 ? Math.max(...fpsHistory.map(f => f.fps)) : 0,
+                fpsHistory: fpsHistory.slice(-30)
+            }
+        })
+        .then(() => console.log(`✅ Essential trial data saved for ${participantID} / ${trialDocName}`))
+        .catch(err => console.error("❌ Error saving essential trial data:", err));
 
-        
-      .then(() => console.log(`✅ Essential trial data saved for ${participantID} / ${trialDocName}`))
-      .catch(err => console.error("❌ Error saving essential trial data:", err));
-
-    const frameDataCopy = [...frameData];  // make a copy before clearing
+    // ✅ Save to FourPointLandmarks using the copied data
     saveLandmarkDataAsync(
-      participantID,
-      trialIndex + 1,
-      trialConditions[trialIndex % trialConditions.length],
-      frameDataCopy
+        participantID,
+        trialIndex + 1,
+        trialConditions[trialIndex % trialConditions.length],
+        frameDataCopy
     );
-    frameData = []; // clear after saving
-
-
 
     totalTapsAcrossAllTrials += tapEvents.length;
 
