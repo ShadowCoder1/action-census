@@ -2446,14 +2446,15 @@ function onHandsResults(results) {
             
             const normalizedDistance = (distance / handSize) * 100;
             
-            if (normalizedDistance < 40) { 
-                if (currentTime - lastPreStartTapTime > 100) { // Faster detection
+            if (normalizedDistance < 55) { // Increased threshold for Samsung/low-contrast cameras
+                if (currentTime - lastPreStartTapTime > 80) { // Slightly shorter cooldown
                     console.log("🚀 TAP DETECTED - STARTING NOW! Distance:", normalizedDistance);
                     lastPreStartTapTime = currentTime;
                     startActualRecording();
                     return;
                 }
             }
+
         }
         function updateHandPositionFeedback(landmarks) {
             const positionStatus = document.getElementById('position-status');
