@@ -3298,13 +3298,15 @@ function stopRecording() {
 }
 
 
-// FIXED: Optimized batch saving with fewer landmarks and grouped frames
 async function saveLandmarkDataAsync(participantID, trialNumber, condition, frameData) {
-    console.log(`💾 Starting optimized batch save of ${frameData.length} frames`);
+    console.log(`💾 Starting optimized save of ${frameData.length} frames to FourPointLandmarks collection`);
+    
+    // NEW COLLECTION NAME
+    const collectionName = "FourPointLandmarks";
     
     setTimeout(async () => {
         try {
-            const FRAMES_PER_BATCH = 30;
+            const FRAMES_PER_BATCH = 50; // Can handle more frames since we're saving less data
             const totalFrames = frameData.length;
             let savedBatches = 0;
             
@@ -3314,20 +3316,19 @@ async function saveLandmarkDataAsync(participantID, trialNumber, condition, fram
                 
                 const batchDocId = `${participantID}_trial${trialNumber}_batch${Math.floor(batchStart / FRAMES_PER_BATCH)}`;
                 
+                // Create arrays for batch storage - ONLY 4 LANDMARKS
                 const batchDocument = {
+                    // Metadata
                     participantID: participantID,
-                    trialID: `trial_${trialNumber}`,
                     trialNumber: trialNumber,
+                    hand: condition.hand,
                     batchIndex: Math.floor(batchStart / FRAMES_PER_BATCH),
-                    condition_hand: condition.hand,
-                    frameStartIndex: batchStart,
-                    frameEndIndex: batchEnd - 1,
                     frameCount: batchFrames.length,
+                    timestamp: new Date().toISOString(),
                     
+                    // Frame data arrays
                     timestamps: [],
                     normalizedDistances: [],
-                    thumbIndexAngles: [],
-                    handSizes: [],
                     
                     // Only the 4 essential landmarks as arrays
                     wrist_x: [], wrist_y: [], wrist_z: [],
@@ -3336,54 +3337,37 @@ async function saveLandmarkDataAsync(participantID, trialNumber, condition, fram
                     middleMcp_x: [], middleMcp_y: [], middleMcp_z: []
                 };
                 
-                batchFrames.forEach((frame, frameIndex) => {
+                // Process each frame - extract ONLY the 4 points we need
+                batchFrames.forEach(frame => {
                     batchDocument.timestamps.push(frame.timestamp);
                     batchDocument.normalizedDistances.push(frame.normalizedDistance);
-                    batchDocument.thumbIndexAngles.push(frame.thumbIndexAngle);
-                    batchDocument.handSizes.push(frame.handSize);
                     
-                    if (frame.rawLandmarks && Array.isArray(frame.rawLandmarks)) {
-                        // WRIST (landmark 0)
-                        const wrist = frame.rawLandmarks[0] || {};
-                        batchDocument.wrist_x.push(wrist.x || 0);
-                        batchDocument.wrist_y.push(wrist.y || 0);
-                        batchDocument.wrist_z.push(wrist.z || 0);
-                        
-                        // THUMB_TIP (landmark 4)
-                        const thumbTip = frame.rawLandmarks[4] || {};
-                        batchDocument.thumbTip_x.push(thumbTip.x || 0);
-                        batchDocument.thumbTip_y.push(thumbTip.y || 0);
-                        batchDocument.thumbTip_z.push(thumbTip.z || 0);
-                        
-                        // INDEX_TIP (landmark 8)
-                        const indexTip = frame.rawLandmarks[8] || {};
-                        batchDocument.indexTip_x.push(indexTip.x || 0);
-                        batchDocument.indexTip_y.push(indexTip.y || 0);
-                        batchDocument.indexTip_z.push(indexTip.z || 0);
-                        
-                        // MIDDLE_MCP (landmark 9)
-                        const middleMcp = frame.rawLandmarks[9] || {};
-                        batchDocument.middleMcp_x.push(middleMcp.x || 0);
-                        batchDocument.middleMcp_y.push(middleMcp.y || 0);
-                        batchDocument.middleMcp_z.push(middleMcp.z || 0);
-                    } else {
-                        // Fill with zeros if no landmark data
-                        ['wrist_x', 'wrist_y', 'wrist_z', 
-                         'thumbTip_x', 'thumbTip_y', 'thumbTip_z',
-                         'indexTip_x', 'indexTip_y', 'indexTip_z',
-                         'middleMcp_x', 'middleMcp_y', 'middleMcp_z'].forEach(key => {
-                            batchDocument[key].push(0);
-                        });
-                    }
+                    // Use the already extracted landmark data from frame
+                    // These are already stored in the frame object
+                    batchDocument.wrist_x.push(frame.wrist.x);
+                    batchDocument.wrist_y.push(frame.wrist.y);
+                    batchDocument.wrist_z.push(frame.wrist.z);
+                    
+                    batchDocument.thumbTip_x.push(frame.thumbTip.x);
+                    batchDocument.thumbTip_y.push(frame.thumbTip.y);
+                    batchDocument.thumbTip_z.push(frame.thumbTip.z);
+                    
+                    batchDocument.indexTip_x.push(frame.indexTip.x);
+                    batchDocument.indexTip_y.push(frame.indexTip.y);
+                    batchDocument.indexTip_z.push(frame.indexTip.z);
+                    
+                    batchDocument.middleMcp_x.push(frame.middleMcp.x);
+                    batchDocument.middleMcp_y.push(frame.middleMcp.y);
+                    batchDocument.middleMcp_z.push(frame.middleMcp.z);
                 });
                 
-        
+                // Save to new collection with retry logic
                 let retries = 3;
                 while (retries > 0) {
                     try {
-                        await db.collection("LandmarkBatches").doc(batchDocId).set(batchDocument);
+                        await db.collection(collectionName).doc(batchDocId).set(batchDocument);
                         savedBatches++;
-                        console.log(`✅ Saved batch ${savedBatches} (frames ${batchStart}-${batchEnd-1})`);
+                        console.log(`✅ Saved batch ${savedBatches} to ${collectionName} (frames ${batchStart}-${batchEnd-1})`);
                         break;
                     } catch (error) {
                         retries--;
@@ -3391,25 +3375,26 @@ async function saveLandmarkDataAsync(participantID, trialNumber, condition, fram
                         if (retries === 0) {
                             console.error(`❌ Failed to save batch after all retries`);
                         } else {
-                            // Wait before retry
                             await new Promise(resolve => setTimeout(resolve, 1000 * (4 - retries)));
                         }
                     }
                 }
                 
+                // Small delay between batches
                 if (batchEnd < totalFrames) {
                     await new Promise(resolve => setTimeout(resolve, 100));
                 }
             }
             
-            console.log(`✅ Optimized landmark saving complete: ${savedBatches} batches saved`);
+            console.log(`✅ Landmark saving complete: ${savedBatches} batches saved to ${collectionName} collection`);
             
         } catch (error) {
-            console.error(`❌ Error in optimized landmark saving:`, error);
+            console.error(`❌ Error in landmark saving:`, error);
         }
     }, 100);
 }
 
+        
 document.getElementById('questionnaire-form').addEventListener('submit', function(e) {
     e.preventDefault();
     
