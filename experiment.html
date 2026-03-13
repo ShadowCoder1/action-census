@@ -1129,222 +1129,7 @@ button, input[type="submit"], .btn {
     </div>
   
     <div id="questionnaire-overlay" class="trial-overlay" style="display: none;">
-        <div style="max-width: 1200px; width: 95%; max-height: 95vh; overflow-y: auto; background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-            <div style="text-align: center; margin-bottom: 2rem;">
-                <h2 style="font-size: 2.4rem; font-weight: 300; color: #1a1a1a; margin-bottom: 0.5rem; letter-spacing: -0.02em;">Quick Questions</h2>
-                <p style="font-size: 1.1rem; color: #666666; font-weight: 400;">Please answer these brief questions about your experience</p>
-            </div>
-
-            <form id="questionnaire-form" style="text-align: left;">
-            
-                <div style="background: rgba(59, 130, 246, 0.05); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; border-left: 3px solid #3b82f6;">
-                    <p style="font-size: 1rem; color: #1a1a1a; margin: 0;"><strong>Rating Scale:</strong> 1 = Very Low/Poor, 7 = Very High/Excellent</p>
-                </div>
-
-                <!-- Experience Questions Grid -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
-                    <div class="question-group">
-                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Video game experience:</label>
-                        <div class="likert-scale" id="videogame-scale"></div>
-                    </div>
-
-                    <div class="question-group">
-                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Musical experience:</label>
-                        <div class="likert-scale" id="musical-scale"></div>
-                    </div>
-
-                    <div class="question-group">
-                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Sports experience:</label>
-                        <div class="likert-scale" id="sports-scale"></div>
-                    </div>
-
-                    <div class="question-group">
-                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Caffeine intake today:</label>
-                        <div class="likert-scale" id="caffeine-scale"></div>
-                    </div>
-                </div>
-
-                <!-- Mood and Performance Grid -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
-                    <div class="question-group">
-                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Current mood:</label>
-                        <div class="likert-scale" id="mood-scale"></div>
-                    </div>
-
-                    <div class="question-group">
-                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Task motivation:</label>
-                        <div class="likert-scale" id="motivated-scale"></div>
-                    </div>
-
-                    <div class="question-group">
-                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Task distraction:</label>
-                        <div class="likert-scale" id="distracted-scale"></div>
-                    </div>
-
-                    <div class="question-group">
-                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Expected performance vs. others:</label>
-                        <div class="likert-scale" id="performance-scale"></div>
-                    </div>
-
-                    <div class="question-group">
-                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Persistence when tasks get frustrating:</label>
-                        <div class="likert-scale" id="persistence-scale"></div>
-                    </div>
-                    
-                    <div class="question-group">
-                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Attention span in general:</label>
-                        <div class="likert-scale" id="attention-scale"></div>
-                    </div>
-                    
-                    <div class="question-group">
-                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Enjoyment of competition:</label>
-                        <div class="likert-scale" id="competition-scale"></div>
-                    </div>
-
-                    <div class="question-group">
-                        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Internet connection speed during task:</label>
-                        <div class="likert-scale" id="internet-scale"></div>
-                    </div>
-                </div>
-
-                <!-- Neurological Question -->
-                <div class="question-group" style="margin-bottom: 1.5rem; background: rgba(0,0,0,0.02); padding: 1rem; border-radius: 8px;">
-                    <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Do you have any known neurological conditions?</label>
-                    <div style="display: flex; gap: 2rem;">
-                        <label style="display: flex; align-items: center; font-size: 1.1rem; cursor: pointer;">
-                            <input type="radio" name="neurological" value="no" required style="margin-right: 0.5rem; transform: scale(1.2);">
-                            No
-                        </label>
-                        <label style="display: flex; align-items: center; font-size: 1.1rem; cursor: pointer;">
-                            <input type="radio" name="neurological" value="yes" style="margin-right: 0.5rem; transform: scale(1.2);">
-                            Yes
-                        </label>
-                    </div>
-                </div>
-
-                                <!-- Hand Pain Question -->
-                <div class="question-group" style="margin-bottom: 1.5rem; background: rgba(0,0,0,0.02); padding: 1rem; border-radius: 8px;">
-                    <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Do you currently have hand-related pain that affects your performance on tasks like this?</label>
-                    <div style="display: flex; gap: 2rem;">
-                        <label style="display: flex; align-items: center; font-size: 1.1rem; cursor: pointer;">
-                            <input type="radio" name="handPain" value="no" required style="margin-right: 0.5rem; transform: scale(1.2);">
-                            No
-                        </label>
-                        <label style="display: flex; align-items: center; font-size: 1.1rem; cursor: pointer;">
-                            <input type="radio" name="handPain" value="yes" style="margin-right: 0.5rem; transform: scale(1.2);">
-                            Yes
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Injury/Disease History Question -->
-                <div class="question-group" style="margin-bottom: 1.5rem; background: rgba(0,0,0,0.02); padding: 1rem; border-radius: 8px;">
-                    <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">History of injury/disease affecting hand/arm movement:</label>
-                    <div style="display: flex; gap: 2rem;">
-                        <label style="display: flex; align-items: center; font-size: 1.1rem; cursor: pointer;">
-                            <input type="radio" name="handInjuryHistory" value="no" required style="margin-right: 0.5rem; transform: scale(1.2);">
-                            No
-                        </label>
-                        <label style="display: flex; align-items: center; font-size: 1.1rem; cursor: pointer;">
-                            <input type="radio" name="handInjuryHistory" value="yes" style="margin-right: 0.5rem; transform: scale(1.2);">
-                            Yes
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Task Issues Checkboxes -->
-<div class="question-group" style="margin-bottom: 1.5rem; background: rgba(0,0,0,0.02); padding: 1rem; border-radius: 8px;">
-    <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">Did you experience any of these issues during the task? (Check all that apply)</label>
-    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-        <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer;">
-            <input type="checkbox" name="issue_tapCounter" value="yes" style="margin-right: 0.75rem; transform: scale(1.2);">
-            The tap counter didn't accurately count my taps
-        </label>
-        <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer;">
-            <input type="checkbox" name="issue_internet" value="yes" style="margin-right: 0.75rem; transform: scale(1.2);">
-            I experienced internet connectivity issues
-        </label>
-        <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer;">
-            <input type="checkbox" name="issue_laggy" value="yes" style="margin-right: 0.75rem; transform: scale(1.2);">
-            The camera feed was laggy or slow
-        </label>
-        <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer;">
-            <input type="checkbox" name="issue_handView" value="yes" style="margin-right: 0.75rem; transform: scale(1.2);">
-            I had trouble keeping my hand in view
-        </label>
-        <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer;">
-            <input type="checkbox" name="issue_other" value="yes" style="margin-right: 0.75rem; transform: scale(1.2);">
-            Other issues (please describe below)
-        </label>
-    </div>
-</div>
-
-<!-- Demographics Questions -->
-
-<!-- Demographics Questions -->
-<div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 1.5rem;">
-    <div style="background: rgba(59, 130, 246, 0.05); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; border-left: 3px solid #3b82f6;">
-        <p style="font-size: 0.95rem; color: #1a1a1a; margin: 0;"><strong>Why we ask:</strong> Understanding participants' income levels and geographic location helps us examine how economic factors may influence physical ability. Your response helps ensure our findings reflect the experiences of people from diverse financial and geographical backgrounds.</p>
-    </div>
-    
-    <div class="question-group" style="margin-bottom: 1.5rem;">
-        <label style="font-size: 1.1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 1rem; display: block;">What is your total annual household income before taxes? (Please select the range that best represents your income.)</label>
-        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
-                <input type="radio" name="income" value="less-than-20k" required style="margin-right: 0.75rem; transform: scale(1.2);">
-                "Less than $20,000"
-            </label>
-            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
-                <input type="radio" name="income" value="20k-39k" style="margin-right: 0.75rem; transform: scale(1.2);">
-                "$20,000 - $39,999"
-            </label>
-            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
-                <input type="radio" name="income" value="40k-59k" style="margin-right: 0.75rem; transform: scale(1.2);">
-                "$40,000 - $59,999"
-            </label>
-            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
-                <input type="radio" name="income" value="60k-79k" style="margin-right: 0.75rem; transform: scale(1.2);">
-                "$60,000 - $79,999"
-            </label>
-            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
-                <input type="radio" name="income" value="80k-99k" style="margin-right: 0.75rem; transform: scale(1.2);">
-                "$80,000 - $99,999"
-            </label>
-            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
-                <input type="radio" name="income" value="100k-149k" style="margin-right: 0.75rem; transform: scale(1.2);">
-                "$100,000 - $149,999"
-            </label>
-            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
-                <input type="radio" name="income" value="150k-plus" style="margin-right: 0.75rem; transform: scale(1.2);">
-                "$150,000 or more"
-            </label>
-            <label style="display: flex; align-items: center; font-size: 1rem; cursor: pointer; padding: 0.3rem 0;">
-                <input type="radio" name="income" value="prefer-not-to-answer" style="margin-right: 0.75rem; transform: scale(1.2);">
-                "Prefer not to answer"
-            </label>
-        </div>
-    </div>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
-        <div class="question-group">
-            <label style="font-size: 1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Zip/Postal code:</label>
-            <input type="text" name="zipcode" placeholder="Your zip code" required style="width: 100%; padding: 0.5rem; font-size: 1rem; border: 2px solid #e5e7eb; border-radius: 6px;">
-        </div>
-
-        <div style="display: flex; align-items: end;">
-            <button type="submit" style="background-color: #000000; color: white; border: none; padding: 0.75rem 2rem; font-size: 1.1rem; font-weight: 500; border-radius: 40px; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; width: 100%;">
-                Continue to Results
-            </button>
-        </div>
-    </div>
-
-                    <div class="question-group">
-                        <label style="font-size: 1rem; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Additional feedback or comments:</label>
-                        <textarea name="feedback" rows="2" placeholder="Any additional thoughts about the test..." style="width: 100%; padding: 0.5rem; font-size: 1rem; border: 2px solid #e5e7eb; border-radius: 6px; resize: vertical; font-family: 'Inter', sans-serif;"></textarea>
-                    </div>
-                </div>
-            </form>
-        </div>
+        <!-- Content dynamically generated by showQuestionnaire() -->
     </div>
 
     <div id="page-webcam" style="display:none;">
@@ -1813,104 +1598,6 @@ const questionnaireOverlay = document.getElementById('questionnaire-overlay');
         document.getElementById('internet-scale').innerHTML = createMobileLikertScale('internet', 'Very Poor', 'Excellent');
     }, 0);
       
-document.getElementById('questionnaire-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    const responses = {};
-    
-    for (let [key, value] of formData.entries()) {
-        responses[key] = value;
-    }
-    
-    console.log("📋 Questionnaire responses to save:", responses);
-    
-   
-
-    const expectedFields = [
-    'videogame', 'musical', 'sports', 'caffeine', 
-    'mood', 'motivated', 'distracted', 'performance',
-    'neurological', 'handPain', 'handInjuryHistory', 'persistence', 'attention', 'competition', 'internet', 'income', 'zipcode'
-    ];
-    
-    const missingFields = expectedFields.filter(field => !responses[field]);
-    if (missingFields.length > 0) {
-        console.warn("⚠️ Missing required fields:", missingFields);
-        alert(`Please complete all required fields: ${missingFields.join(', ')}`);
-        return;
-    }
-
-    const questionnaireData = {
-        experienceRatings: {
-            videogameExperience: parseInt(responses.videogame),
-            musicalExperience: parseInt(responses.musical),
-            sportsExperience: parseInt(responses.sports),
-            caffeineIntakeToday: parseInt(responses.caffeine)
-        },
-        
-        moodPerformanceRatings: {
-            currentMood: parseInt(responses.mood),
-            taskMotivation: parseInt(responses.motivated),
-            taskDistraction: parseInt(responses.distracted),
-            expectedPerformance: parseInt(responses.performance),
-            internetConnectionSpeed: parseInt(responses.internet),
-            persistenceWhenFrustrated: parseInt(responses.persistence),
-            attentionSpanGeneral: parseInt(responses.attention),
-            enjoymentOfCompetition: parseInt(responses.competition)
-        },
-        taskIssues: {
-            inaccurateTapCounter: responses.issue_tapCounter === 'yes',
-            internetConnectivityIssues: responses.issue_internet === 'yes',
-            cameraFeedLaggy: responses.issue_laggy === 'yes',
-            troubleKeepingHandInView: responses.issue_handView === 'yes',
-            otherIssues: responses.issue_other === 'yes'
-        },
-        demographics: {
-            hasNeurologicalConditions: responses.neurological === 'yes',
-            hasHandPain: responses.handPain === 'yes',
-            hasHandInjuryHistory: responses.handInjuryHistory === 'yes',
-            householdIncome: responses.income,
-            zipCode: responses.zipcode
-        },
-        
-        feedback: responses.feedback || '',
-        
-        completedAt: new Date().toISOString(),
-        participantID: sessionStorage.getItem('prolificID') || 'anonymous'
-    };
-    
-    console.log("💾 Structured questionnaire data:", questionnaireData);
-    
-    const participantID = sessionStorage.getItem('prolificID') || 'anonymous';
-    
-    const savePromise1 = db.collection("Results")
-        .doc(participantID)
-        .collection("Questionnaire")
-        .doc("Responses")
-        .set(questionnaireData);
-    
-    const savePromise2 = db.collection("Participants")
-        .doc(participantID)
-        .collection("Questionnaire")
-        .doc("Demographics")
-        .set(questionnaireData);
-        
-    const savePromise3 = db.collection("QuestionnaireResponses")
-        .doc(participantID)
-        .set(questionnaireData);
-    
-    Promise.all([savePromise1, savePromise2, savePromise3])
-        .then(() => {
-            console.log("✅ Questionnaire data saved successfully to all locations");
-            
-            document.getElementById('questionnaire-overlay').style.display = 'none';
-            showFinalResults();
-        })
-        .catch(err => {
-            console.error("❌ Error saving questionnaire data:", err);
-            alert("There was an error saving your responses. Please try again.");
-        });
-});
         }
 
         const SMOOTHING_WINDOW = 3;
@@ -2394,14 +2081,15 @@ function onHandsResults(results) {
             const middleMcp = landmarks[MIDDLE_MCP];
             
             const handSize = Math.sqrt(
-                Math.pow((wrist.x - middleMcp.x) * imageWidth, 2) +
-                Math.pow((wrist.y - middleMcp.y) * imageHeight, 2)
+                Math.pow(wrist.x - middleMcp.x, 2) +
+                Math.pow(wrist.y - middleMcp.y, 2) +
+                Math.pow(wrist.z - middleMcp.z, 2)
             );
             
             const distance = Math.sqrt(
-                Math.pow((thumbTip.x - indexTip.x) * imageWidth, 2) +
-                Math.pow((thumbTip.y - indexTip.y) * imageHeight, 2) +
-                Math.pow((thumbTip.z - indexTip.z) * imageWidth * 0.5, 2)
+                Math.pow(thumbTip.x - indexTip.x, 2) +
+                Math.pow(thumbTip.y - indexTip.y, 2) +
+                Math.pow(thumbTip.z - indexTip.z, 2)
             );
             
             const normalizedDistance = (distance / handSize) * 100;
@@ -2559,15 +2247,18 @@ function onHandsResults(results) {
             const wrist = landmarks[WRIST];
             const middleMcp = landmarks[MIDDLE_MCP];
             
+            // Both handSize and distance in normalized [0,1] 3D space
+            // Scale-invariant, resolution-invariant, reproducible from saved coordinates
             const handSize = Math.sqrt(
-                Math.pow((wrist.x - middleMcp.x) * imageWidth, 2) +
-                Math.pow((wrist.y - middleMcp.y) * imageHeight, 2)
+                Math.pow(wrist.x - middleMcp.x, 2) +
+                Math.pow(wrist.y - middleMcp.y, 2) +
+                Math.pow(wrist.z - middleMcp.z, 2)
             );
             
             const distance = Math.sqrt(
-                Math.pow((thumbTip.x - indexTip.x) * imageWidth, 2) +
-                Math.pow((thumbTip.y - indexTip.y) * imageHeight, 2) +
-                Math.pow((thumbTip.z - indexTip.z) * imageWidth * 0.5, 2)
+                Math.pow(thumbTip.x - indexTip.x, 2) +
+                Math.pow(thumbTip.y - indexTip.y, 2) +
+                Math.pow(thumbTip.z - indexTip.z, 2)
             );
             
             const normalizedDistance = (distance / handSize) * 100;
@@ -2633,269 +2324,10 @@ function onHandsResults(results) {
             });
         }
 
-        function processFingerTapAdvancedIPad(landmarks, imageWidth, imageHeight) {
-            const currentTime = Date.now() - startTime;
-        
-            const thumbTip = landmarks[THUMB_TIP];
-            const indexTip = landmarks[INDEX_TIP];
-            const wrist = landmarks[WRIST];
-            const middleMcp = landmarks[MIDDLE_MCP];
-        
-            const handSize = Math.sqrt(
-                Math.pow((wrist.x - middleMcp.x) * imageWidth, 2) +
-                Math.pow((wrist.y - middleMcp.y) * imageHeight, 2)
-            );
-        
-            const distance = Math.sqrt(
-                Math.pow((thumbTip.x - indexTip.x) * imageWidth, 2) +
-                Math.pow((thumbTip.y - indexTip.y) * imageHeight, 2) +
-                Math.pow((thumbTip.z - indexTip.z) * imageWidth * 0.5, 2)
-            );
-        
-            const normalizedDistance = (distance / handSize) * 100;
-        
-            distanceSignal.push(normalizedDistance);
-            timeSignal.push(currentTime);
-        
-            if (recording && frameCount % 3 === 0) {
-                const tapWidthFeedback = document.getElementById('tapWidthFeedback');
-                const tapWidthMessage = document.getElementById('tapWidthMessage');
-        
-                const recentSamples = distanceSignal.slice(-30);
-                const maxRecentAmplitude = Math.max(...recentSamples);
-        
-                if (!window.tapFeedbackTimer) {
-                    window.tapFeedbackTimer = 0;
-                }
-        
-                if (maxRecentAmplitude < 45) {
-                    tapWidthFeedback.style.display = 'block';
-                    tapWidthMessage.textContent = 'Open fingers wider';
-                    window.tapFeedbackTimer = 45;
-                } else if (window.tapFeedbackTimer > 0) {
-                    window.tapFeedbackTimer--;
-                } else {
-                    tapWidthFeedback.style.display = 'none';
-                }
-            }
-        
-            if (distanceSignal.length > SMOOTHING_WINDOW) {
-                smoothedSignal = movingAverage(distanceSignal, SMOOTHING_WINDOW);
-        
-                if (smoothedSignal.length > 1) {
-                    velocitySignal = calculateDerivative(smoothedSignal, timeSignal);
-           
-                    detectTapsMultiMethodIPad();
-                }
-            }
-        
-            const essentialFrameData = {
-                timestamp: currentTime,
-                normalizedDistance: normalizedDistance,
-                thumbIndexAngle: Math.atan2(
-                    (indexTip.y - thumbTip.y),
-                    (indexTip.x - thumbTip.x)
-                ) * 180 / Math.PI,
-                handSize: handSize,
-                thumbTip: { x: thumbTip.x, y: thumbTip.y, z: thumbTip.z },
-                indexTip: { x: indexTip.x, y: indexTip.y, z: indexTip.z },
-                wrist: { x: wrist.x, y: wrist.y, z: wrist.z },
-                middleMcp: { x: middleMcp.x, y: middleMcp.y, z: middleMcp.z },
-                rawLandmarks: [
-                    landmarks[WRIST], landmarks[THUMB_TIP],
-                    landmarks[INDEX_TIP], landmarks[MIDDLE_MCP]
-                ].map(lm => ({ x: lm.x, y: lm.y, z: lm.z }))
-            };
-        
-            frameData = frameData || [];
-            frameData.push(essentialFrameData);
-        }
-        
+        // All devices use processFingerTapAdvanced() and detectTapsMultiMethod()
+        // with unified modelComplexity:1 and normalized landmark coordinates.
+        // Device-specific processing paths were removed for publication consistency.
 
-        
-        function detectTapsMultiMethodIPad() {
-            const rawEvents = [];
-            const added = new Set();
-            
-            // Detect iPhone 16 Pro specifically for ultra-sensitive detection
-            const isIPhone16Pro = /iPhone/.test(navigator.userAgent) && window.devicePixelRatio === 3;
-            const sensitivity = isIPhone16Pro ? 0.8 : 1.0;
-        
-            // Strategy 1: Ultra-sensitive state change detection for iPhone 16 Pro
-            let lastState = 'unknown';
-            for (let i = 2; i < distanceSignal.length; i++) {
-                const current = distanceSignal[i];
-                const prev = distanceSignal[i - 1];
-                const prevPrev = distanceSignal[i - 2];
-                
-                const delta = current - prev;
-                const trend = (current - prevPrev) / 2;
-
-                const sensitivity = isIPhone16Pro ? 0.8 : 1.0;
-                const threshold = isIPhone16Pro ? -1.0 : -2.0;
-        
-                let currentState = 'stable';
-                if (delta < threshold * sensitivity || trend < threshold * sensitivity) currentState = 'closing';
-                else if (delta > -threshold * sensitivity || trend > -threshold * sensitivity) currentState = 'opening';
-        
-                if (currentState === 'closing' && lastState !== 'closing' && current < (isIPhone16Pro ? 70 : 60)) {
-                    const time = timeSignal[i];
-                    const minGap = isIPhone16Pro ? 18 : 25;
-                    const lastEventTime = rawEvents.length > 0 ? rawEvents[rawEvents.length - 1].time : -1000;
-                    if (time - lastEventTime > minGap) {
-                        rawEvents.push({
-                            index: i,
-                            time,
-                            amplitude: current,
-                            type: 'state_change'
-                        });
-                        added.add(i);
-                    }
-                }
-                lastState = currentState;
-            }
-        
-            // Strategy 2: Hyper-sensitive local minima for iPhone 16 Pro
-            for (let i = 1; i < distanceSignal.length - 1; i++) {
-                const current = distanceSignal[i];
-                const prev = distanceSignal[i - 1];
-                const next = distanceSignal[i + 1];
-                
-                const threshold = isIPhone16Pro ? 65 : 55;
-                const isLocalMin = current <= prev && current <= next && current < threshold;
-                
-                if (isLocalMin && !added.has(i)) {
-                    const time = timeSignal[i];
-                    const minGap = isIPhone16Pro ? 18 : 25;
-                    const lastEventTime = rawEvents.length > 0 ? rawEvents[rawEvents.length - 1].time : -1000;
-                    if (time - lastEventTime > minGap) {
-                        rawEvents.push({
-                            index: i,
-                            time,
-                            amplitude: current,
-                            type: 'local_min'
-                        });
-                        added.add(i);
-                    }
-                }
-            }
-        
-            // Strategy 3: Ultra-sensitive velocity detection for iPhone 16 Pro
-            if (velocitySignal.length > 2) {
-                for (let i = 1; i < velocitySignal.length - 1; i++) {
-                    const prevVel = velocitySignal[i - 1];
-                    const currVel = velocitySignal[i];
-                    
-                    const velThreshold = isIPhone16Pro ? -0.15 : -0.3;
-                    const crossingPoint = (prevVel < velThreshold && currVel >= velThreshold) || 
-                                         (prevVel < 0 && currVel >= 0);
-                    const distThreshold = isIPhone16Pro ? 70 : 60;
-                    const atGoodDistance = distanceSignal[i] < distThreshold;
-        
-                    if (crossingPoint && atGoodDistance && !added.has(i)) {
-                        const time = timeSignal[i];
-                        const minGap = isIPhone16Pro ? 18 : 25;
-                        const lastEventTime = rawEvents.length > 0 ? rawEvents[rawEvents.length - 1].time : -1000;
-                        if (time - lastEventTime > minGap) {
-                            rawEvents.push({
-                                index: i,
-                                time,
-                                amplitude: distanceSignal[i],
-                                type: 'velocity_cross'
-                            });
-                            added.add(i);
-                        }
-                    }
-                }
-            }
-        
-            // Strategy 4: Micro-movement detection for iPhone 16 Pro
-            if (isIPhone16Pro && distanceSignal.length > 5) {
-                for (let i = 2; i < distanceSignal.length - 2; i++) {
-                    const window = distanceSignal.slice(i-2, i+3);
-                    const minInWindow = Math.min(...window);
-                    
-                    if (distanceSignal[i] === minInWindow && distanceSignal[i] < 65 && !added.has(i)) {
-                        const time = timeSignal[i];
-                        const lastEventTime = rawEvents.length > 0 ? rawEvents[rawEvents.length - 1].time : -1000;
-                        if (time - lastEventTime > 18) {
-                            rawEvents.push({
-                                index: i,
-                                time,
-                                amplitude: distanceSignal[i],
-                                type: 'micro_movement'
-                            });
-                            added.add(i);
-                        }
-                    }
-                }
-            }
-        
-            // Sort and enforce minimal spacing
-            rawEvents.sort((a, b) => a.time - b.time);
-            tapEvents = [];
-            const minSpacing = isIPhone16Pro ? 18 : 25;
-            
-            for (const ev of rawEvents) {
-                if (tapEvents.length === 0 || ev.time - tapEvents[tapEvents.length - 1].time >= minSpacing) {
-                    tapEvents.push(ev);
-                }
-            }
-        
-            if (frameCount % 30 === 0 && tapEvents.length > 0) {
-                const tapsPerSecond = tapEvents.length / ((timeSignal[timeSignal.length - 1] || 1000) / 1000);
-                const deviceInfo = isIPhone16Pro ? 'iPhone 16 Pro' : 'iPad/Mobile';
-                console.log(`${deviceInfo} Enhanced Detection: ${tapEvents.length} taps, ${tapsPerSecond.toFixed(1)} taps/sec`);
-            }
-        }
-        function drawHandVisualizationIPad(landmarks, canvasElement) {
-            const thumbTip = landmarks[THUMB_TIP];
-            const indexTip = landmarks[INDEX_TIP];
-            const distance = Math.sqrt(
-                Math.pow((thumbTip.x - indexTip.x) * canvasElement.width, 2) +
-                Math.pow((thumbTip.y - indexTip.y) * canvasElement.height, 2)
-            );
-            
-            const isTapping = recording && distance < 30;
-            
-            let justTapped = false;
-            if (recording && tapEvents.length > 0) {
-                const currentTime = Date.now() - startTime;
-                const lastTap = tapEvents[tapEvents.length - 1];
-                justTapped = (currentTime - lastTap.time) < 150;
-            }
-            
-            let dotColor = '#ffffff';
-            let lineColor = 'rgba(255, 255, 255, 0.5)';
-            let dotSize = 10;
-            
-            if (justTapped) {
-                dotColor = '#22c55e';
-                lineColor = 'rgba(34, 197, 94, 1)';
-                dotSize = 14;
-                
-            } else if (isTapping) {
-                dotColor = '#16a34a';
-                lineColor = 'rgba(22, 163, 74, 0.8)';
-                dotSize = 12;
-            }
-            
-            canvasCtx.strokeStyle = lineColor;
-            canvasCtx.lineWidth = 2;
-            canvasCtx.beginPath();
-            canvasCtx.moveTo(thumbTip.x * canvasElement.width, thumbTip.y * canvasElement.height);
-            canvasCtx.lineTo(indexTip.x * canvasElement.width, indexTip.y * canvasElement.height);
-            canvasCtx.stroke();
-            
-            [thumbTip, indexTip].forEach(tip => {
-            
-                canvasCtx.globalAlpha = 1;
-                canvasCtx.fillStyle = dotColor;
-                canvasCtx.beginPath();
-                canvasCtx.arc(tip.x * canvasElement.width, tip.y * canvasElement.height, dotSize, 0, 2 * Math.PI);
-                canvasCtx.fill();
-            });
-        }
 
         function updateLiveMetrics() {
             const currentTime = Date.now() - startTime;
@@ -3217,7 +2649,8 @@ function stopRecording() {
         handSize: f.handSize,
         thumb: f.thumbTip,
         index: f.indexTip,
-        wrist: f.wrist
+        wrist: f.wrist,
+        middleMcp: f.middleMcp
     }));
 
     const avgFPS = fpsHistory.length > 0
