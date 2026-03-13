@@ -1476,8 +1476,6 @@ button, input[type="submit"], .btn {
         let tapEvents = [];
         let lastPeakTime = 0;
         
-        const SAMPLE_RATE = 30;
-        
         const startWithLeft = Math.random() < 0.5;
         const trialConditions = startWithLeft ? [
             { hand: 'left' },
@@ -1606,6 +1604,13 @@ function showQuestionnaire() {
                         <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Task distraction:</label>
                         <div class="${window.innerWidth <= 768 ? 'mobile-likert-container' : 'likert-scale'}" id="distracted-scale-container">
                             <div class="${window.innerWidth <= 768 ? 'mobile-likert-scale' : 'likert-scale'}" id="distracted-scale"></div>
+                        </div>
+                    </div>
+
+                    <div class="${window.innerWidth <= 768 ? 'mobile-question-group' : 'question-group'}">
+                        <label style="font-size: ${window.innerWidth <= 768 ? 'clamp(1rem, 3vw, 1.1rem)' : '1.1rem'}; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; display: block;">Expected performance vs. others:</label>
+                        <div class="${window.innerWidth <= 768 ? 'mobile-likert-container' : 'likert-scale'}" id="performance-scale-container">
+                            <div class="${window.innerWidth <= 768 ? 'mobile-likert-scale' : 'likert-scale'}" id="performance-scale"></div>
                         </div>
                     </div>
 
@@ -1801,6 +1806,7 @@ const questionnaireOverlay = document.getElementById('questionnaire-overlay');
         document.getElementById('mood-scale').innerHTML = createMobileLikertScale('mood', 'Very Poor', 'Excellent');
         document.getElementById('motivated-scale').innerHTML = createMobileLikertScale('motivated', 'Not at all', 'Extremely');
         document.getElementById('distracted-scale').innerHTML = createMobileLikertScale('distracted', 'Not at all', 'Extremely');
+        document.getElementById('performance-scale').innerHTML = createMobileLikertScale('performance', 'Much Worse', 'Much Better');
         document.getElementById('persistence-scale').innerHTML = createMobileLikertScale('persistence', 'Give up quickly', 'Push through');
         document.getElementById('attention-scale').innerHTML = createMobileLikertScale('attention', 'Very short', 'Very long');
         document.getElementById('competition-scale').innerHTML = createMobileLikertScale('competition', 'Not at all', 'Very much');
@@ -1823,7 +1829,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
 
     const expectedFields = [
     'videogame', 'musical', 'sports', 'caffeine', 
-    'mood', 'motivated', 'distracted',
+    'mood', 'motivated', 'distracted', 'performance',
     'neurological', 'handPain', 'handInjuryHistory', 'persistence', 'attention', 'competition', 'internet', 'income', 'zipcode'
     ];
     
@@ -1846,12 +1852,12 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             currentMood: parseInt(responses.mood),
             taskMotivation: parseInt(responses.motivated),
             taskDistraction: parseInt(responses.distracted),
+            expectedPerformance: parseInt(responses.performance),
             internetConnectionSpeed: parseInt(responses.internet),
             persistenceWhenFrustrated: parseInt(responses.persistence),
             attentionSpanGeneral: parseInt(responses.attention),
             enjoymentOfCompetition: parseInt(responses.competition)
         },
-        
         taskIssues: {
             inaccurateTapCounter: responses.issue_tapCounter === 'yes',
             internetConnectivityIssues: responses.issue_internet === 'yes',
@@ -1977,36 +1983,17 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     }
                 });
         
-// iPad-specific MediaPipe optimizations
-                if (isIPadOrTablet()) {
-                    hands.setOptions({
-                        maxNumHands: 1,
-                        modelComplexity: 0,  // Reduced from 1 to 0 for iPad only
-                        minDetectionConfidence: 0.6,  // Slightly reduced for better performance
-                        minTrackingConfidence: 0.6   // Slightly reduced for better performance
-                    });
-                } else {
-                  
-                    hands.setOptions({
-                        maxNumHands: 1,
-                        modelComplexity: 1,
-                        minDetectionConfidence: 0.7,
-                        minTrackingConfidence: 0.7
-                    });
-                }
+// Uniform MediaPipe settings for all devices
+                // modelComplexity: 1 ensures consistent landmark accuracy across platforms
+                // Uniform confidence thresholds eliminate device-dependent detection bias
+                hands.setOptions({
+                    maxNumHands: 1,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.7,
+                    minTrackingConfidence: 0.7
+                });
         
                 hands.onResults(onHandsResults);
-                
-                if (isIPadOrTablet()) {
-                    console.log('iPad detected - applying performance optimizations');
-                    const originalOnResults = hands.onResults;
-                    let frameSkipCounter = 0;
-                    
-                    hands.onResults = function(results) {
-                        frameSkipCounter++;
-                        originalOnResults.call(this, results);
-                    };
-                }
                 
                 console.log('MediaPipe Hands initialized successfully');
             } catch (error) {
@@ -2113,29 +2100,19 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             const canvasElement = document.getElementById('outputCanvas');
             canvasCtx = canvasElement.getContext('2d');
         
-            // Force fresh camera permission request
-            const videoConstraints = isIPadOrTablet() ? {
+            // Uniform camera constraints for all devices
+            // Consistent resolution ensures comparable landmark accuracy
+            const videoConstraints = {
                 video: {
                     width: { ideal: 1280 },
                     height: { ideal: 720 },
                     facingMode: "user",
-                    frameRate: { ideal: 24, max: 30 },
-                    // Force permission dialog
-                    mandatory: {
-                        chromeMediaSource: 'desktop'
-                    }
-                }
-            } : {
-                video: {
-                    width: { ideal: 1920 },
-                    height: { ideal: 1080 },
-                    facingMode: "user"
+                    frameRate: { ideal: 30 }
                 }
             };
         
-            // Always request fresh permissions
             navigator.mediaDevices.getUserMedia(videoConstraints).catch(() => {
-                // Fallback without mandatory constraints
+                // Fallback without resolution constraints
                 return navigator.mediaDevices.getUserMedia({
                     video: {
                         facingMode: "user"
@@ -2171,17 +2148,6 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
                     const processFrame = async () => {
                         try {
                             if (videoElement.readyState >= 2 && !videoElement.paused) {
-                           
-                                if (isIPadOrTablet()) {
-                                    const now = Date.now();
-                         
-                                    if (now - iPadLastProcessedFrame < 16) { 
-                                        requestAnimationFrame(processFrame);
-                                        return;
-                                    }
-                                    iPadLastProcessedFrame = now;
-                                }
-                                
                                 await hands.send({ image: videoElement });
                                 lastFrameTime = Date.now();
                             }
@@ -2386,11 +2352,8 @@ function onHandsResults(results) {
          
                     if (isCorrectHandDetectedForCurrentTrial()) {
      
-                        if (isIPadOrTablet()) {
-                            processFingerTapAdvancedIPad(landmarks, results.image.width, results.image.height);
-                        } else {
+                            // Unified processing path for all devices
                             processFingerTapAdvanced(landmarks, results.image.width, results.image.height);
-                        }
                 } else {
                    
                     console.log("Wrong hand detected during recording, restarting trial");
@@ -2400,11 +2363,8 @@ function onHandsResults(results) {
             }
         }
         
-        if (isIPadOrTablet()) {
-            drawHandVisualizationIPad(landmarks, canvasElement);
-        } else {
-            drawHandVisualization(landmarks, canvasElement);
-        }
+        // Unified hand visualization for all devices
+        drawHandVisualization(landmarks, canvasElement);
         
     } else {
         handDetected = false;
@@ -2615,7 +2575,7 @@ function onHandsResults(results) {
             distanceSignal.push(normalizedDistance);
             timeSignal.push(currentTime);
             if (frameCount % 30 === 0) {
-                console.log(`iPad Performance Check - Frame ${frameCount}: ${tapEvents.length} taps detected, Signal length: ${distanceSignal.length}`);
+                console.log(`Performance Check - Frame ${frameCount}: ${tapEvents.length} taps detected, Signal length: ${distanceSignal.length}`);
             }
  
             if (recording) {
@@ -2666,7 +2626,10 @@ function onHandsResults(results) {
                 indexTip: { x: indexTip.x, y: indexTip.y, z: indexTip.z },
                 wrist: { x: wrist.x, y: wrist.y, z: wrist.z },
                 middleMcp: { x: middleMcp.x, y: middleMcp.y, z: middleMcp.z },
-                rawLandmarks: landmarks.map(lm => ({ x: lm.x, y: lm.y, z: lm.z }))
+                rawLandmarks: [
+                    landmarks[WRIST], landmarks[THUMB_TIP],
+                    landmarks[INDEX_TIP], landmarks[MIDDLE_MCP]
+                ].map(lm => ({ x: lm.x, y: lm.y, z: lm.z }))
             });
         }
 
@@ -3202,13 +3165,6 @@ function stopRecording() {
     // ✅ Make a copy before clearing frameData
     const frameDataCopy = [...frameData];
 
-    // Clear memory to prevent crashes
-    frameData = [];
-    distanceSignal = [];
-    timeSignal = [];
-    smoothedSignal = [];
-    velocitySignal = [];
-
     const centerTimer = document.getElementById('center-timer');
     if (centerTimer) centerTimer.style.display = 'none';
 
@@ -3231,11 +3187,27 @@ function stopRecording() {
 
     // Check if minimum taps were achieved
     if (tapEvents.length < MIN_REQUIRED_TAPS) {
+        // Clear signals before restart
+        frameData = [];
+        distanceSignal = [];
+        timeSignal = [];
+        smoothedSignal = [];
+        velocitySignal = [];
         showInsufficientTapsRestart();
         return;
     }
 
+    // ✅ CRITICAL: Calculate clinical assessment BEFORE clearing signals
+    // calculateClinicalAssessment reads timeSignal and tapEvents
     const result = calculateClinicalAssessment();
+
+    // NOW clear signals after assessment is complete
+    frameData = [];
+    distanceSignal = [];
+    timeSignal = [];
+    smoothedSignal = [];
+    velocitySignal = [];
+
     const trialDocName = `trial_${trialIndex + 1}`;
 
     const essentialFrameData = frameDataCopy.map(f => ({
@@ -3438,6 +3410,8 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             currentMood: parseInt(responses.mood),
             taskMotivation: parseInt(responses.motivated),
             taskDistraction: parseInt(responses.distracted),
+                expectedPerformance: parseInt(responses.performance),
+                internetConnectionSpeed: parseInt(responses.internet),
                 persistenceWhenFrustrated: parseInt(responses.persistence),
                 attentionSpanGeneral: parseInt(responses.attention),
                 enjoymentOfCompetition: parseInt(responses.competition)
