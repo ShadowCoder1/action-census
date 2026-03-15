@@ -1596,6 +1596,9 @@ const questionnaireOverlay = document.getElementById('questionnaire-overlay');
         document.getElementById('attention-scale').innerHTML = createMobileLikertScale('attention', 'Very short', 'Very long');
         document.getElementById('competition-scale').innerHTML = createMobileLikertScale('competition', 'Not at all', 'Very much');
         document.getElementById('internet-scale').innerHTML = createMobileLikertScale('internet', 'Very Poor', 'Excellent');
+
+        // Attach submit handler now that form exists in DOM
+        document.getElementById('questionnaire-form').addEventListener('submit', handleQuestionnaireSubmit);
     }, 0);
       
         }
@@ -2806,10 +2809,10 @@ async function saveLandmarkDataAsync(participantID, trialNumber, condition, fram
 }
 
         
-document.getElementById('questionnaire-form').addEventListener('submit', function(e) {
+function handleQuestionnaireSubmit(e) {
     e.preventDefault();
     
-    const formData = new FormData(this);
+    const formData = new FormData(e.target);
     const responses = {};
     
     // Collect all form data
@@ -2924,7 +2927,7 @@ document.getElementById('questionnaire-form').addEventListener('submit', functio
             document.getElementById('questionnaire-overlay').style.display = 'none';
             showFinalResults();
         });
-});
+}
         function restartTrialDueToHandLoss() {
 
             activeTrialToken++; 
